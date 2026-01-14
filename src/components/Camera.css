@@ -1,0 +1,54 @@
+.camera-box {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* min-height: 260px; ensures space for video */
+  transition: all 0.3s ease;
+}
+
+.camera-box.open {
+  min-height: 320px; /* expands when camera/video is open */
+  gap: 12px;
+}
+
+.camera-video {
+  width: 100%;
+  max-width: 320px;
+  height: 240px;
+  background: black;
+  border-radius: 12px;
+  border: 2px solid #003893;
+  object-fit: cover;
+  display: block;
+  margin: 10px auto;
+}
+
+.preview-img {
+  width: 100%;
+  max-width: 320px;
+  border-radius: 12px;
+  border: 2px solid #003893;
+  display: block;
+  margin: 10px auto;
+}
+
+.camera-btn,
+.capture-btn,
+.retake-btn {
+  margin-top: 12px;
+  padding: 12px 22px;
+  border-radius: 8px;
+  border: none;
+  background: #003893;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.camera-btn:hover,
+.capture-btn:hover,
+.retake-btn:hover {
+  background: #001f66;
+}
