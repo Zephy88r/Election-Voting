@@ -244,10 +244,10 @@ function Register() {
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            placeholder="+977-98-1234567"
+            placeholder="+977 XXX-XXXXXXX"
             required
             error={errors.phone}
-            helperText="Nepal format: +977-XX-XXXXXXX"
+            helperText="Nepal format: +977 XXX-XXXXXXX"
           />
 
           {/* Address */}
@@ -364,7 +364,7 @@ function Register() {
                     }
                   }}
                 >
-                  {isPasswordVisible ? <FaEyeSlash /> : <FaEye />}
+                  {isPasswordVisible ? <FaEye /> :<FaEyeSlash />}
                 </span>
               }
             />
@@ -397,7 +397,7 @@ function Register() {
                     }
                   }}
                 >
-                  {isConfirmVisible ? <FaEyeSlash /> : <FaEye />}
+                  {isConfirmVisible ? <FaEye /> : <FaEyeSlash />}
                 </span>
               }
             />

@@ -36,18 +36,20 @@ export const validatePhone = (phone) => {
   
   // Nepal phone number patterns
   const patterns = [
-    /^\+977-[0-9]{2}-[0-9]{7}$/,           // +977-98-1234567
-    /^977[0-9]{9}$/,                        // 977981234567
-    /^98[0-9]{8}$/,                         // 9812345678
-    /^9[0-9]{9}$/,                          // 9812345678 (without leading 0)
-  ];
+  /^(\+977[\s-]?)?[0-9]{3}[\s-]?[0-9]{7}$/,       // +977 XXX-XXXXXXX or +977XXXXXXXXXX
+  /^\+977-[0-9]{2}-[0-9]{7}$/,                  // +977-XXX-XXXXXXX
+  /^[0-9]{3}[\s-]?[0-9]{7}$/,                 // XXX-XXXXXXX or XXXXXXXXXX
+  /^(98|97)[0-9]{8}$/,                         // XXXXXXXXXX or XXXXXXXXXX
+  /^9[0-9]{9}$/,                               // XXXXXXXXXX (without leading 0)
+];
+
 
   const isValid = patterns.some(pattern => pattern.test(cleaned));
   
   if (!isValid) {
     return { 
       valid: false, 
-      error: 'Please enter a valid Nepal phone number (e.g., +977-98-1234567)' 
+      error: 'Please enter a valid Nepal phone number (e.g., +977-984-1234567)' 
     };
   }
 
