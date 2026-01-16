@@ -1,0 +1,26 @@
+/**
+ * SuccessMessage Component Styles
+ */
+
+.success-message {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-4);
+  background-color: rgba(40, 167, 69, 0.1);
+  border: 1px solid var(--color-border-success);
+  border-radius: var(--radius-md);
+  color: var(--color-success);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+}
+
+.success-message__icon {
+  flex-shrink: 0;
+  font-size: var(--font-size-lg);
+  line-height: 1;
+}
+
+.success-message__text {
+  flex: 1;
+}

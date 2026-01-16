@@ -1,0 +1,58 @@
+/**
+ * Card Component Styles
+ * Professional card container styles
+ */
+
+.card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-6);
+  width: 100%;
+  transition: all var(--transition-normal);
+}
+
+.card--default {
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border-default);
+}
+
+.card--elevated {
+  box-shadow: var(--shadow-lg);
+  border: none;
+}
+
+.card--outlined {
+  box-shadow: none;
+  border: 2px solid var(--color-border-default);
+}
+
+.card--clickable {
+  cursor: pointer;
+  text-align: left;
+}
+
+.card--clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.card--clickable:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-md);
+}
+
+.card--clickable:focus {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+.card--clickable:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card {
+    padding: var(--spacing-4);
+  }
+}

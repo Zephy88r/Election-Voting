@@ -1,149 +1,220 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import './Login.css'
-import { FaEye, FaEyeSlash } from "react-icons/fa"
+import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import CameraCapture from './CameraCapture';
+import { validateField } from '../utils/validation';
+import Button from './common/Button';
+import Input from './common/Input';
+import Card from './common/Card';
+import ErrorMessage from './common/ErrorMessage';
+import SuccessMessage from './common/SuccessMessage';
+import './Login.css';
 
-
+/**
+ * Login Component
+ * Handles user authentication with face verification
+ * Uses AuthContext for authentication state management
+ */
 function Login() {
-    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-    const navigate = useNavigate()
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
 
-    const [formData, setFormData] = useState({
-        name: '',
-        voterId: '',
-        password:''
-    })
-    const [errors, setErrors] = useState({})
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [faceImage, setFaceImage] = useState(null);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
+  const [formData, setFormData] = useState({
+    voterId: '',
+    password: '',
+  });
 
-    const handleChange = (e) => {
-        const { name, value } = e.target
+  const [errors, setErrors] = useState({});
 
-        let newValue = value
+  /**
+   * Handle input field changes
+   */
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Only allow numbers + "-" for these fields
-    if (name === "voterId") {
-        newValue = value.replace(/[^0-9-]/g, "")
+    // Clear errors when user starts typing
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+    }
+    if (error) {
+      setError('');
+    }
+  };
+
+  /**
+   * Validate form fields
+   */
+  const validateForm = () => {
+    const newErrors = {};
+
+    const voterIdValidation = validateField('voterId', formData.voterId);
+    if (!voterIdValidation.valid) {
+      newErrors.voterId = voterIdValidation.error;
     }
 
-        setFormData(prev => ({
-        ...prev,
-        [name]: newValue
-        }))
-        // Clear error when user starts typing
-        if (errors[name]) {
-        setErrors(prev => ({
-            ...prev,
-            [name]: ''
-        }))
-        }
+    if (!formData.password.trim()) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
     }
 
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-    const validateForm = () => {
-        const newErrors = {}
-        
-        if (!formData.name.trim()) {
-        newErrors.name = 'Name is required'
-        }
-        if (!formData.voterId.trim()) {
-        newErrors.voterId = 'Voter ID is required'
-        }
-        if (!formData.password.trim()) {
-        newErrors.password = 'Password is required'
-        }else{
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{6,}$/
-    if (!passwordRegex.test(formData.password)) {
-        newErrors.password = 'Password must be at least 6 characters, contain 1 uppercase, 1 lowercase, and 1 symbol'
-    }
-        }
+  /**
+   * Handle form submission
+   */
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
 
-        setErrors(newErrors)
-        return Object.keys(newErrors).length === 0
+    if (!validateForm()) {
+      setError('Please fix the errors in the form');
+      return;
     }
 
-
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-        
-        if (!validateForm()) {
-        return
-        }
-
-        
-        try {
-        navigate('/dashboard')
-        } catch (error) {
-        console.error('Login error:', error)
-        // Handle error (show error message, etc.)
-        }
+    if (!faceImage) {
+      setError('Please capture your face for verification before logging in');
+      return;
     }
 
+    setIsLoading(true);
 
-    return (
-        <div className="login-container">
-        <div className="login-card">
-            <div className="login-header">
-            <h1>Nepal Election Voting System</h1>
-            <p>Please enter your details to continue</p>
-            </div>
+    try {
+      const credentials = {
+        voterId: formData.voterId.trim(),
+        password: formData.password,
+        faceImage: faceImage,
+      };
 
-            <form onSubmit={handleSubmit} className="login-form">
-            <div className="form-group">
-                <label htmlFor="name">Name *</label>
-                <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className={errors.name ? 'error' : ''}
-                placeholder="Enter your full name"
-                />
-                {errors.name && <span className="error-message">{errors.name}</span>}
-            </div>
+      await login(credentials);
 
-            <div className="form-group">
-                <label htmlFor="voterId">Voter ID *</label>
-                <input
-                type="text"
-                id="voterId"
-                name="voterId"
-                value={formData.voterId}
-                onChange={handleChange}
-                inputMode='numeric'
-                className={errors.voterId ? 'error' : ''}
-                placeholder="Enter your voter ID"
-                />
-                {errors.voterId && <span className="error-message">{errors.voterId}</span>}
-            </div>
+      setSuccess('Login successful! Redirecting...');
 
-            <div className="form-group">
-                <label htmlFor="password">Password *</label>
-                <input
-                type={isPasswordVisible ? "text" : "password"}
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className={errors.password ? 'error' : ''}
-                placeholder="Enter your Password"
-                /><span onClick={() => setIsPasswordVisible(!isPasswordVisible)} className="icon" style={{ cursor: 'pointer' }}>
-                {isPasswordVisible ? <FaEye /> : <FaEyeSlash />}
-                </span>
-                {errors.password && <span className="error-message">{errors.password}</span>}
-            </div>
-            <div className="forgot-password">
-                <a href='#'>Forgot Password?</a>
-            </div>
+      // Redirect to dashboard or previous location
+      const from = location.state?.from?.pathname || '/';
+      setTimeout(() => {
+        navigate(from, { replace: true });
+      }, 1000);
+    } catch (err) {
+      setError(err.message || 'Login failed. Please check your credentials.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-            <button type="submit" className="submit-button-login">
-                Log In
-            </button>
-            </form>
+  return (
+    <div className="login-container">
+      <Card className="login-card" variant="elevated">
+        <div className="login-header">
+          <h1>Nepal Election Voting System</h1>
+          <p>Please enter your details to continue</p>
         </div>
-        </div>
-    )
+
+        <form onSubmit={handleSubmit} className="login-form" noValidate>
+          {/* Voter ID */}
+          <Input
+            type="text"
+            label="Voter ID"
+            name="voterId"
+            value={formData.voterId}
+            onChange={handleChange}
+            placeholder="Enter your voter ID"
+            required
+            error={errors.voterId}
+          />
+
+          {/* Password */}
+          <Input
+            type={isPasswordVisible ? 'text' : 'password'}
+            label="Password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="Enter your password"
+            required
+            error={errors.password}
+            rightIcon={
+              <span
+                onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                role="button"
+                aria-label={isPasswordVisible ? 'Hide password' : 'Show password'}
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    setIsPasswordVisible(!isPasswordVisible);
+                  }
+                }}
+              >
+                {isPasswordVisible ? <FaEyeSlash /> : <FaEye />}
+              </span>
+            }
+          />
+
+          {/* Forgot Password */}
+          <div className="login-extra">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => alert('Forgot password functionality coming soon!')}
+              className="gradient-button"
+            >
+              Forgot Password?
+            </Button>
+          </div>
+
+          {/* Face Verification */}
+          <div className="l-cam">
+            <h3>Face Verification</h3>
+            <CameraCapture onCapture={setFaceImage} />
+            {faceImage && <p>Face captured successfully ✔</p>}
+          </div>
+
+          {/* Error and Success Messages */}
+          {error && <ErrorMessage message={error} />}
+          {success && <SuccessMessage message={success} />}
+
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            disabled={isLoading}
+            loading={isLoading}
+            className="submit-button-login"
+          >
+            {isLoading ? 'Logging in...' : 'Log In'}
+          </Button>
+
+          {/* New User Register */}
+          <div className="new-user">
+            <p>
+              New User?{' '}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate('/register')}
+                className="gradient-button"
+              >
+                Register Here
+              </Button>
+            </p>
+          </div>
+        </form>
+      </Card>
+    </div>
+  );
 }
 
-export default Login
+export default Login;

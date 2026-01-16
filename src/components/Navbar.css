@@ -1,0 +1,212 @@
+:root {
+  --spacing-3: 8px;
+  --spacing-5: 16px;
+  --spacing-10: 40px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --font-size-2xl: 24px;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+  --color-primary: #dc143c;
+  --color-primary-light: #ff4d6d;
+  --color-text-primary: #333;
+  --color-text-inverse: #fff;
+  --color-border-focus: #ff4d6d;
+  --radius-sm: 6px;
+  --radius-lg: 12px;
+  --shadow-lg: 0 4px 10px rgba(0,0,0,0.2);
+  --shadow-xl: 0 8px 20px rgba(0,0,0,0.25);
+  --transition-fast: 0.2s;
+  --transition-normal: 0.3s;
+  --z-fixed: 900;
+  --z-dropdown: 2000;
+}
+
+/* Navbar */
+.navbar {
+  width: 100%;
+  height: 75px;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(15px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 var(--spacing-10);
+  position: fixed;
+  top: 0;
+  z-index: var(--z-fixed);
+  box-shadow: var(--shadow-lg);
+  border-bottom: 2px solid rgba(220,20,60,0.3);
+}
+
+.nav-left {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  user-select: none;
+  transition: all var(--transition-fast);
+}
+
+.nav-left:hover {
+  color: var(--color-primary-light);
+  transform: scale(1.05);
+}
+
+.nav-left:active {
+  transform: scale(0.98);
+}
+
+.nav-left:focus {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Navbar Right */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  flex-shrink: 0;
+}
+
+/* Profile Container */
+.profile-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: var(--z-dropdown);
+}
+
+/* Profile Icon */
+.profile-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(220,20,60,0.2);
+  border: 2px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 20px;
+  transition: all var(--transition-fast);
+  position: relative;
+  z-index: 1000;
+  overflow: hidden;
+  background-image: none !important;
+}
+
+.profile-icon svg {
+  width: 20px;
+  height: 20px;
+  color: #fff;
+  fill: #fff;
+}
+
+.profile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* Hover effect */
+.profile-container:hover .profile-icon {
+  transform: scale(1.05);
+  background: rgba(220,20,60,0.3);
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(220,20,60,0.4);
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-xl);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+  z-index: var(--z-dropdown);
+  overflow: hidden;
+  animation: slideDown var(--transition-fast) ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-menu a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.dropdown-menu button {
+  background: none;
+  border: none;
+  padding: var(--spacing-3) var(--spacing-5);
+  text-align: left;
+  font-size: var(--font-size-base);
+  cursor: pointer;
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  width: 100%;
+  font-family: sans-serif;
+  transition: all var(--transition-fast);
+}
+
+.dropdown-menu button:last-child {
+  border-bottom: none;
+}
+
+.dropdown-menu button:hover {
+  background: linear-gradient(135deg, var(--color-primary) 0%, rgba(220,20,60,0.8) 100%);
+  color: var(--color-text-inverse);
+  padding-left: calc(var(--spacing-5) + 4px);
+}
+
+.dropdown-menu button:focus {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: -2px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 var(--spacing-5);
+  }
+
+  .nav-left {
+    font-size: var(--font-size-lg);
+  }
+
+  .dropdown-menu {
+    min-width: 140px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0 var(--spacing-3);
+  }
+
+  .nav-left {
+    font-size: var(--font-size-base);
+  }
+}

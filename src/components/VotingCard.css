@@ -1,0 +1,111 @@
+/**
+ * VotingCard Component Styles
+ */
+
+.voting-card {
+  transition: all var(--transition-normal);
+  cursor: pointer;
+}
+
+.voting-card:hover:not(.voting-card--voted) {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+}
+
+.voting-card--selected {
+  border: 3px solid var(--color-success);
+  background: rgba(40, 167, 69, 0.05);
+}
+
+.voting-card--voted {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.voting-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+  padding-bottom: var(--spacing-4);
+  border-bottom: 2px solid var(--color-border-default);
+}
+
+.voting-card__symbol {
+  font-size: var(--font-size-4xl);
+  line-height: 1;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-background);
+  border-radius: var(--radius-lg);
+  flex-shrink: 0;
+}
+
+.voting-card__info {
+  flex: 1;
+}
+
+.voting-card__name {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-1) 0;
+}
+
+.voting-card__party {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin: 0;
+  font-weight: var(--font-weight-medium);
+}
+
+.voting-card__body {
+  margin-bottom: var(--spacing-4);
+}
+
+.voting-card__bio {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+}
+
+.voting-card__footer {
+  display: flex;
+  justify-content: center;
+}
+
+.voting-card__button {
+  width: 100%;
+}
+
+.voting-card__status {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--color-success);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+}
+
+.voting-card__status-icon {
+  font-size: var(--font-size-lg);
+  line-height: 1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .voting-card__header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .voting-card__symbol {
+    width: 50px;
+    height: 50px;
+    font-size: var(--font-size-3xl);
+  }
+}
