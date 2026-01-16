@@ -190,6 +190,146 @@ export const getEncryptedItem = (key) => {
   }
 };
 
+/**
+ * Storage Helper Functions for Voting System
+ * Centralized LocalStorage/SessionStorage logic for easy backend migration
+ * TODO: Replace all methods with API calls when backend is ready
+ */
+
+// Storage keys
+const USERS_STORAGE_KEY = 'voting_system_users';
+const AUTH_STORAGE_KEY = 'voting_system_auth';
+
+export const storageHelper = {
+  /**
+   * Get all users from LocalStorage
+   * TODO: Replace with GET /api/users endpoint
+   * @returns {Array} - Array of user objects
+   */
+  getUsers: () => {
+    try {
+      const users = localStorage.getItem(USERS_STORAGE_KEY);
+      return users ? JSON.parse(users) : [];
+    } catch (error) {
+      console.error('Error getting users from storage:', error);
+      return [];
+    }
+  },
+
+  /**
+   * Add a new user to LocalStorage
+   * TODO: Replace with POST /api/auth/register endpoint
+   * @param {object} userData - User data to add
+   * @returns {object} - Created user object with id and createdAt
+   */
+  addUser: (userData) => {
+    try {
+      const users = storageHelper.getUsers();
+      const newUser = {
+        id: crypto.randomUUID ? crypto.randomUUID() : `user_${Date.now()}`,
+        ...userData,
+        createdAt: new Date().toISOString(),
+      };
+      users.push(newUser);
+      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+      return newUser;
+    } catch (error) {
+      console.error('Error adding user to storage:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Find user by email and password
+   * TODO: Replace with POST /api/auth/login endpoint
+   * @param {string} email - User email
+   * @param {string} password - User password
+   * @returns {object|null} - User object if found, null otherwise
+   */
+  findUserByCredentials: (email, password) => {
+    try {
+      const users = storageHelper.getUsers();
+      return users.find(
+        (u) => u.email === email && u.password === password
+      ) || null;
+    } catch (error) {
+      console.error('Error finding user by credentials:', error);
+      return null;
+    }
+  },
+
+  /**
+   * Get authentication state from SessionStorage
+   * TODO: Replace with GET /api/auth/me (with JWT token)
+   * @returns {object|null} - Auth state object or null
+   */
+  getAuthState: () => {
+    try {
+      const auth = sessionStorage.getItem(AUTH_STORAGE_KEY);
+      return auth ? JSON.parse(auth) : null;
+    } catch (error) {
+      console.error('Error getting auth state from storage:', error);
+      return null;
+    }
+  },
+
+  /**
+   * Set authentication state in SessionStorage
+   * TODO: Replace with JWT token storage when backend is ready
+   * @param {object} authState - Auth state object
+   */
+  setAuthState: (authState) => {
+    try {
+      sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authState));
+    } catch (error) {
+      console.error('Error setting auth state in storage:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Clear authentication state from SessionStorage
+   * TODO: Replace with POST /api/auth/logout endpoint
+   */
+  clearAuthState: () => {
+    try {
+      sessionStorage.removeItem(AUTH_STORAGE_KEY);
+      localStorage.removeItem(AUTH_STORAGE_KEY); // Also clear from localStorage if using remember me
+    } catch (error) {
+      console.error('Error clearing auth state from storage:', error);
+    }
+  },
+
+  /**
+   * Set authentication state in LocalStorage (for Remember Me)
+   * TODO: Replace with JWT token storage when backend is ready
+   * @param {object} authState - Auth state object
+   */
+  setAuthStatePersistent: (authState) => {
+    try {
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authState));
+    } catch (error) {
+      console.error('Error setting persistent auth state in storage:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get authentication state from LocalStorage (for Remember Me)
+   * TODO: Replace with GET /api/auth/me (with JWT token)
+   * @returns {object|null} - Auth state object or null
+   */
+  getAuthStatePersistent: () => {
+    try {
+      const auth = localStorage.getItem(AUTH_STORAGE_KEY);
+      return auth ? JSON.parse(auth) : null;
+    } catch (error) {
+      console.error('Error getting persistent auth state from storage:', error);
+      return null;
+    }
+  },
+};
+
 export default {
   getItem,
   setItem,
@@ -199,4 +339,5 @@ export default {
   getAllKeys,
   setEncryptedItem,
   getEncryptedItem,
+  storageHelper,
 };

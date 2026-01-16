@@ -1,51 +1,28 @@
-import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { FaUser } from 'react-icons/fa';
 import NotificationBell from './common/NotificationBell';
 import './Navbar.css';
 
 function Navbar() {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const { isAuthenticated, logout, user } = useAuth(); // user can be used for future image
-  const dropdownRef = useRef(null);
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
-
-  const toggleDropdown = (e) => {
-    if (e) e.stopPropagation();
-    setDropdownOpen(prev => !prev);
-  };
-
-  const handleLogout = () => {
-    logout();
-    setDropdownOpen(false);
-    navigate('/');
-  };
 
   const handleHomeClick = () => {
     navigate('/');
-    setDropdownOpen(false);
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false);
-      }
-    };
-
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') setDropdownOpen(false);
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleEscape);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, []);
+  /**
+   * Handle profile icon click
+   * Navigates directly to profile page if authenticated, otherwise to login
+   */
+  const handleProfileClick = () => {
+    if (isAuthenticated) {
+      navigate('/profile');
+    } else {
+      navigate('/login');
+    }
+  };
 
   return (
     <nav className="navbar">
@@ -66,52 +43,29 @@ function Navbar() {
 
         <div
           className="profile-container"
-          ref={dropdownRef}
-          onClick={toggleDropdown}
+          onClick={handleProfileClick}
           role="button"
           tabIndex={0}
-          aria-expanded={dropdownOpen}
-          aria-haspopup="true"
+          aria-label={isAuthenticated ? 'Go to profile' : 'Go to login'}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
-              toggleDropdown(e);
+              handleProfileClick();
             }
           }}
         >
-          {/* Default FaUser icon */}
+          {/* Profile icon */}
           <div className="profile-icon">
             {user?.avatar ? (
               <img src={user.avatar} alt="Profile" className="profile-img" />
+            ) : user?.name ? (
+              <span className="profile-initial">
+                {user.name[0]?.toUpperCase() || '👤'}
+              </span>
             ) : (
               <FaUser />
             )}
           </div>
-
-          {dropdownOpen && (
-            <div className="dropdown-menu" role="menu" onClick={(e) => e.stopPropagation()}>
-              {isAuthenticated ? (
-                <>
-                  <Link to="/profile">
-                    <button role="menuitem" onClick={() => setDropdownOpen(false)}>View Profile</button>
-                  </Link>
-                  <Link to="/voting-history">
-                    <button role="menuitem" onClick={() => setDropdownOpen(false)}>Voting History</button>
-                  </Link>
-                  <button onClick={handleLogout} role="menuitem">Sign Out</button>
-                </>
-              ) : (
-                <>
-                  <Link to="/login">
-                    <button role="menuitem" onClick={() => setDropdownOpen(false)}>Sign In</button>
-                  </Link>
-                  <Link to="/register">
-                    <button role="menuitem" onClick={() => setDropdownOpen(false)}>Register</button>
-                  </Link>
-                </>
-              )}
-            </div>
-          )}
         </div>
       </div>
     </nav>

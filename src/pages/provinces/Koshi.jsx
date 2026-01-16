@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import Navbar from '../../components/Navbar';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
@@ -14,9 +15,11 @@ import './ProvincePage.css';
 /**
  * Koshi Province Page
  * Voting page for Koshi Province with candidate selection
+ * Includes province-based access control
  */
 function Koshi() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -26,11 +29,20 @@ function Koshi() {
 
   const provinceId = 'koshi';
   const provinceName = 'Koshi';
+  const requiredProvince = 'Province 1'; // Maps to Koshi - TODO: Use getProvinceDisplayName from constants
+
+  // Check if user has access to this province
+  const hasAccess = user?.province === requiredProvince;
 
   useEffect(() => {
+    // Check access first
+    if (!hasAccess) {
+      setLoading(false);
+      return;
+    }
     loadCandidates();
     checkVotingStatus();
-  }, []);
+  }, [hasAccess]);
 
   /**
    * Load candidates
@@ -99,6 +111,26 @@ function Koshi() {
       setSubmitting(false);
     }
   };
+
+  // Access denied - redirect to dashboard
+  if (!hasAccess) {
+    return (
+      <>
+        <Navbar />
+        <div className="province-page">
+          <Card className="province-page-card" variant="elevated">
+            <div className="access-denied">
+              <h2>Access Denied</h2>
+              <ErrorMessage message={`You can only vote in ${user?.province || 'your registered province'}.`} />
+              <Button variant="primary" onClick={() => navigate('/dashboard')}>
+                Back to Dashboard
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </>
+    );
+  }
 
   if (loading) {
     return (

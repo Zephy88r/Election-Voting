@@ -4,6 +4,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import CameraCapture from './CameraCapture';
 import { validateField } from '../utils/validation';
+import { getErrorMessage, getSuccessMessage } from '../utils/errorMessages';
+import { sanitizeEmail } from '../utils/sanitize';
 import Button from './common/Button';
 import Input from './common/Input';
 import Card from './common/Card';
@@ -28,8 +30,9 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
 
   const [formData, setFormData] = useState({
-    voterId: '',
+    email: '',
     password: '',
+    rememberMe: false,
   });
 
   const [errors, setErrors] = useState({});
@@ -39,7 +42,9 @@ function Login() {
    */
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    // Sanitize email input
+    const sanitizedValue = name === 'email' ? sanitizeEmail(value) : value;
+    setFormData((prev) => ({ ...prev, [name]: sanitizedValue }));
 
     // Clear errors when user starts typing
     if (errors[name]) {
@@ -56,9 +61,9 @@ function Login() {
   const validateForm = () => {
     const newErrors = {};
 
-    const voterIdValidation = validateField('voterId', formData.voterId);
-    if (!voterIdValidation.valid) {
-      newErrors.voterId = voterIdValidation.error;
+    const emailValidation = validateField('email', formData.email);
+    if (!emailValidation.valid) {
+      newErrors.email = emailValidation.error;
     }
 
     if (!formData.password.trim()) {
@@ -84,31 +89,34 @@ function Login() {
       return;
     }
 
-    if (!faceImage) {
-      setError('Please capture your face for verification before logging in');
-      return;
-    }
+    // Note: Face verification is optional for now - can be enabled later
+    // if (!faceImage) {
+    //   setError('Please capture your face for verification before logging in');
+    //   return;
+    // }
 
     setIsLoading(true);
 
     try {
+      // TODO: Replace with POST /api/login endpoint
       const credentials = {
-        voterId: formData.voterId.trim(),
+        email: formData.email.trim(),
         password: formData.password,
+        rememberMe: formData.rememberMe,
         faceImage: faceImage,
       };
 
-      await login(credentials);
+      const response = await login(credentials);
 
-      setSuccess('Login successful! Redirecting...');
+      setSuccess(getSuccessMessage('login', { name: response.user?.name }));
 
       // Redirect to dashboard or previous location
-      const from = location.state?.from?.pathname || '/';
+      const from = location.state?.from?.pathname || '/dashboard';
       setTimeout(() => {
         navigate(from, { replace: true });
       }, 1000);
     } catch (err) {
-      setError(err.message || 'Login failed. Please check your credentials.');
+      setError(getErrorMessage(err, 'login'));
     } finally {
       setIsLoading(false);
     }
@@ -123,16 +131,16 @@ function Login() {
         </div>
 
         <form onSubmit={handleSubmit} className="login-form" noValidate>
-          {/* Voter ID */}
+          {/* Email */}
           <Input
-            type="text"
-            label="Voter ID"
-            name="voterId"
-            value={formData.voterId}
+            type="email"
+            label="Email"
+            name="email"
+            value={formData.email}
             onChange={handleChange}
-            placeholder="Enter your voter ID"
+            placeholder="Enter your email"
             required
-            error={errors.voterId}
+            error={errors.email}
           />
 
           {/* Password */}
@@ -161,6 +169,21 @@ function Login() {
               </span>
             }
           />
+
+          {/* Remember Me */}
+          <div className="login-remember-me">
+            <label className="remember-me-label">
+              <input
+                type="checkbox"
+                name="rememberMe"
+                checked={formData.rememberMe}
+                onChange={(e) => setFormData(prev => ({ ...prev, rememberMe: e.target.checked }))}
+                aria-label="Remember me on this device"
+              />
+              <span>Remember me</span>
+            </label>
+            <p className="remember-me-help">Stay logged in on this device</p>
+          </div>
 
           {/* Forgot Password */}
           <div className="login-extra">

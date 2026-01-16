@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { authService } from '../services/authService';
-import { getLoggedInUser } from '../utils/authUtils';
+import { storageHelper } from '../utils/storage';
+import { setSessionTimeout, isSessionExpired, clearSessionTimeout } from '../utils/sessionManager';
 
 /**
  * Authentication Context
  * Provides centralized authentication state management
- * Replaces direct localStorage access throughout the app
+ * Uses SessionStorage for auth state persistence
+ * TODO: Replace with API calls when backend is ready
  */
 
 const AuthContext = createContext(null);
@@ -15,132 +16,219 @@ const AuthContext = createContext(null);
  * Wraps the app and provides authentication state and methods
  */
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [authState, setAuthState] = useState({
+    isAuthenticated: false,
+    user: null,
+    loading: true,
+  });
 
   /**
-   * Initialize auth state on mount
+   * Initialize auth state on mount from SessionStorage
    */
   useEffect(() => {
-    const initAuth = async () => {
+    const initAuth = () => {
       try {
-        const currentUser = getLoggedInUser();
-        if (currentUser) {
-          setUser(currentUser);
-          setIsAuthenticated(true);
+        // TODO: Replace with API call to GET /api/auth/me
+        const storedAuth = storageHelper.getAuthState();
+        
+        // Check if session is expired
+        if (isSessionExpired()) {
+          clearSessionTimeout();
+          storageHelper.clearAuthState();
+          setAuthState({
+            isAuthenticated: false,
+            user: null,
+            loading: false,
+          });
+          return;
+        }
+        
+        if (storedAuth && storedAuth.isAuthenticated && storedAuth.user) {
+          setAuthState({
+            isAuthenticated: true,
+            user: storedAuth.user,
+            loading: false,
+          });
+          // Refresh session timeout
+          setSessionTimeout();
+        } else {
+          setAuthState({
+            isAuthenticated: false,
+            user: null,
+            loading: false,
+          });
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
-      } finally {
-        setIsLoading(false);
+        setAuthState({
+          isAuthenticated: false,
+          user: null,
+          loading: false,
+        });
       }
     };
 
     initAuth();
-  }, []);
+    
+    // Check session expiry periodically
+    const sessionCheckInterval = setInterval(() => {
+      if (isSessionExpired() && authState.isAuthenticated) {
+        clearSessionTimeout();
+        storageHelper.clearAuthState();
+        setAuthState({
+          isAuthenticated: false,
+          user: null,
+          loading: false,
+        });
+      }
+    }, 60000); // Check every minute
+
+    return () => clearInterval(sessionCheckInterval);
+  }, [authState.isAuthenticated]);
 
   /**
    * Login user
-   * @param {object} credentials - Login credentials
+   * TODO: Replace with POST /api/auth/login endpoint
+   * @param {object} credentials - Login credentials (email, password)
    * @returns {Promise<object>} - User data
    */
   const login = useCallback(async (credentials) => {
     try {
-      setIsLoading(true);
-      const response = await authService.login(credentials);
+      setAuthState((prev) => ({ ...prev, loading: true }));
+
+      // TODO: Replace with API call
+      const user = storageHelper.findUserByCredentials(
+        credentials.email,
+        credentials.password
+      );
+
+      if (!user) {
+        throw new Error('Invalid credentials');
+      }
+
+      // Prepare user data for auth state (exclude password)
+      const { password, ...userWithoutPassword } = user;
+      const authUser = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        province: user.province,
+      };
+
+      const newAuthState = {
+        isAuthenticated: true,
+        user: authUser,
+        loading: false,
+      };
+
+      setAuthState(newAuthState);
       
-      setUser(response.user);
-      setIsAuthenticated(true);
-      
-      return response;
+      // Store auth state based on Remember Me preference
+      if (credentials.rememberMe) {
+        storageHelper.setAuthStatePersistent(newAuthState);
+      } else {
+        storageHelper.setAuthState(newAuthState);
+        // Set session timeout (30 minutes)
+        setSessionTimeout();
+      }
+
+      return { user: authUser };
     } catch (error) {
+      setAuthState((prev) => ({ ...prev, loading: false }));
       console.error('Login error:', error);
       throw error;
-    } finally {
-      setIsLoading(false);
     }
   }, []);
 
   /**
    * Register new user
+   * TODO: Replace with POST /api/auth/register endpoint
    * @param {object} userData - Registration data
    * @returns {Promise<object>} - User data
    */
   const register = useCallback(async (userData) => {
     try {
-      setIsLoading(true);
-      const response = await authService.register(userData);
+      setAuthState((prev) => ({ ...prev, loading: true }));
+
+      // TODO: Replace with API call
+      const users = storageHelper.getUsers();
+
+      // Check for duplicate email
+      const existingEmail = users.find(
+        (u) => u.email === userData.email?.trim()
+      );
+      if (existingEmail) {
+        throw new Error('This email is already registered');
+      }
+
+      // Add user to storage
+      const newUser = storageHelper.addUser(userData);
+
+      // Prepare user data for auth state (exclude password)
+      const { password, ...userWithoutPassword } = newUser;
+      const authUser = {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        province: newUser.province,
+      };
+
+      const newAuthState = {
+        isAuthenticated: true,
+        user: authUser,
+        loading: false,
+      };
+
+      setAuthState(newAuthState);
+      storageHelper.setAuthState(newAuthState);
       
-      setUser(response.user);
-      setIsAuthenticated(true);
-      
-      return response;
+      // Set session timeout (30 minutes)
+      setSessionTimeout();
+
+      return { user: authUser };
     } catch (error) {
+      setAuthState((prev) => ({ ...prev, loading: false }));
       console.error('Registration error:', error);
       throw error;
-    } finally {
-      setIsLoading(false);
     }
   }, []);
 
   /**
    * Logout user
+   * TODO: Replace with POST /api/auth/logout endpoint
    */
   const logout = useCallback(() => {
     try {
-      authService.logout();
-      setUser(null);
-      setIsAuthenticated(false);
+      clearSessionTimeout();
+      storageHelper.clearAuthState();
+      setAuthState({
+        isAuthenticated: false,
+        user: null,
+        loading: false,
+      });
     } catch (error) {
       console.error('Logout error:', error);
     }
   }, []);
 
   /**
-   * Update user profile
-   * @param {object} userData - Updated user data
-   * @returns {Promise<object>} - Updated user data
+   * Check authentication status
+   * TODO: Replace with GET /api/auth/me endpoint
+   * @returns {boolean} - True if authenticated
    */
-  const updateUser = useCallback(async (userData) => {
-    try {
-      setIsLoading(true);
-      const response = await authService.updateProfile(userData);
-      
-      setUser(response.user || response);
-      return response;
-    } catch (error) {
-      console.error('Update user error:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  /**
-   * Refresh user data
-   */
-  const refreshUser = useCallback(async () => {
-    try {
-      const currentUser = getLoggedInUser();
-      if (currentUser) {
-        setUser(currentUser);
-        setIsAuthenticated(true);
-      }
-    } catch (error) {
-      console.error('Refresh user error:', error);
-    }
+  const checkAuth = useCallback(() => {
+    const storedAuth = storageHelper.getAuthState();
+    return storedAuth?.isAuthenticated === true;
   }, []);
 
   const value = {
-    user,
-    isAuthenticated,
-    isLoading,
+    user: authState.user,
+    isAuthenticated: authState.isAuthenticated,
+    loading: authState.loading,
     login,
     register,
     logout,
-    updateUser,
-    refreshUser,
+    checkAuth,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -153,11 +241,11 @@ export const AuthProvider = ({ children }) => {
  */
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  
+
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
-  
+
   return context;
 };
 

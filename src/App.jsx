@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import SessionWarning from './components/common/SessionWarning';
 
 // Page Components
 import Login from './components/Login';
@@ -29,16 +30,28 @@ function App() {
 
   return (
     <div style={{ minHeight: '100vh', width: '100%' }}>
+      {isAuthenticated && <SessionWarning />}
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        
+        {/* Protected Routes - Require Authentication */}
         <Route 
-          path="/login" 
-          element={isAuthenticated ? <Navigate to="/" replace /> : <Login />} 
+          path="/" 
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } 
         />
         <Route 
-          path="/register" 
-          element={isAuthenticated ? <Navigate to="/" replace /> : <Register />} 
+          path="/dashboard" 
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } 
         />
 
         {/* Protected Routes - Require Authentication */}

@@ -5,12 +5,16 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import CameraCapture from './CameraCapture';
 import { validateADDate } from '../utils/dateValidation';
 import { validateField } from '../utils/validation';
+import { PROVINCE_OPTIONS } from '../constants/provinces';
+import { getErrorMessage, getSuccessMessage } from '../utils/errorMessages';
+import { sanitizeEmail, sanitizePhone, sanitizeText } from '../utils/sanitize';
 import Button from './common/Button';
 import Input from './common/Input';
 import Card from './common/Card';
 import ErrorMessage from './common/ErrorMessage';
 import SuccessMessage from './common/SuccessMessage';
 import LoadingSpinner from './common/LoadingSpinner';
+import PasswordStrength from './common/PasswordStrength';
 import './Register.css';
 
 /**
@@ -39,7 +43,11 @@ function Register() {
     voterId: '',
     password: '',
     confirm: '',
+    province: '', // Province selection
   });
+
+  // Province options from constants
+  const provinces = PROVINCE_OPTIONS;
 
   const [errors, setErrors] = useState({});
 
@@ -50,9 +58,17 @@ function Register() {
     const { name, value } = e.target;
     let newValue = value;
 
-    // Sanitize numeric fields
-    if (name === 'citizenshipNumber' || name === 'voterId' || name === 'phone') {
+    // Sanitize inputs based on field type
+    if (name === 'email') {
+      newValue = sanitizeEmail(value);
+    } else if (name === 'phone') {
+      newValue = sanitizePhone(value);
+    } else if (name === 'citizenshipNumber' || name === 'voterId') {
       newValue = value.replace(/[^0-9-+]/g, '');
+    } else if (name === 'name' || name === 'address') {
+      newValue = sanitizeText(value, { maxLength: 200 });
+    } else {
+      newValue = sanitizeText(value);
     }
 
     setFormData((prev) => ({ ...prev, [name]: newValue }));
@@ -108,6 +124,11 @@ function Register() {
     const confirmValidation = validateField('passwordMatch', formData.confirm, { password: formData.password });
     if (!confirmValidation.valid) newErrors.confirm = confirmValidation.error;
 
+    // Validate province
+    if (!formData.province || formData.province.trim() === '') {
+      newErrors.province = 'Province selection is required';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -133,6 +154,7 @@ function Register() {
     setIsLoading(true);
 
     try {
+      // TODO: Replace with POST /api/register endpoint
       // Prepare user data
       const userData = {
         name: formData.name.trim(),
@@ -143,19 +165,20 @@ function Register() {
         citizenshipNumber: formData.citizenshipNumber.trim(),
         voterId: formData.voterId.trim(),
         password: formData.password,
+        province: formData.province, // Province selection
         faceImage: faceImage,
       };
 
       await register(userData);
       
-      setSuccess('Registration successful! Redirecting to login...');
+      setSuccess(getSuccessMessage('register'));
       
       // Redirect to login after 2 seconds
       setTimeout(() => {
         navigate('/login');
       }, 2000);
     } catch (err) {
-      setError(err.message || 'Registration failed. Please try again.');
+      setError(getErrorMessage(err, 'register'));
     } finally {
       setIsLoading(false);
     }
@@ -292,6 +315,31 @@ function Register() {
             error={errors.citizenshipNumber}
           />
 
+          {/* Province Selection */}
+          <div className="r-form-group">
+            <label htmlFor="province">
+              Province <span className="required">*</span>
+            </label>
+            <select
+              id="province"
+              name="province"
+              value={formData.province}
+              onChange={handleChange}
+              className={`r-select-input ${errors.province ? 'error' : ''}`}
+              required
+            >
+              <option value="">Select your province</option>
+              {provinces.map((province) => (
+                <option key={province} value={province}>
+                  {province}
+                </option>
+              ))}
+            </select>
+            {errors.province && (
+              <span className="r-error-message">{errors.province}</span>
+            )}
+          </div>
+
           {/* Password */}
           <div className="r-form-group">
             <Input
@@ -320,6 +368,10 @@ function Register() {
                 </span>
               }
             />
+            {/* Password Strength Indicator */}
+            {formData.password && (
+              <PasswordStrength password={formData.password} />
+            )}
           </div>
 
           {/* Confirm Password */}

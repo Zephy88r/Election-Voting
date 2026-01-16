@@ -1,0 +1,93 @@
+/**
+ * Session Warning Styles
+ */
+
+.session-warning-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.session-warning-card {
+  max-width: 400px;
+  width: 90%;
+  margin: var(--spacing-4);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.session-warning-content {
+  text-align: center;
+  padding: var(--spacing-4);
+}
+
+.session-warning-content h3 {
+  color: var(--color-error, #DC143C);
+  font-size: var(--font-size-xl, 20px);
+  margin-bottom: var(--spacing-3);
+  font-weight: var(--font-weight-bold, 700);
+}
+
+.session-warning-content p {
+  color: var(--color-text-primary, #333);
+  font-size: var(--font-size-base, 16px);
+  margin-bottom: var(--spacing-2);
+  line-height: var(--line-height-relaxed, 1.75);
+}
+
+.session-warning-content strong {
+  color: var(--color-error, #DC143C);
+  font-weight: var(--font-weight-bold, 700);
+}
+
+.session-warning-actions {
+  display: flex;
+  gap: var(--spacing-3);
+  justify-content: center;
+  margin-top: var(--spacing-5);
+  flex-wrap: wrap;
+}
+
+.session-extend-btn,
+.session-logout-btn {
+  min-width: 120px;
+}
+
+@media (max-width: 480px) {
+  .session-warning-actions {
+    flex-direction: column;
+  }
+
+  .session-extend-btn,
+  .session-logout-btn {
+    width: 100%;
+  }
+}

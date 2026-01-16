@@ -10,10 +10,10 @@ import { useAuth } from '../../contexts/AuthContext';
  * @param {React.ReactNode} children - Route component to protect
  */
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
-  if (isLoading) {
+  if (loading) {
     // Show loading state while checking authentication
     return (
       <div style={{ 

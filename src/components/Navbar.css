@@ -115,6 +115,13 @@
   border-radius: 50%;
 }
 
+.profile-initial {
+  font-size: 18px;
+  font-weight: var(--font-weight-bold);
+  color: #fff;
+  text-transform: uppercase;
+}
+
 /* Hover effect */
 .profile-container:hover .profile-icon {
   transform: scale(1.05);
