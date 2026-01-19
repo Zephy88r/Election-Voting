@@ -73,7 +73,7 @@
 }
 
 /* Profile Container */
-.profile-container {
+.profile-containe{
   position: relative;
   display: flex;
   align-items: center;
@@ -81,7 +81,6 @@
   cursor: pointer;
   z-index: var(--z-dropdown);
 }
-
 /* Profile Icon */
 .profile-icon {
   width: 40px;
@@ -123,7 +122,7 @@
 }
 
 /* Hover effect */
-.profile-container:hover .profile-icon {
+.profile-containe:hover .profile-icon {
   transform: scale(1.05);
   background: rgba(220,20,60,0.3);
   border-color: var(--color-primary);

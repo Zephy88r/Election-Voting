@@ -41,8 +41,10 @@ function Navbar() {
       <div className="navbar-right">
         {isAuthenticated && <NotificationBell />}
 
+
+
         <div
-          className="profile-container"
+          className="profile-containe"
           onClick={handleProfileClick}
           role="button"
           tabIndex={0}
@@ -54,7 +56,7 @@ function Navbar() {
             }
           }}
         >
-          {/* Profile icon */}
+
           <div className="profile-icon">
             {user?.avatar ? (
               <img src={user.avatar} alt="Profile" className="profile-img" />

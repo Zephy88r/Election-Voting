@@ -333,11 +333,18 @@ function Profile() {
 
               <div className="detail-row">
                 <span className="detail-label">Date of Birth:</span>
-                <span className="detail-value">
-                  {formData.dateOfBirth || user.dateOfBirth
-                    ? formatDate(formData.dateOfBirth || user.dateOfBirth)
-                    : 'N/A'}
-                </span>
+                {isEditing ? (
+                  <Input
+                    type="date"
+                    name="DOB"
+                    value={formData.dateOfBirth}
+                    onChange={handleChange}
+                    error={errors.dateOfBirth}
+                    className="profile-input"
+                  />
+                ) : (
+                  <span className="detail-value">{user.address || 'N/A'}</span>
+                )}
               </div>
 
               <div className="detail-row">

@@ -48,7 +48,7 @@
 
 .dashboard-welcome p {
   font-size: var(--font-size-lg);
-  opacity: 0.9;
+  opacity: 1
 }
 
 .dashboard h1 {
@@ -112,7 +112,7 @@
 
 .province-card.disabled {
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.8 !important;
   filter: grayscale(0.5);
   position: relative;
 }
