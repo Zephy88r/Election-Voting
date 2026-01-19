@@ -422,14 +422,15 @@ function Register() {
           <div className="Already-account">
             <p>
               Already have an account?{' '}
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate('/login')}
-                className="r-gradient-button"
-              >
-                Sign In
-              </Button>
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => navigate('/login')}
+              className="r-gradient-button"
+            >
+              Sign In
+            </Button>
+
             </p>
           </div>
         </form>
@@ -439,3 +440,14 @@ function Register() {
 }
 
 export default Register;
+
+
+//  <div className="r-cam">
+//             <h3>Face Verification</h3>
+//             <CameraCapture onCapture={setFaceImage} />
+//             {faceImage && <p>Face captured successfully ✔</p>}
+//           </div>
+
+//           {/* Error and Success Messages */}
+//           {error && <ErrorMessage message={error} />}
+//           {success && <SuccessMessage message={success} />}

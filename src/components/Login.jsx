@@ -189,7 +189,7 @@ function Login() {
           <div className="login-extra">
             <Button
               type="button"
-              variant="outline"
+              variant="primary"
               onClick={() => alert('Forgot password functionality coming soon!')}
               className="gradient-button"
             >
@@ -216,7 +216,7 @@ function Login() {
               New User?{' '}
               <Button
                 type="button"
-                variant="outline"
+                variant="primary"
                 onClick={() => navigate('/register')}
                 className="gradient-button"
               >
