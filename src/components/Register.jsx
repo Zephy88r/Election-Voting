@@ -38,7 +38,6 @@ function Register() {
     name: '',
     email: '',
     phone: '',
-    address: '',
     dateOfBirth: '', // AD date string (YYYY-MM-DD)
     citizenshipNumber: '',
     voterId: '',
@@ -81,9 +80,7 @@ function Register() {
     newValue = sanitizePhone(value);
   } else if (name === 'citizenshipNumber' || name === 'voterId') {
     newValue = value.replace(/[^0-9-+]/g, '');
-  } else if (name === 'name' || name === 'address') {
-    newValue = sanitizeText(value, { maxLength: 200 });
-  } else {
+  }else {
     newValue = sanitizeText(value);
   }
 
@@ -128,9 +125,6 @@ function Register() {
     const phoneValidation = validateField('phone', formData.phone);
     if (!phoneValidation.valid) newErrors.phone = phoneValidation.error;
 
-    const addressValidation = validateField('address', formData.address);
-    if (!addressValidation.valid) newErrors.address = addressValidation.error;
-
     // Date validation (AD date)
     const dateValue = formData.dateOfBirth ? String(formData.dateOfBirth).trim() : '';
     if (!dateValue) {
@@ -154,10 +148,6 @@ function Register() {
     const confirmValidation = validateField('passwordMatch', formData.confirm, { password: formData.password });
     if (!confirmValidation.valid) newErrors.confirm = confirmValidation.error;
 
-    // Validate province
-    if (!formData.province || formData.province.trim() === '') {
-      newErrors.province = 'Province selection is required';
-    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -460,6 +450,9 @@ function Register() {
 
           {/* Face Capture */}
           
+          {/* Error and Success Messages */}
+          {error && <ErrorMessage message={error} />}
+          {success && <SuccessMessage message={success} />}
 
           {/* Submit Button */}
           <Button
