@@ -11,6 +11,7 @@
   text-align: center;
   background-size: cover;
   background-position: center;
+  background-attachment: fixed;
   position: relative;
   background-repeat: no-repeat;
   z-index: 1;
