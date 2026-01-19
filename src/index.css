@@ -93,3 +93,11 @@ a:focus {
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
+
+@media (prefers-color-scheme: dark) {
+  input,
+  textarea,
+  select {
+    color: #fff !important;
+  }
+}
