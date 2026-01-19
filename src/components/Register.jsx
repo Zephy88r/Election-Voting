@@ -6,6 +6,7 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { validateADDate } from '../utils/dateValidation';
 import { validateField } from '../utils/validation';
 import { PROVINCE_OPTIONS } from '../constants/provinces';
+import { DISTRICTS_BY_PROVINCE } from '../constants/district';
 import { getErrorMessage, getSuccessMessage } from '../utils/errorMessages';
 import { sanitizeEmail, sanitizePhone, sanitizeText } from '../utils/sanitize';
 import Button from './common/Button';
@@ -28,7 +29,7 @@ function Register() {
   
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmVisible, setIsConfirmVisible] = useState(false);
-  const [faceImage, setFaceImage] = useState(null);
+  // const [faceImage, setFaceImage] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -44,6 +45,7 @@ function Register() {
     password: '',
     confirm: '',
     province: '', // Province selection
+    district:'' // Province selection
   });
 
   // Province options from constants
@@ -55,38 +57,66 @@ function Register() {
    * Handle input field changes with real-time validation
    */
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    let newValue = value;
+  const { name, value } = e.target;
+  let newValue = value;
 
-    // Sanitize inputs based on field type
-    if (name === 'email') {
-      newValue = sanitizeEmail(value);
-    } else if (name === 'phone') {
-      newValue = sanitizePhone(value);
-    } else if (name === 'citizenshipNumber' || name === 'voterId') {
-      newValue = value.replace(/[^0-9-+]/g, '');
-    } else if (name === 'name' || name === 'address') {
-      newValue = sanitizeText(value, { maxLength: 200 });
-    } else {
-      newValue = sanitizeText(value);
+  // ✅ Province change → reset district ONLY
+  if (name === 'province') {
+    setFormData((prev) => ({
+      ...prev,
+      province: value,
+      district: '',
+    }));
+
+    if (errors.province) {
+      setErrors((prev) => ({ ...prev, province: '' }));
     }
+    return;
+  }
 
-    setFormData((prev) => ({ ...prev, [name]: newValue }));
+  // ✅ Sanitize inputs (UNCHANGED logic)
+  if (name === 'email') {
+    newValue = sanitizeEmail(value);
+  } else if (name === 'phone') {
+    newValue = sanitizePhone(value);
+  } else if (name === 'citizenshipNumber' || name === 'voterId') {
+    newValue = value.replace(/[^0-9-+]/g, '');
+  } else if (name === 'name' || name === 'address') {
+    newValue = sanitizeText(value, { maxLength: 200 });
+  } else {
+    newValue = sanitizeText(value);
+  }
 
-    // Real-time validation
-    if (errors[name]) {
-      const validation = validateField(name, newValue, { password: formData.password });
-      if (validation.valid) {
-        setErrors((prev) => ({ ...prev, [name]: '' }));
-      }
+  // ✅ Update state (district handled here)
+  setFormData((prev) => ({ ...prev, [name]: newValue }));
+
+  // ✅ Real-time validation (UNCHANGED)
+  if (errors[name]) {
+    const validation = validateField(name, newValue, {
+      password: formData.password,
+    });
+    if (validation.valid) {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
     }
-  };
+  }
+};
+
 
   /**
    * Validate all form fields
    */
   const validateForm = () => {
     const newErrors = {};
+
+    // Validate province
+    if (!formData.province || formData.province.trim() === '') {
+      newErrors.province = 'Province selection is required';
+    }
+
+    // ✅ Validate district (ONLY this addition)
+    if (!formData.district || formData.district.trim() === '') {
+      newErrors.district = 'District is required';
+    }
 
     // Validate each field
     const nameValidation = validateField('name', formData.name);
@@ -146,10 +176,10 @@ function Register() {
       return;
     }
 
-    if (!faceImage) {
-      setError('Please capture your face before submitting');
-      return;
-    }
+    // if (!faceImage) {
+    //   setError('Please capture your face before submitting');
+    //   return;
+    // }
 
     setIsLoading(true);
 
@@ -160,13 +190,13 @@ function Register() {
         name: formData.name.trim(),
         email: formData.email.trim(),
         phone: formData.phone.trim(),
-        address: formData.address.trim(),
+        district: formData.district,
         dateOfBirth: formData.dateOfBirth, // AD date
         citizenshipNumber: formData.citizenshipNumber.trim(),
         voterId: formData.voterId.trim(),
         password: formData.password,
         province: formData.province, // Province selection
-        faceImage: faceImage,
+        // faceImage: faceImage,
       };
 
       await register(userData);
@@ -203,6 +233,8 @@ function Register() {
       setErrors((prev) => ({ ...prev, dateOfBirth: '' }));
     }
   };
+
+
 
   return (
     <div className="register-container">
@@ -250,17 +282,64 @@ function Register() {
             helperText="Nepal format: +977 XXX-XXXXXXX"
           />
 
-          {/* Address */}
-          <Input
-            type="text"
-            label="Address"
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            placeholder="Enter your address"
-            required
-            error={errors.address}
-          />
+{/* Province Selection */}
+          <div className="r-form-group">
+            <label htmlFor="province">
+              Province <span className="required">*</span>
+            </label>
+            <select
+              id="province"
+              name="province"
+              value={formData.province}
+              onChange={handleChange}
+              className={`r-select-input ${errors.province ? 'error' : ''}`}
+              required
+            >
+              <option value="">Select your province</option>
+              {provinces.map((province) => (
+                <option key={province} value={province}>
+                  {province}
+                </option>
+              ))}
+            </select>
+            {errors.province && (
+              <span className="r-error-message">{errors.province}</span>
+            )}
+          </div>
+
+
+          {/* District Selection */}
+          <div className="r-form-group">
+            <label htmlFor="district">
+              District <span className="required">*</span>
+            </label>
+
+            <select
+              id="district"
+              name="district"
+              value={formData.district}
+              onChange={handleChange}
+              className={`r-select-input ${errors.district ? 'error' : ''}`}
+              disabled={!formData.province}
+              required
+            >
+              <option value="">
+                {formData.province ? 'Select your district' : 'Select province first'}
+              </option>
+
+              {formData.province &&
+                DISTRICTS_BY_PROVINCE[formData.province]?.map((district) => (
+                  <option key={district} value={district}>
+                    {district}
+                  </option>
+                ))}
+            </select>
+
+            {errors.district && (
+              <span className="r-error-message">{errors.district}</span>
+            )}
+          </div>
+
 
           {/* DOB + Voter ID Row */}
           <div className="r-flex-row">
@@ -315,30 +394,6 @@ function Register() {
             error={errors.citizenshipNumber}
           />
 
-          {/* Province Selection */}
-          <div className="r-form-group">
-            <label htmlFor="province">
-              Province <span className="required">*</span>
-            </label>
-            <select
-              id="province"
-              name="province"
-              value={formData.province}
-              onChange={handleChange}
-              className={`r-select-input ${errors.province ? 'error' : ''}`}
-              required
-            >
-              <option value="">Select your province</option>
-              {provinces.map((province) => (
-                <option key={province} value={province}>
-                  {province}
-                </option>
-              ))}
-            </select>
-            {errors.province && (
-              <span className="r-error-message">{errors.province}</span>
-            )}
-          </div>
 
           {/* Password */}
           <div className="r-form-group">
@@ -430,7 +485,6 @@ function Register() {
             >
               Sign In
             </Button>
-
             </p>
           </div>
         </form>
