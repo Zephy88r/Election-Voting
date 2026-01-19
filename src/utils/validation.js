@@ -49,7 +49,7 @@ export const validatePhone = (phone) => {
   if (!isValid) {
     return { 
       valid: false, 
-      error: 'Please enter a valid Nepal phone number (e.g., +977-984-1234567)' 
+      error: 'Please enter a valid Nepal phone number (e.g., +977-XXX-XXXXXXX)' 
     };
   }
 

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import CameraCapture from './CameraCapture';
+// import CameraCapture from './CameraCapture';
 import { validateADDate } from '../utils/dateValidation';
 import { validateField } from '../utils/validation';
 import { PROVINCE_OPTIONS } from '../constants/provinces';
@@ -404,15 +404,7 @@ function Register() {
           </div>
 
           {/* Face Capture */}
-          <div className="r-cam">
-            <h3>Face Verification</h3>
-            <CameraCapture onCapture={setFaceImage} />
-            {faceImage && <p>Face captured successfully ✔</p>}
-          </div>
-
-          {/* Error and Success Messages */}
-          {error && <ErrorMessage message={error} />}
-          {success && <SuccessMessage message={success} />}
+          
 
           {/* Submit Button */}
           <Button

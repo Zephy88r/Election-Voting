@@ -1,7 +1,4 @@
-/**
- * Camera Capture Component Styles
- * Professional camera interface for face verification
- */
+/* 
 
 .camera-box {
   width: 100%;
@@ -128,7 +125,7 @@
   width: 100%;
 }
 
-/* Responsive */
+
 @media (max-width: 768px) {
   .camera-video,
   .preview-img {
@@ -142,4 +139,4 @@
     font-size: var(--font-size-sm);
     padding: var(--spacing-2) var(--spacing-4);
   }
-}
+} */

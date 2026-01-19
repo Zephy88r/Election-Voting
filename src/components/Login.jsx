@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import CameraCapture from './CameraCapture';
+// import CameraCapture from './CameraCapture';
 import { validateField } from '../utils/validation';
 import { getErrorMessage, getSuccessMessage } from '../utils/errorMessages';
 import { sanitizeEmail } from '../utils/sanitize';
@@ -197,17 +197,7 @@ function Login() {
             </Button>
           </div>
 
-          {/* Face Verification */}
-          <div className="l-cam">
-            <h3>Face Verification</h3>
-            <CameraCapture onCapture={setFaceImage} />
-            {faceImage && <p>Face captured successfully ✔</p>}
-          </div>
-
-          {/* Error and Success Messages */}
-          {error && <ErrorMessage message={error} />}
-          {success && <SuccessMessage message={success} />}
-
+        
           {/* Submit Button */}
           <Button
             type="submit"
@@ -241,3 +231,15 @@ function Login() {
 }
 
 export default Login;
+
+
+//  {/* Face Verification */}
+//           <div className="l-cam">
+//             <h3>Face Verification</h3>
+//             <CameraCapture onCapture={setFaceImage} />
+//             {faceImage && <p>Face captured successfully ✔</p>}
+//           </div>
+
+//           {/* Error and Success Messages */}
+//           {error && <ErrorMessage message={error} />}
+//           {success && <SuccessMessage message={success} />}
