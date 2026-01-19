@@ -196,7 +196,10 @@ function Login() {
               Forgot Password?
             </Button>
           </div>
-
+          
+          {/* Error and Success Messages */}
+          {error && <ErrorMessage message={error} />}
+          {success && <SuccessMessage message={success} />}
         
           {/* Submit Button */}
           <Button
@@ -240,6 +243,6 @@ export default Login;
 //             {faceImage && <p>Face captured successfully ✔</p>}
 //           </div>
 
-//           {/* Error and Success Messages */}
-//           {error && <ErrorMessage message={error} />}
-//           {success && <SuccessMessage message={success} />}
+          {/* Error and Success Messages */}
+          {error && <ErrorMessage message={error} />}
+          {success && <SuccessMessage message={success} />}
