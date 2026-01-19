@@ -101,3 +101,14 @@ a:focus {
     color: #fff !important;
   }
 }
+
+@media (prefers-color-scheme: dark) {
+  input,
+  textarea,
+  select {
+    color: #fff !important;
+    background-color: #1e1e1e !important;  /* add this */
+    border: 1px solid #333 !important;     /* optional */
+  }
+}
+
