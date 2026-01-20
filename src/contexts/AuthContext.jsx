@@ -1,12 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { authService } from '../services/authService';
+import { API_CONFIG } from '../config/apiConfig';
 import { storageHelper } from '../utils/storage';
 import { setSessionTimeout, isSessionExpired, clearSessionTimeout } from '../utils/sessionManager';
 
 /**
  * Authentication Context
  * Provides centralized authentication state management
- * Uses SessionStorage for auth state persistence
- * TODO: Replace with API calls when backend is ready
+ * Uses API calls when USE_API is enabled, falls back to localStorage
  */
 
 const AuthContext = createContext(null);
@@ -23,12 +24,29 @@ export const AuthProvider = ({ children }) => {
   });
 
   /**
-   * Initialize auth state on mount from SessionStorage
+   * Initialize auth state on mount
    */
   useEffect(() => {
-    const initAuth = () => {
+    const initAuth = async () => {
       try {
-        // TODO: Replace with API call to GET /api/auth/me
+        if (API_CONFIG.USE_API) {
+          // Try to get profile from API (session-based)
+          try {
+            const profile = await authService.getProfile();
+            setAuthState({
+              isAuthenticated: true,
+              user: profile,
+              loading: false,
+            });
+            setSessionTimeout();
+            return;
+          } catch (e) {
+            // Not authenticated via API, fall back to local
+            console.log('API auth check failed, using localStorage');
+          }
+        }
+
+        // Fallback to localStorage
         const storedAuth = storageHelper.getAuthState();
         
         // Check if session is expired
@@ -88,7 +106,6 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * Login user
-   * TODO: Replace with POST /api/auth/login endpoint
    * @param {object} credentials - Login credentials (email, password)
    * @returns {Promise<object>} - User data
    */
@@ -96,34 +113,18 @@ export const AuthProvider = ({ children }) => {
     try {
       setAuthState((prev) => ({ ...prev, loading: true }));
 
-      // TODO: Replace with API call
-      const user = storageHelper.findUserByCredentials(
-        credentials.email,
-        credentials.password
-      );
-
-      if (!user) {
-        throw new Error('Invalid credentials');
-      }
-
-      // Prepare user data for auth state (exclude password)
-      const { password, ...userWithoutPassword } = user;
-      const authUser = {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        province: user.province,
-      };
+      const response = await authService.login(credentials);
+      const user = response.user;
 
       const newAuthState = {
         isAuthenticated: true,
-        user: authUser,
+        user: user,
         loading: false,
       };
 
       setAuthState(newAuthState);
       
-      // Store auth state based on Remember Me preference
+      // Store auth state based on Remember Me preference (for localStorage fallback)
       if (credentials.rememberMe) {
         storageHelper.setAuthStatePersistent(newAuthState);
       } else {
@@ -132,7 +133,7 @@ export const AuthProvider = ({ children }) => {
         setSessionTimeout();
       }
 
-      return { user: authUser };
+      return { user };
     } catch (error) {
       setAuthState((prev) => ({ ...prev, loading: false }));
       console.error('Login error:', error);
@@ -142,7 +143,6 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * Register new user
-   * TODO: Replace with POST /api/auth/register endpoint
    * @param {object} userData - Registration data
    * @returns {Promise<object>} - User data
    */
@@ -150,32 +150,12 @@ export const AuthProvider = ({ children }) => {
     try {
       setAuthState((prev) => ({ ...prev, loading: true }));
 
-      // TODO: Replace with API call
-      const users = storageHelper.getUsers();
-
-      // Check for duplicate email
-      const existingEmail = users.find(
-        (u) => u.email === userData.email?.trim()
-      );
-      if (existingEmail) {
-        throw new Error('This email is already registered');
-      }
-
-      // Add user to storage
-      const newUser = storageHelper.addUser(userData);
-
-      // Prepare user data for auth state (exclude password)
-      const { password, ...userWithoutPassword } = newUser;
-      const authUser = {
-        id: newUser.id,
-        name: newUser.name,
-        email: newUser.email,
-        province: newUser.province,
-      };
+      const response = await authService.register(userData);
+      const user = response.user;
 
       const newAuthState = {
         isAuthenticated: true,
-        user: authUser,
+        user: user,
         loading: false,
       };
 
@@ -185,7 +165,7 @@ export const AuthProvider = ({ children }) => {
       // Set session timeout (30 minutes)
       setSessionTimeout();
 
-      return { user: authUser };
+      return { user };
     } catch (error) {
       setAuthState((prev) => ({ ...prev, loading: false }));
       console.error('Registration error:', error);
@@ -195,10 +175,10 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * Logout user
-   * TODO: Replace with POST /api/auth/logout endpoint
    */
   const logout = useCallback(() => {
     try {
+      authService.logout();
       clearSessionTimeout();
       storageHelper.clearAuthState();
       setAuthState({
@@ -213,10 +193,12 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * Check authentication status
-   * TODO: Replace with GET /api/auth/me endpoint
    * @returns {boolean} - True if authenticated
    */
   const checkAuth = useCallback(() => {
+    if (API_CONFIG.USE_API) {
+      return authService.isAuthenticated();
+    }
     const storedAuth = storageHelper.getAuthState();
     return storedAuth?.isAuthenticated === true;
   }, []);

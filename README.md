@@ -67,7 +67,70 @@ npm run build
 npm run preview
 ```
 
-## 📁 Project Structure
+## � Deployment
+
+### Development Setup (Full Stack)
+
+For local development with both frontend and backend:
+
+1. **Follow the integration guide** in `INTEGRATION.md`
+2. **Load initial data** for testing:
+   ```bash
+   python voting_system/manage.py load_initial_data
+   ```
+3. **Run integration tests**:
+   ```bash
+   python scripts/integration_test.py
+   ```
+
+### Production Deployment with Docker
+
+1. **Update environment variables** in `docker-compose.yml`:
+   - Set secure `DJANGO_SECRET_KEY`
+   - Configure `DJANGO_ALLOWED_HOSTS`, `CORS_ALLOWED_ORIGINS`, `CSRF_TRUSTED_ORIGINS`
+   - Update database credentials
+
+2. **Build and run with Docker Compose**:
+   ```bash
+   docker-compose up --build
+   ```
+
+3. **Access the application**:
+   - Frontend: `http://localhost:5173`
+   - Backend API: `http://localhost:8000`
+
+### Manual Production Deployment
+
+1. **Backend (Django)**:
+   ```bash
+   # Install dependencies
+   pip install -r requirements.txt
+   
+   # Set environment variables
+   export DJANGO_DEBUG=False
+   export DJANGO_SECRET_KEY=your-secure-key
+   export DATABASE_URL=mysql://user:pass@host:port/db
+   
+   # Run migrations
+   python voting_system/manage.py migrate
+   
+   # Load initial data
+   python voting_system/manage.py load_initial_data
+   
+   # Collect static files
+   python voting_system/manage.py collectstatic
+   
+   # Run with Gunicorn
+   gunicorn voting_system.wsgi:application --bind 0.0.0.0:8000
+   ```
+
+2. **Frontend (React)**:
+   ```bash
+   npm run build
+   # Serve static files with nginx or similar
+   ```
+
+## �📁 Project Structure
 
 ```
 nepal-election-demo/

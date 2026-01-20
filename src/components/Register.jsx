@@ -19,6 +19,58 @@ import PasswordStrength from './common/PasswordStrength';
 import './Register.css';
 
 /**
+ * Helper functions to convert string names to integer IDs for backend API
+ */
+const getProvinceId = (provinceName) => {
+  const provinceMap = {
+    'Province 1': 1,
+    'Province 2': 2,
+    'Province 3': 3,
+  };
+  return provinceMap[provinceName] || 1; // Default to 1 if not found
+};
+
+const getDistrictId = (provinceName, districtName) => {
+  // District IDs are sequential within provinces
+  const districtMap = {
+    'Province 1': {
+      'District 1': 1,
+      'District 2': 2,
+    },
+    'Province 2': {
+      'District 1': 3, // Next available ID
+    },
+    'Province 3': {
+      'District 1': 4,
+    },
+  };
+  return districtMap[provinceName]?.[districtName] || 1;
+};
+
+const getElectoralAreaId = (provinceName, areaName) => {
+  // Electoral area IDs are sequential within provinces
+  const areaMap = {
+    'Province 1': {
+      'Area 1': 1,
+    },
+    'Province 3': {
+      'Area 2': 2,
+    },
+  };
+  return areaMap[provinceName]?.[areaName] || 1;
+};
+
+const getElectoralAreasForProvince = (provinceName) => {
+  // Return available electoral areas for the selected province
+  const areasByProvince = {
+    'Province 1': ['Area 1'],
+    'Province 2': ['Area 1'], // Default area for Province 2
+    'Province 3': ['Area 2'],
+  };
+  return areasByProvince[provinceName] || [];
+};
+
+/**
  * Register Component
  * Handles user registration with Nepali date conversion, face verification, and validation
  * Uses AuthContext for authentication state management
@@ -44,7 +96,8 @@ function Register() {
     password: '',
     confirm: '',
     province: '', // Province selection
-    district:'' // Province selection
+    district:'', // District selection
+    electoral_area: '', // Electoral area selection
   });
 
   // Province options from constants
@@ -59,16 +112,31 @@ function Register() {
   const { name, value } = e.target;
   let newValue = value;
 
-  // ✅ Province change → reset district ONLY
+  // ✅ Province change → reset district AND electoral_area
   if (name === 'province') {
     setFormData((prev) => ({
       ...prev,
       province: value,
       district: '',
+      electoral_area: '',
     }));
 
     if (errors.province) {
       setErrors((prev) => ({ ...prev, province: '' }));
+    }
+    return;
+  }
+
+  // ✅ District change → reset electoral_area
+  if (name === 'district') {
+    setFormData((prev) => ({
+      ...prev,
+      district: value,
+      electoral_area: '',
+    }));
+
+    if (errors.district) {
+      setErrors((prev) => ({ ...prev, district: '' }));
     }
     return;
   }
@@ -113,6 +181,11 @@ function Register() {
     // ✅ Validate district (ONLY this addition)
     if (!formData.district || formData.district.trim() === '') {
       newErrors.district = 'District is required';
+    }
+
+    // ✅ Validate electoral area
+    if (!formData.electoral_area || formData.electoral_area.trim() === '') {
+      newErrors.electoral_area = 'Electoral area is required';
     }
 
     // Validate each field
@@ -175,17 +248,19 @@ function Register() {
 
     try {
       // TODO: Replace with POST /api/register endpoint
-      // Prepare user data
+      // Prepare user data with correct field names and integer IDs
       const userData = {
         name: formData.name.trim(),
         email: formData.email.trim(),
         phone: formData.phone.trim(),
-        district: formData.district,
         dateOfBirth: formData.dateOfBirth, // AD date
         citizenshipNumber: formData.citizenshipNumber.trim(),
         voterId: formData.voterId.trim(),
         password: formData.password,
-        province: formData.province, // Province selection
+        // Convert string names to integer IDs for backend
+        province_id: getProvinceId(formData.province),
+        district_id: getDistrictId(formData.province, formData.district),
+        electoral_area: getElectoralAreaId(formData.province, formData.electoral_area),
         // faceImage: faceImage,
       };
 
@@ -327,6 +402,39 @@ function Register() {
 
             {errors.district && (
               <span className="r-error-message">{errors.district}</span>
+            )}
+          </div>
+
+
+          {/* Electoral Area Selection */}
+          <div className="r-form-group">
+            <label htmlFor="electoral_area">
+              Electoral Area <span className="required">*</span>
+            </label>
+
+            <select
+              id="electoral_area"
+              name="electoral_area"
+              value={formData.electoral_area}
+              onChange={handleChange}
+              className={`r-select-input ${errors.electoral_area ? 'error' : ''}`}
+              disabled={!formData.province}
+              required
+            >
+              <option value="">
+                {formData.province ? 'Select your electoral area' : 'Select province first'}
+              </option>
+
+              {formData.province &&
+                getElectoralAreasForProvince(formData.province).map((area) => (
+                  <option key={area} value={area}>
+                    {area}
+                  </option>
+                ))}
+            </select>
+
+            {errors.electoral_area && (
+              <span className="r-error-message">{errors.electoral_area}</span>
             )}
           </div>
 

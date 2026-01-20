@@ -8,9 +8,11 @@
  * - Authentication tokens are sent in Authorization header
  */
 
-// API Base URL - Use environment variable in production
-// In Vite, use import.meta.env instead of process.env
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+// Use centralized API config
+import { API_CONFIG } from "../config/apiConfig";
+
+// API Base URL - comes from API_CONFIG (falls back to VITE_API_BASE_URL)
+const API_BASE_URL = API_CONFIG.API_BASE_URL || import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 /**
  * Generic API request handler
@@ -41,7 +43,32 @@ const apiRequest = async (endpoint, options = {}) => {
   };
 
   try {
-    const response = await fetch(url, config);
+    // Include credentials (session cookie) for API mode
+    const finalConfig = {
+      ...config,
+      credentials: API_CONFIG.USE_API ? "include" : (config.credentials || "same-origin"),
+    };
+
+    // CSRF: for session-authenticated requests to Django, include X-CSRFToken
+    const unsafeMethods = ["POST", "PUT", "PATCH", "DELETE"];
+    const method = (finalConfig.method || "GET").toUpperCase();
+
+    if (API_CONFIG.USE_API && unsafeMethods.includes(method)) {
+      // Read csrftoken from cookies
+      const getCookie = (name) => {
+        const match = document.cookie.match(new RegExp('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)'));
+        return match ? match.pop() : null;
+      };
+      const csrftoken = getCookie('csrftoken');
+      if (csrftoken) {
+        finalConfig.headers = {
+          ...finalConfig.headers,
+          'X-CSRFToken': csrftoken,
+        };
+      }
+    }
+
+    const response = await fetch(url, finalConfig);
     
     // Handle non-JSON responses
     const contentType = response.headers.get("content-type");
@@ -94,7 +121,7 @@ export const authAPI = {
     //   }
     // });
 
-    return apiRequest("/auth/register", {
+    return apiRequest("/elections/api/voter/register/", {
       method: "POST",
       body: JSON.stringify(body),
     });
@@ -109,7 +136,8 @@ export const authAPI = {
    * @returns {Promise<object>} - Response with token and user data
    */
   login: async (credentials) => {
-    return apiRequest("/auth/login", {
+    // Backend login endpoint uses session authentication and returns user info
+    return apiRequest("/elections/api/auth/login/", {
       method: "POST",
       body: JSON.stringify(credentials),
     });
@@ -120,7 +148,7 @@ export const authAPI = {
    * @returns {Promise<object>} - User profile data
    */
   getProfile: async () => {
-    return apiRequest("/auth/profile", {
+    return apiRequest("/elections/api/voter/profile/", {
       method: "GET",
     });
   },
@@ -131,7 +159,7 @@ export const authAPI = {
    * @returns {Promise<object>} - Updated user data
    */
   updateProfile: async (userData) => {
-    return apiRequest("/auth/profile", {
+    return apiRequest("/elections/api/voter/profile/", {
       method: "PUT",
       body: JSON.stringify(userData),
     });
@@ -142,7 +170,7 @@ export const authAPI = {
    * @returns {Promise<object>} - Logout response
    */
   logout: async () => {
-    return apiRequest("/auth/logout", {
+    return apiRequest("/elections/api/auth/logout/", {
       method: "POST",
     });
   },
@@ -158,7 +186,10 @@ export const votingAPI = {
    * @returns {Promise<object>} - List of candidates
    */
   getCandidates: async (provinceId) => {
-    return apiRequest(`/voting/candidates/${provinceId}`, {
+    // Backend endpoint returns candidates for logged-in user's electoral area.
+    // If a provinceId is supplied, append as query param (backend may ignore).
+    const q = provinceId ? `?province_id=${provinceId}` : "";
+    return apiRequest(`/elections/api/candidates/${q}`, {
       method: "GET",
     });
   },
@@ -171,7 +202,9 @@ export const votingAPI = {
    * @returns {Promise<object>} - Vote confirmation
    */
   submitVote: async (voteData) => {
-    return apiRequest("/voting/vote", {
+    // Existing backend vote endpoint expects form-encoded POST at /elections/vote/submit/
+    // For now we POST JSON to a safer API path; backend must accept JSON at this path.
+    return apiRequest("/elections/api/vote/", {
       method: "POST",
       body: JSON.stringify(voteData),
     });
@@ -197,7 +230,7 @@ export const provinceAPI = {
    * @returns {Promise<object>} - List of provinces
    */
   getAll: async () => {
-    return apiRequest("/provinces", {
+    return apiRequest("/elections/api/provinces/", {
       method: "GET",
     });
   },
@@ -208,7 +241,7 @@ export const provinceAPI = {
    * @returns {Promise<object>} - Province details
    */
   getById: async (provinceId) => {
-    return apiRequest(`/provinces/${provinceId}`, {
+    return apiRequest(`/elections/api/provinces/${provinceId}`, {
       method: "GET",
     });
   },

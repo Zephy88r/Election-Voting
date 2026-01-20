@@ -10,10 +10,11 @@
 
 export const API_CONFIG = {
   // Set to true to use API, false to use localStorage
-  USE_API: false,
+  USE_API: true,
 
-  // Backend API base URL
-  API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
+  // Backend API base URL (point to Django dev server)
+  // Example: http://localhost:8000
+  API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
 
   // Request timeout in milliseconds
   TIMEOUT: 30000,

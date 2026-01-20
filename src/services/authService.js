@@ -5,6 +5,7 @@
  */
 
 import { authAPI } from './api';
+import { API_CONFIG } from '../config/apiConfig';
 import { setToken, setLoggedInUser, removeToken, removeLoggedInUser, getToken } from '../utils/authUtils';
 import { storage } from './storageService';
 import { notificationService } from './notificationService';
@@ -20,6 +21,20 @@ class AuthService {
    * @returns {Promise<object>} - Response with user and token
    */
   async register(userData) {
+    // Use backend API when API mode is enabled
+    if (API_CONFIG.USE_API) {
+      try {
+        const response = await authAPI.register(userData);
+        const user = response.user || response;
+        // For session auth, store user locally for UI
+        setLoggedInUser(user);
+        setToken(user.id?.toString() || user.username || 'session');
+        return { user };
+      } catch (error) {
+        throw error;
+      }
+    }
+
     // TODO: Replace with API call when backend is ready
     // try {
     //   const response = await authAPI.register(userData);
@@ -86,6 +101,18 @@ class AuthService {
    * @returns {Promise<object>} - Response with user and token
    */
   async login(credentials) {
+    if (API_CONFIG.USE_API) {
+      try {
+        const response = await authAPI.login(credentials);
+        const user = response.user || response;
+        setLoggedInUser(user);
+        setToken(user.id?.toString() || user.username || 'session');
+        return { user };
+      } catch (error) {
+        throw error;
+      }
+    }
+
     // TODO: Replace with API call when backend is ready
     // try {
     //   const response = await authAPI.login(credentials);
@@ -145,6 +172,13 @@ class AuthService {
    */
   logout() {
     try {
+      if (API_CONFIG.USE_API) {
+        try {
+          authAPI.logout();
+        } catch (e) {
+          // ignore logout errors but continue clearing local state
+        }
+      }
       removeToken();
       removeLoggedInUser();
     } catch (error) {
@@ -158,6 +192,17 @@ class AuthService {
    * @returns {Promise<object>} - User profile data
    */
   async getProfile() {
+    if (API_CONFIG.USE_API) {
+      try {
+        const profile = await authAPI.getProfile();
+        // keep local copy
+        setLoggedInUser(profile);
+        return profile;
+      } catch (error) {
+        throw error;
+      }
+    }
+
     // TODO: Replace with API call when backend is ready
     // try {
     //   const response = await authAPI.getProfile();

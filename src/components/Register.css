@@ -151,6 +151,7 @@
 .r-gradient-button {
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
   border: none;
+  width: 5rem;
   padding: var(--spacing-2) var(--spacing-3);
   font-size: var(--font-size-sm);
 }
@@ -170,6 +171,7 @@
   font-weight: var(--font-weight-medium);
   font-size: var(--font-size-base);
   margin: 0;
+  padding-right: 2rem;
 }
 
 .r-date-input {

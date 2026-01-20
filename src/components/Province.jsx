@@ -1,19 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from '../contexts/AuthContext';
 
 function Province() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    const loggedUser = JSON.parse(localStorage.getItem("loggedInUser"));
-    if (!loggedUser) {
+    if (!isAuthenticated) {
       navigate("/login");
       return;
     }
-    setUser(loggedUser);
-  }, []);
+  }, [isAuthenticated, navigate]);
 
   return (
     <div style={{ padding: "20px" }}>

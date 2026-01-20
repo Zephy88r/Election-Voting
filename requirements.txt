@@ -1,0 +1,6 @@
+Django==6.0
+django-cors-headers==4.0.0
+# Add your DB driver if using MySQL, for example:
+# mysqlclient==2.1.1
+requests==2.31.0
+python-dotenv==1.1.1

@@ -98,7 +98,7 @@ function Koshi() {
         type: 'success',
         title: 'Vote Submitted',
         message: `Your vote for ${candidate.name} in ${provinceName} has been recorded.`,
-        userId: localStorage.getItem('token'),
+        userId: user?.id || 'api-user',
       });
 
       // Reload candidates to update UI
