@@ -27,7 +27,7 @@ function Madhesh() {
   const requiredProvince = 'Province 2'; // Maps to Madhesh
 
   // Check if user has access to this province
-  const hasAccess = user?.province === requiredProvince;
+  const hasAccess = user?.province?.name === requiredProvince;
 
   useEffect(() => {
     // Check access first

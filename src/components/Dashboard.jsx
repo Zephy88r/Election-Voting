@@ -24,7 +24,7 @@ function Dashboard() {
   /**
    * Get user's province from registration
    */
-  const userProvince = user?.province;
+  const userProvince = user?.province?.name;
 
   /**
    * Check if a province is accessible to the user

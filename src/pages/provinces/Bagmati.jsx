@@ -27,7 +27,7 @@ function Bagmati() {
   const requiredProvince = 'Province 3'; // Maps to Bagmati
 
   // Check if user has access to this province
-  const hasAccess = user?.province === requiredProvince;
+  const hasAccess = user?.province?.name === requiredProvince;
 
   useEffect(() => {
     // Check access first

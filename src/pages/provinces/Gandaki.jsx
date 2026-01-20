@@ -27,7 +27,7 @@ function Gandaki() {
   const requiredProvince = 'Province 4'; // Maps to Gandaki
 
   // Check if user has access to this province
-  const hasAccess = user?.province === requiredProvince;
+  const hasAccess = user?.province?.name === requiredProvince;
 
   useEffect(() => {
     // Check access first

@@ -32,7 +32,7 @@ function Koshi() {
   const requiredProvince = 'Province 1'; // Maps to Koshi - TODO: Use getProvinceDisplayName from constants
 
   // Check if user has access to this province
-  const hasAccess = user?.province === requiredProvince;
+  const hasAccess = user?.province?.name === requiredProvince;
 
   useEffect(() => {
     // Check access first

@@ -27,7 +27,7 @@ function Karnali() {
   const requiredProvince = 'Province 6'; // Maps to Karnali
 
   // Check if user has access to this province
-  const hasAccess = user?.province === requiredProvince;
+  const hasAccess = user?.province?.name === requiredProvince;
 
   useEffect(() => {
     // Check access first

@@ -27,7 +27,7 @@ function Sudurpashchim() {
   const requiredProvince = 'Province 7'; // Maps to Sudurpashchim
 
   // Check if user has access to this province
-  const hasAccess = user?.province === requiredProvince;
+  const hasAccess = user?.province?.name === requiredProvince;
 
   useEffect(() => {
     // Check access first
