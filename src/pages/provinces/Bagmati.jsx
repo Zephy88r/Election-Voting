@@ -21,14 +21,13 @@ function Bagmati() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [hasVoted, setHasVoted] = useState(false);
-  const [votedPartyId, setVotedPartyId] = useState(null);
 
   const provinceId = 'bagmati';
   const provinceName = 'Bagmati';
   const requiredProvince = 'Province 3'; // Maps to Bagmati
 
   // Check if user has access to this province
-  const hasAccess = user?.province?.name === requiredProvince;
+  const hasAccess = user?.province === requiredProvince;
 
   useEffect(() => {
     // Check access first
@@ -36,37 +35,25 @@ function Bagmati() {
       setLoading(false);
       return;
     }
-    loadParties();
+    loadCandidates();
     checkVotingStatus();
   }, [hasAccess]);
 
-  const loadParties = async () => {
+  const loadCandidates = async () => {
     try {
       setLoading(true);
-      const parties = [
-        { id: '1', name: 'CPN UML' },
-        { id: '2', name: 'Nepali Congress' },
-        { id: '3', name: 'Rastra Swatantra Party (RSP)' },
-        { id: '4', name: 'CPN UML (Moist)' },
-      ];
-      setCandidates(parties);
+      const data = await votingService.getCandidates(provinceId);
+      setCandidates(data);
     } catch (err) {
-      setError(err.message || 'Failed to load parties');
+      setError(err.message || 'Failed to load candidates');
     } finally {
       setLoading(false);
     }
   };
 
-  const checkVotingStatus = async () => {
-    try {
-      const result = await votingService.hasVotedInProvince(provinceName);
-      setHasVoted(result.voted);
-      setVotedPartyId(result.partyId);
-    } catch (error) {
-      console.error('Error checking voting status:', error);
-      setHasVoted(false);
-      setVotedPartyId(null);
-    }
+  const checkVotingStatus = () => {
+    const voted = votingService.hasVotedInProvince(provinceId);
+    setHasVoted(voted);
   };
 
   const handleVote = async (partyId) => {
@@ -84,6 +71,7 @@ function Bagmati() {
 
       setSuccess(result.message || 'Vote submitted successfully!');
       setHasVoted(true);
+      setVotedPartyId(partyId);
 
       notificationService.createNotification({
         type: 'success',
@@ -143,7 +131,7 @@ function Bagmati() {
         <Card className="province-page-card" variant="elevated">
           <div className="province-page-header">
             <h1>{provinceName} Province</h1>
-            <p>Select your party and cast your vote</p>
+            <p>Select your candidate and cast your vote</p>
           </div>
 
           {error && <ErrorMessage message={error} />}
@@ -157,10 +145,10 @@ function Bagmati() {
 
           <div className="province-page-content">
             <div className="candidates-grid">
-              {candidates.map((party) => (
+              {candidates.map((candidate) => (
                 <VotingCard
-                  key={party.id}
-                  candidate={party}
+                  key={candidate.id}
+                  candidate={candidate}
                   hasVoted={hasVoted}
                   onVote={handleVote}
                   isSubmitting={submitting}

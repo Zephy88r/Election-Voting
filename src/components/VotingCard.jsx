@@ -15,8 +15,11 @@ import './VotingCard.css';
  * @param {function} onVote - Vote handler function
  * @param {boolean} isSubmitting - Whether vote is being submitted
  */
-const VotingCard = ({ candidate, hasVoted, onVote, isSubmitting }) => {
+const VotingCard = ({ candidate, hasVoted, onVote, isSubmitting, votedPartyId }) => {
   const [selected, setSelected] = useState(false);
+
+  const isVotedParty = votedPartyId === candidate.id;
+  const isDisabled = hasVoted && !isVotedParty;
 
   const handleVote = () => {
     if (!hasVoted && !isSubmitting) {
@@ -38,7 +41,7 @@ const VotingCard = ({ candidate, hasVoted, onVote, isSubmitting }) => {
 
   return (
     <Card
-      className={`voting-card ${hasVoted ? 'voting-card--voted' : ''} ${selected ? 'voting-card--selected' : ''}`}
+      className={`voting-card ${hasVoted ? 'voting-card--voted' : ''} ${selected ? 'voting-card--selected' : ''} ${isVotedParty ? 'voting-card--voted-party' : ''}`}
       variant="elevated"
     >
       <div className="voting-card__header">
@@ -54,10 +57,15 @@ const VotingCard = ({ candidate, hasVoted, onVote, isSubmitting }) => {
       </div>
 
       <div className="voting-card__footer">
-        {hasVoted ? (
-          <div className="voting-card__status">
+        {isVotedParty ? (
+          <div className="voting-card__status voting-card__status--voted">
             <span className="voting-card__status-icon">✓</span>
-            <span>You have already voted</span>
+            <span>You voted for this party</span>
+          </div>
+        ) : hasVoted ? (
+          <div className="voting-card__status voting-card__status--disabled">
+            <span className="voting-card__status-icon">✗</span>
+            <span>Voting completed</span>
           </div>
         ) : (
           <Button
