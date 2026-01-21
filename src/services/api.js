@@ -23,19 +23,11 @@ const API_BASE_URL = API_CONFIG.API_BASE_URL || import.meta.env.VITE_API_BASE_UR
 const apiRequest = async (endpoint, options = {}) => {
   const url = `${API_BASE_URL}${endpoint}`;
   
-  // Get token from localStorage for authenticated requests
-  const token = localStorage.getItem("token");
-  
   // Default headers
   const headers = {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
     ...options.headers,
   };
-
-  // Add authorization header if token exists
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
 
   const config = {
     ...options,
@@ -217,6 +209,85 @@ export const votingAPI = {
   getVotingStatus: async () => {
     return apiRequest("/voting/status", {
       method: "GET",
+    });
+  },
+
+  /**
+   * Get voting history for current user
+   * @returns {Promise<Array>} - List of votes
+   */
+  getVotingHistory: async () => {
+    return apiRequest("/elections/api/voting-history/", {
+      method: "GET",
+    });
+  },
+};
+
+/**
+ * Notification API endpoints
+ */
+export const notificationAPI = {
+  /**
+   * Get notifications for current user
+   * @returns {Promise<Array>} - List of notifications
+   */
+  getNotifications: async () => {
+    return apiRequest("/elections/api/notifications/", {
+      method: "GET",
+    });
+  },
+
+  /**
+   * Mark notification as read
+   * @param {string} notificationId - Notification ID
+   * @returns {Promise<object>} - Response
+   */
+  markAsRead: async (notificationId) => {
+    return apiRequest(`/elections/api/notifications/${notificationId}/read/`, {
+      method: "POST",
+    });
+  },
+
+  /**
+   * Mark all notifications as read
+   * @returns {Promise<object>} - Response
+   */
+  markAllAsRead: async () => {
+    return apiRequest("/elections/api/notifications/mark-all-read/", {
+      method: "POST",
+    });
+  },
+
+  /**
+   * Create a new notification
+   * @param {object} notificationData - Notification data
+   * @returns {Promise<object>} - Created notification
+   */
+  createNotification: async (notificationData) => {
+    return apiRequest("/elections/api/notifications/", {
+      method: "POST",
+      body: JSON.stringify(notificationData),
+    });
+  },
+
+  /**
+   * Delete a notification
+   * @param {string} notificationId - Notification ID
+   * @returns {Promise<object>} - Response
+   */
+  deleteNotification: async (notificationId) => {
+    return apiRequest(`/elections/api/notifications/${notificationId}/`, {
+      method: "DELETE",
+    });
+  },
+
+  /**
+   * Clear all notifications
+   * @returns {Promise<object>} - Response
+   */
+  clearAllNotifications: async () => {
+    return apiRequest("/elections/api/notifications/clear-all/", {
+      method: "POST",
     });
   },
 };

@@ -210,3 +210,37 @@ class PRResult(models.Model):
 
     def __str__(self):
         return f"{self.party} → {self.seats_allocated} seats"
+
+
+# ==============================
+# Notification
+# ==============================
+class Notification(models.Model):
+    NOTIFICATION_TYPES = (
+        ('success', 'Success'),
+        ('info', 'Information'),
+        ('warning', 'Warning'),
+        ('error', 'Error'),
+    )
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="notifications"
+    )
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    notification_type = models.CharField(
+        max_length=20,
+        choices=NOTIFICATION_TYPES,
+        default='info'
+    )
+    read = models.BooleanField(default=False)
+    read_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username}: {self.title}"

@@ -5,7 +5,6 @@
  */
 
 import { votingAPI } from './api';
-import { API_CONFIG } from '../config/apiConfig';
 import { storage } from './storageService';
 import { getToken } from '../utils/authUtils';
 
@@ -20,30 +19,11 @@ class VotingService {
    * @returns {Promise<Array>} - List of candidates
    */
   async getCandidates(provinceId) {
-    if (API_CONFIG.USE_API) {
-      try {
-        const res = await votingAPI.getCandidates(provinceId);
-        return res || [];
-      } catch (error) {
-        console.error('Get candidates API error:', error);
-        throw error;
-      }
-    }
-
-    // TODO: Replace with API call when backend is ready
-    // try {
-    //   const response = await votingAPI.getCandidates(provinceId);
-    //   return response.candidates || response;
-    // } catch (error) {
-    //   throw new Error(error.message || 'Failed to fetch candidates');
-    // }
-
-    // Temporary: Mock data for demonstration
     try {
-      const mockCandidates = this.getMockCandidates(provinceId);
-      return mockCandidates;
+      const res = await votingAPI.getCandidates(provinceId);
+      return res || [];
     } catch (error) {
-      console.error('Get candidates error:', error);
+      console.error('Get candidates API error:', error);
       throw error;
     }
   }
@@ -56,78 +36,11 @@ class VotingService {
    * @returns {Promise<object>} - Vote confirmation
    */
   async submitVote(voteData) {
-    if (API_CONFIG.USE_API) {
-      try {
-        const res = await votingAPI.submitVote(voteData);
-        // On success, also record locally for UI history
-        if (res && res.success) {
-          const vote = {
-            id: Date.now().toString(),
-            voterId: (voteData.voterId || 'api'),
-            provinceId: voteData.provinceId,
-            candidateId: voteData.candidateId,
-            candidateName: voteData.candidateName,
-            provinceName: voteData.provinceName,
-            votedAt: new Date().toISOString(),
-          };
-          const history = this.getVotingHistory();
-          history.push(vote);
-          storage.setItem('votingHistory', history);
-        }
-        return res;
-      } catch (error) {
-        console.error('Submit vote API error:', error);
-        throw error;
-      }
-    }
-
-    // TODO: Replace with API call when backend is ready
-    // try {
-    //   const response = await votingAPI.submitVote(voteData);
-    //   this.addToVotingHistory(voteData);
-    //   return response;
-    // } catch (error) {
-    //   throw new Error(error.message || 'Failed to submit vote');
-    // }
-
-    // Temporary: localStorage implementation
     try {
-      const token = getToken();
-      if (!token) {
-        throw new Error('Not authenticated');
-      }
-
-      // Check if user has already voted in this province
-      const votingHistory = this.getVotingHistory();
-      const existingVote = votingHistory.find(
-        (vote) => vote.provinceId === voteData.provinceId && vote.voterId === token
-      );
-
-      if (existingVote) {
-        throw new Error('You have already voted in this province');
-      }
-
-      // Save vote
-      const vote = {
-        id: Date.now().toString(),
-        voterId: token,
-        provinceId: voteData.provinceId,
-        candidateId: voteData.candidateId,
-        candidateName: voteData.candidateName,
-        provinceName: voteData.provinceName,
-        votedAt: new Date().toISOString(),
-      };
-
-      votingHistory.push(vote);
-      storage.setItem('votingHistory', votingHistory);
-
-      return {
-        success: true,
-        message: 'Vote submitted successfully!',
-        vote: vote,
-      };
+      const res = await votingAPI.submitVote(voteData);
+      return res;
     } catch (error) {
-      console.error('Submit vote error:', error);
+      console.error('Submit vote API error:', error);
       throw error;
     }
   }
@@ -137,32 +50,12 @@ class VotingService {
    * @returns {Promise<object>} - Voting status information
    */
   async getVotingStatus() {
-    // TODO: Replace with API call when backend is ready
-    // try {
-    //   const response = await votingAPI.getVotingStatus();
-    //   return response;
-    // } catch (error) {
-    //   throw new Error(error.message || 'Failed to fetch voting status');
-    // }
-
-    // Temporary: localStorage implementation
     try {
-      const token = getToken();
-      if (!token) {
-        throw new Error('Not authenticated');
-      }
-
-      const votingHistory = this.getVotingHistory();
-      const userVotes = votingHistory.filter((vote) => vote.voterId === token);
-
-      return {
-        totalVotes: userVotes.length,
-        votes: userVotes,
-        provincesVoted: userVotes.map((vote) => vote.provinceId),
-      };
+      const res = await votingAPI.getVotingStatus();
+      return res;
     } catch (error) {
-      console.error('Get voting status error:', error);
-      throw error;
+      console.error('Get voting status API error:', error);
+      return { totalVotes: 0, votes: [], provincesVoted: [] };
     }
   }
 
@@ -170,8 +63,16 @@ class VotingService {
    * Get voting history for current user
    * @returns {Array} - Array of votes
    */
-  getVotingHistory() {
-    return storage.getItem('votingHistory') || [];
+  async getVotingHistory() {
+    try {
+      // Assuming there's an API endpoint for voting history
+      const res = await votingAPI.getVotingHistory();
+      return res || [];
+    } catch (error) {
+      console.error('Get voting history API error:', error);
+      // Return empty array if API not available
+      return [];
+    }
   }
 
   /**
@@ -179,14 +80,17 @@ class VotingService {
    * @param {string} provinceId - Province identifier
    * @returns {boolean} - True if user has voted
    */
-  hasVotedInProvince(provinceId) {
-    const token = getToken();
-    if (!token) return false;
-
-    const votingHistory = this.getVotingHistory();
-    return votingHistory.some(
-      (vote) => vote.provinceId === provinceId && vote.voterId === token
-    );
+  async hasVotedInProvince(provinceId) {
+    try {
+      const votingHistory = await this.getVotingHistory();
+      // Since we're using session auth, the backend knows the user
+      return votingHistory.some(
+        (vote) => vote.provinceId === provinceId
+      );
+    } catch (error) {
+      console.error('Check voting status error:', error);
+      return false;
+    }
   }
 
   /**

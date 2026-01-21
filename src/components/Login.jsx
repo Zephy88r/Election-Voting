@@ -165,7 +165,7 @@ function Login() {
                   }
                 }}
               >
-                {isPasswordVisible ? <FaEyeSlash /> : <FaEye />}
+                {isPasswordVisible ? <FaEye /> : <FaEyeSlash />}
               </span>
             }
           />

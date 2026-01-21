@@ -23,21 +23,31 @@ const NotificationBell = () => {
   /**
    * Load notifications
    */
-  const loadNotifications = () => {
-    const notifs = notificationService.getNotifications();
-    const unread = notificationService.getUnreadCount();
-    setNotifications(notifs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
-    setUnreadCount(unread);
+  const loadNotifications = async () => {
+    try {
+      const notifs = await notificationService.getNotifications();
+      const unread = await notificationService.getUnreadCount();
+      if (Array.isArray(notifs)) {
+        setNotifications(notifs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+      } else {
+        setNotifications([]);
+      }
+      setUnreadCount(typeof unread === 'number' ? unread : 0);
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+      setNotifications([]);
+      setUnreadCount(0);
+    }
   };
 
   /**
    * Toggle dropdown
    */
-  const toggleDropdown = () => {
+  const toggleDropdown = async () => {
     setIsOpen(!isOpen);
     if (!isOpen) {
       // Mark all as read when opening
-      notificationService.markAllAsRead();
+      await notificationService.markAllAsRead();
       loadNotifications();
     }
   };
@@ -64,8 +74,8 @@ const NotificationBell = () => {
   /**
    * Delete notification
    */
-  const handleDelete = (notificationId) => {
-    notificationService.deleteNotification(notificationId);
+  const handleDelete = async (notificationId) => {
+    await notificationService.deleteNotification(notificationId);
     loadNotifications();
   };
 
@@ -91,8 +101,8 @@ const NotificationBell = () => {
             <h3>Notifications</h3>
             {notifications.length > 0 && (
               <button
-                onClick={() => {
-                  notificationService.clearAll();
+                onClick={async () => {
+                  await notificationService.clearAll();
                   loadNotifications();
                 }}
                 className="notification-bell__clear"

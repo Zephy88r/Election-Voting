@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authService } from '../services/authService';
-import { API_CONFIG } from '../config/apiConfig';
 import { storageHelper } from '../utils/storage';
 import { setSessionTimeout, isSessionExpired, clearSessionTimeout } from '../utils/sessionManager';
 
@@ -29,55 +28,16 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        if (API_CONFIG.USE_API) {
-          // Try to get profile from API (session-based)
-          try {
-            const profile = await authService.getProfile();
-            setAuthState({
-              isAuthenticated: true,
-              user: profile,
-              loading: false,
-            });
-            setSessionTimeout();
-            return;
-          } catch (e) {
-            // Not authenticated via API, fall back to local
-            console.log('API auth check failed, using localStorage');
-          }
-        }
-
-        // Fallback to localStorage
-        const storedAuth = storageHelper.getAuthState();
-        
-        // Check if session is expired
-        if (isSessionExpired()) {
-          clearSessionTimeout();
-          storageHelper.clearAuthState();
-          setAuthState({
-            isAuthenticated: false,
-            user: null,
-            loading: false,
-          });
-          return;
-        }
-        
-        if (storedAuth && storedAuth.isAuthenticated && storedAuth.user) {
-          setAuthState({
-            isAuthenticated: true,
-            user: storedAuth.user,
-            loading: false,
-          });
-          // Refresh session timeout
-          setSessionTimeout();
-        } else {
-          setAuthState({
-            isAuthenticated: false,
-            user: null,
-            loading: false,
-          });
-        }
-      } catch (error) {
-        console.error('Error initializing auth:', error);
+        // Try to get profile from API (session-based)
+        const profile = await authService.getProfile();
+        setAuthState({
+          isAuthenticated: true,
+          user: profile,
+          loading: false,
+        });
+        setSessionTimeout();
+      } catch (e) {
+        // Not authenticated via API
         setAuthState({
           isAuthenticated: false,
           user: null,
@@ -92,7 +52,6 @@ export const AuthProvider = ({ children }) => {
     const sessionCheckInterval = setInterval(() => {
       if (isSessionExpired() && authState.isAuthenticated) {
         clearSessionTimeout();
-        storageHelper.clearAuthState();
         setAuthState({
           isAuthenticated: false,
           user: null,
@@ -124,14 +83,8 @@ export const AuthProvider = ({ children }) => {
 
       setAuthState(newAuthState);
       
-      // Store auth state based on Remember Me preference (for localStorage fallback)
-      if (credentials.rememberMe) {
-        storageHelper.setAuthStatePersistent(newAuthState);
-      } else {
-        storageHelper.setAuthState(newAuthState);
-        // Set session timeout (30 minutes)
-        setSessionTimeout();
-      }
+      // Set session timeout (30 minutes)
+      setSessionTimeout();
 
       return { user };
     } catch (error) {
@@ -160,7 +113,6 @@ export const AuthProvider = ({ children }) => {
       };
 
       setAuthState(newAuthState);
-      storageHelper.setAuthState(newAuthState);
       
       // Set session timeout (30 minutes)
       setSessionTimeout();
@@ -180,7 +132,6 @@ export const AuthProvider = ({ children }) => {
     try {
       authService.logout();
       clearSessionTimeout();
-      storageHelper.clearAuthState();
       setAuthState({
         isAuthenticated: false,
         user: null,

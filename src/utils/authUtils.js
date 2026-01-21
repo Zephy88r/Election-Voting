@@ -7,42 +7,42 @@ const TOKEN_KEY = "token";
 const USER_KEY = "loggedInUser";
 
 /**
- * Get authentication token from localStorage
- * @returns {string|null} - Token string or null if not found
+ * Get authentication token (not used in session auth)
+ * @returns {string|null} - Always returns null
  */
 export const getToken = () => {
-  return localStorage.getItem(TOKEN_KEY);
+  return null;
 };
 
 /**
- * Set authentication token in localStorage
+ * Set authentication token (not used in session auth)
  * @param {string} token - JWT token string
  */
 export const setToken = (token) => {
-  localStorage.setItem(TOKEN_KEY, token);
+  // Do nothing
 };
 
 /**
- * Remove authentication token from localStorage
+ * Remove authentication token (not used in session auth)
  */
 export const removeToken = () => {
-  localStorage.removeItem(TOKEN_KEY);
+  // Do nothing
 };
 
 /**
- * Check if user is authenticated
- * @returns {boolean} - true if token exists, false otherwise
+ * Check if user is authenticated (use AuthContext state)
+ * @returns {boolean} - Always returns false, check AuthContext
  */
 export const isAuthenticated = () => {
-  return !!getToken();
+  return false;
 };
 
 /**
- * Get logged in user data from localStorage
+ * Get logged in user data from sessionStorage
  * @returns {object|null} - User object or null if not found
  */
 export const getLoggedInUser = () => {
-  const userStr = localStorage.getItem(USER_KEY);
+  const userStr = sessionStorage.getItem(USER_KEY);
   if (!userStr) return null;
   
   try {
@@ -54,18 +54,18 @@ export const getLoggedInUser = () => {
 };
 
 /**
- * Set logged in user data in localStorage
+ * Set logged in user data in sessionStorage
  * @param {object} user - User object to store
  */
 export const setLoggedInUser = (user) => {
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
+  sessionStorage.setItem(USER_KEY, JSON.stringify(user));
 };
 
 /**
- * Remove logged in user data from localStorage
+ * Remove logged in user data from sessionStorage
  */
 export const removeLoggedInUser = () => {
-  localStorage.removeItem(USER_KEY);
+  sessionStorage.removeItem(USER_KEY);
 };
 
 /**

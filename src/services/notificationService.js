@@ -4,7 +4,7 @@
  * Ready for backend API integration
  */
 
-import { storage } from './storageService';
+import { notificationAPI } from './api';
 import { getToken } from '../utils/authUtils';
 
 /**
@@ -16,58 +16,51 @@ class NotificationService {
    * Get all notifications for current user
    * @returns {Array} - Array of notifications
    */
-  getNotifications() {
-    const token = getToken();
-    if (!token) return [];
-
-    const allNotifications = storage.getItem('notifications') || [];
-    return allNotifications.filter((notif) => notif.userId === token);
+  async getNotifications() {
+    try {
+      const notifications = await notificationAPI.getNotifications();
+      return notifications || [];
+    } catch (error) {
+      console.error('Get notifications API error:', error);
+      return [];
+    }
   }
 
   /**
    * Get unread notification count
    * @returns {number} - Count of unread notifications
    */
-  getUnreadCount() {
-    const notifications = this.getNotifications();
-    return notifications.filter((notif) => !notif.read).length;
+  async getUnreadCount() {
+    try {
+      const notifications = await this.getNotifications();
+      return notifications.filter((notif) => !notif.read).length;
+    } catch (error) {
+      console.error('Get unread count error:', error);
+      return 0;
+    }
   }
 
   /**
    * Mark notification as read
    * @param {string} notificationId - Notification ID
    */
-  markAsRead(notificationId) {
-    const token = getToken();
-    if (!token) return;
-
-    const allNotifications = storage.getItem('notifications') || [];
-    const notification = allNotifications.find(
-      (notif) => notif.id === notificationId && notif.userId === token
-    );
-
-    if (notification) {
-      notification.read = true;
-      notification.readAt = new Date().toISOString();
-      storage.setItem('notifications', allNotifications);
+  async markAsRead(notificationId) {
+    try {
+      await notificationAPI.markAsRead(notificationId);
+    } catch (error) {
+      console.error('Mark as read API error:', error);
     }
   }
 
   /**
    * Mark all notifications as read
    */
-  markAllAsRead() {
-    const token = getToken();
-    if (!token) return;
-
-    const allNotifications = storage.getItem('notifications') || [];
-    allNotifications.forEach((notif) => {
-      if (notif.userId === token && !notif.read) {
-        notif.read = true;
-        notif.readAt = new Date().toISOString();
-      }
-    });
-    storage.setItem('notifications', allNotifications);
+  async markAllAsRead() {
+    try {
+      await notificationAPI.markAllAsRead();
+    } catch (error) {
+      console.error('Mark all as read API error:', error);
+    }
   }
 
   /**
@@ -78,46 +71,43 @@ class NotificationService {
    * @param {string} notificationData.message - Notification message
    * @param {string} notificationData.userId - User ID
    */
-  createNotification(notificationData) {
-    const notification = {
-      id: Date.now().toString(),
-      ...notificationData,
-      read: false,
-      createdAt: new Date().toISOString(),
-    };
-
-    const allNotifications = storage.getItem('notifications') || [];
-    allNotifications.push(notification);
-    storage.setItem('notifications', allNotifications);
-
-    return notification;
+  async createNotification(notificationData) {
+    try {
+      const notification = await notificationAPI.createNotification(notificationData);
+      return notification;
+    } catch (error) {
+      console.error('Create notification API error:', error);
+      // Return a local notification if API fails
+      return {
+        id: Date.now().toString(),
+        ...notificationData,
+        read: false,
+        createdAt: new Date().toISOString(),
+      };
+    }
   }
 
   /**
    * Delete a notification
    * @param {string} notificationId - Notification ID
    */
-  deleteNotification(notificationId) {
-    const token = getToken();
-    if (!token) return;
-
-    const allNotifications = storage.getItem('notifications') || [];
-    const filtered = allNotifications.filter(
-      (notif) => !(notif.id === notificationId && notif.userId === token)
-    );
-    storage.setItem('notifications', filtered);
+  async deleteNotification(notificationId) {
+    try {
+      await notificationAPI.deleteNotification(notificationId);
+    } catch (error) {
+      console.error('Delete notification API error:', error);
+    }
   }
 
   /**
    * Clear all notifications for current user
    */
-  clearAll() {
-    const token = getToken();
-    if (!token) return;
-
-    const allNotifications = storage.getItem('notifications') || [];
-    const filtered = allNotifications.filter((notif) => notif.userId !== token);
-    storage.setItem('notifications', filtered);
+  async clearAll() {
+    try {
+      await notificationAPI.clearAllNotifications();
+    } catch (error) {
+      console.error('Clear all notifications API error:', error);
+    }
   }
 }
 

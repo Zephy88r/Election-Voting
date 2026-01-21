@@ -19,7 +19,7 @@ import './Profile.css';
  */
 function Profile() {
   const navigate = useNavigate();
-  const { user, updateUser, isLoading: authLoading } = useAuth();
+  const { user, updateUser, isLoading: authLoading, logout } = useAuth();
   const fileInputRef = useRef(null);
 
   const [loading, setLoading] = useState(true);
@@ -391,6 +391,12 @@ function Profile() {
                     onClick={() => setIsEditing(true)}
                   >
                     Edit Profile
+                  </Button>
+                  <Button
+                    variant="danger"
+                    onClick={logout}
+                  >
+                    Logout
                   </Button>
                 </>
               )}
