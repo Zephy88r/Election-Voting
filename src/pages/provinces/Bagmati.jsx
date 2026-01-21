@@ -151,8 +151,7 @@ function Bagmati() {
                   candidate={candidate}
                   hasVoted={hasVoted}
                   onVote={handleVote}
-                  isSubmitting={submitting}
-                />
+                  isSubmitting={submitting}                  votedPartyId={votedPartyId}                />
               ))}
             </div>
           </div>

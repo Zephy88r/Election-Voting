@@ -26,6 +26,7 @@ function Koshi() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [hasVoted, setHasVoted] = useState(false);
+  const [votedPartyId, setVotedPartyId] = useState(null);
 
   const provinceId = 'koshi';
   const provinceName = 'Koshi';
@@ -66,9 +67,16 @@ function Koshi() {
   /**
    * Check if user has already voted
    */
-  const checkVotingStatus = () => {
-    const voted = votingService.hasVotedInProvince(provinceId);
-    setHasVoted(voted);
+  const checkVotingStatus = async () => {
+    try {
+      const result = await votingService.hasVotedInProvince(provinceName);
+      setHasVoted(result.voted);
+      setVotedPartyId(result.partyId);
+    } catch (error) {
+      console.error('Error checking voting status:', error);
+      setHasVoted(false);
+      setVotedPartyId(null);
+    }
   };
 
   /**
@@ -89,6 +97,7 @@ function Koshi() {
 
       setSuccess(result.message || 'Vote submitted successfully!');
       setHasVoted(true);
+      setVotedPartyId(partyId);
 
       // Create notification
       notificationService.createNotification({
@@ -171,6 +180,7 @@ function Koshi() {
                   hasVoted={hasVoted}
                   onVote={handleVote}
                   isSubmitting={submitting}
+                  votedPartyId={votedPartyId}
                 />
               ))}
             </div>

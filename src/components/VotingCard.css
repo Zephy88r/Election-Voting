@@ -17,9 +17,17 @@
   background: rgba(40, 167, 69, 0.05);
 }
 
-.voting-card--voted {
-  opacity: 0.7;
-  cursor: not-allowed;
+.voting-card--voted-party {
+  border: 3px solid var(--color-success);
+  background: rgba(40, 167, 69, 0.1);
+}
+
+.voting-card--voted-party .voting-card__status--voted {
+  color: var(--color-success);
+}
+
+.voting-card__status--disabled {
+  color: var(--color-text-muted);
 }
 
 .voting-card__header {
