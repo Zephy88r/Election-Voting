@@ -19,19 +19,20 @@ const provinces = PROVINCES_DATA;
  */
 function Dashboard() {
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
 
   /**
-   * Get user's province from registration
+   * Get user's province name from registration (e.g. 'Koshi')
    */
-  const userProvince = user?.province?.name;
+  const userProvinceName = user?.province?.name;
 
   /**
    * Check if a province is accessible to the user
+   * Compare by `name` (e.g. 'Koshi') rather than the displayName ('Province 1')
    */
-  const isProvinceAccessible = (provinceDisplayName) => {
-    if (!isAuthenticated) return false;
-    return userProvince === provinceDisplayName;
+  const isProvinceAccessible = (provinceObj) => {
+    if (!isAuthenticated || !userProvinceName) return false;
+    return String(provinceObj.name).toLowerCase().trim() === String(userProvinceName).toLowerCase().trim();
   };
 
   /**
@@ -46,9 +47,9 @@ function Dashboard() {
       return;
     }
 
-    // Check if user has access to this province
-    if (!isProvinceAccessible(province.displayName)) {
-      alert(`Access Denied: You can only vote in ${userProvince}`);
+    // Check if user has access to this province (pass the full province object)
+    if (!isProvinceAccessible(province)) {
+      alert(`Access Denied: You can only vote in ${userProvinceName}`);
       return;
     }
 
@@ -60,62 +61,69 @@ function Dashboard() {
       <Navbar />
       <div className="dashboard">
         <div className="dashboard-content">
-          {isAuthenticated && user && (
-            <div className="dashboard-welcome">
-              <h2>Welcome back, {user.name}!</h2>
-              <p>You are registered in: <strong>{userProvince}</strong></p>
-              <p>Select your province to view voting information</p>
+          {loading ? (
+            <div className="dashboard-loading">
+              <p>Loading...</p>
             </div>
-          )}
-
-          {!isAuthenticated && (
-            <div className="dashboard-welcome">
-              <h2>Nepal Election Voting System</h2>
-              <p>Please sign in to access your province voting page</p>
-            </div>
-          )}
-
-          <h1>Select Your Province</h1>
-
-          <div className="province-grid">
-            {provinces.map((province) => {
-              const isAccessible = isProvinceAccessible(province.displayName);
-              const isDisabled = !isAuthenticated || !isAccessible;
-
-              return (
-                <div
-                  key={province.name}
-                  className={`province-card ${isDisabled ? 'disabled' : ''}`}
-                  onClick={() => handleProvinceClick(province)}
-                  role="button"
-                  tabIndex={isDisabled ? -1 : 0}
-                  aria-label={`Navigate to ${province.name} province`}
-                  aria-disabled={isDisabled}
-                  onKeyDown={(e) => {
-                    if ((e.key === 'Enter' || e.key === ' ') && !isDisabled) {
-                      handleProvinceClick(province);
-                    }
-                  }}
-                  style={{
-                    opacity: isDisabled ? 0.5 : 1,
-                    cursor: isDisabled ? 'not-allowed' : 'pointer',
-                  }}
-                >
-                  <img src={province.img} alt={province.name} loading="lazy" />
-                  <div className="province-overlay">
-                    <h2>{province.name}</h2>
-                    {isAuthenticated && !isAccessible && (
-                      <p className="province-restricted">Access Restricted</p>
-                    )}
-                    {isAccessible && (
-                      <p className="province-accessible">Your Province</p>
-                    )}
-                  </div>
+          ) : (
+            <>
+              {isAuthenticated && user && (
+                <div className="dashboard-welcome">
+                  <h2>Welcome back, {user.name}!</h2>
+                  <p>You are registered in: <strong>{userProvinceName}</strong></p>
+                  <p>Select your province to view voting information</p>
                 </div>
-              );
-            })}
-          </div>
+              )}
 
+              {!isAuthenticated && (
+                <div className="dashboard-welcome">
+                  <h2>Nepal Election Voting System</h2>
+                  <p>Please sign in to access your province voting page</p>
+                </div>
+              )}
+
+              <h1>Select Your Province</h1>
+
+              <div className="province-grid">
+                {provinces.map((province) => {
+                  const isAccessible = isProvinceAccessible(province);
+                  const isDisabled = !isAuthenticated || !isAccessible;
+
+                  return (
+                    <div
+                      key={province.name}
+                      className={`province-card ${isDisabled ? 'disabled' : ''}`}
+                      onClick={() => handleProvinceClick(province)}
+                      role="button"
+                      tabIndex={isDisabled ? -1 : 0}
+                      aria-label={`Navigate to ${province.name} province`}
+                      aria-disabled={isDisabled}
+                      onKeyDown={(e) => {
+                        if ((e.key === 'Enter' || e.key === ' ') && !isDisabled) {
+                          handleProvinceClick(province);
+                        }
+                      }}
+                      style={{
+                        opacity: isDisabled ? 0.5 : 1,
+                        cursor: isDisabled ? 'not-allowed' : 'pointer',
+                      }}
+                    >
+                      <img src={province.img} alt={province.name} loading="lazy" />
+                      <div className="province-overlay">
+                        <h2>{province.name}</h2>
+                        {isAuthenticated && !isAccessible && (
+                          <p className="province-restricted">Access Restricted</p>
+                        )}
+                        {isAccessible && (
+                          <p className="province-accessible">Your Province</p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </div>
       </div>
 

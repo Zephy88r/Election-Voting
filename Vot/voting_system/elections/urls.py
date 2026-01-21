@@ -11,6 +11,7 @@ urlpatterns = [
     path("api/parties/", views_api.party_list, name="party-list"),
     path("api/vote/", views.api_vote, name="api-vote"),
     path("api/csrf/", views.get_csrf, name="api-csrf"),
+    path("api/registration-data/", views_api.get_registration_data, name="registration-data"),
 
     # New API endpoints
     path("api/voting-history/", views_api.voting_history, name="voting-history"),

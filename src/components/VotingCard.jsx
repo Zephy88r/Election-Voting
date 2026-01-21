@@ -8,9 +8,9 @@ import './VotingCard.css';
 
 /**
  * VotingCard Component
- * Displays candidate information and voting functionality
+ * Displays party information and voting functionality
  * 
- * @param {object} candidate - Candidate data
+ * @param {object} candidate - Party data (for backward compatibility, actually represents party)
  * @param {boolean} hasVoted - Whether user has already voted
  * @param {function} onVote - Vote handler function
  * @param {boolean} isSubmitting - Whether vote is being submitted
@@ -25,21 +25,32 @@ const VotingCard = ({ candidate, hasVoted, onVote, isSubmitting }) => {
     }
   };
 
+  // Party symbols mapping
+  const getPartySymbol = (partyName) => {
+    const symbols = {
+      'CPN UML': '☭',
+      'Nepali Congress': '🌾',
+      'Rastra Swatantra Party (RSP)': '🏛️',
+      'CPN UML (Moist)': '⚡'
+    };
+    return symbols[partyName] || '🏛️';
+  };
+
   return (
     <Card
       className={`voting-card ${hasVoted ? 'voting-card--voted' : ''} ${selected ? 'voting-card--selected' : ''}`}
       variant="elevated"
     >
       <div className="voting-card__header">
-        <div className="voting-card__symbol">{candidate.symbol}</div>
+        <div className="voting-card__symbol">{getPartySymbol(candidate.name)}</div>
         <div className="voting-card__info">
           <h3 className="voting-card__name">{candidate.name}</h3>
-          <p className="voting-card__party">{candidate.party}</p>
+          <p className="voting-card__party">Political Party</p>
         </div>
       </div>
 
       <div className="voting-card__body">
-        <p className="voting-card__bio">{candidate.bio}</p>
+        <p className="voting-card__bio">Vote for {candidate.name} to support their vision for Nepal's future.</p>
       </div>
 
       <div className="voting-card__footer">
@@ -56,7 +67,7 @@ const VotingCard = ({ candidate, hasVoted, onVote, isSubmitting }) => {
             loading={isSubmitting && selected}
             className="voting-card__button"
           >
-            {selected ? 'Vote Submitted' : 'Vote for this Candidate'}
+            {selected ? 'Vote Submitted' : 'Vote for this Party'}
           </Button>
         )}
       </div>

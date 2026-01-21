@@ -85,7 +85,17 @@ def api_login(request):
     if not voter_id or not password:
         return JsonResponse({"error": "voterId and password required"}, status=400)
 
+    # Try to authenticate - handle both username/voterId and email
     user = authenticate(request, username=voter_id, password=password)
+    
+    # If authentication failed and input looks like email, try to find user by email first
+    if user is None and "@" in voter_id:
+        try:
+            user_by_email = User.objects.get(email=voter_id)
+            user = authenticate(request, username=user_by_email.username, password=password)
+        except User.DoesNotExist:
+            pass
+    
     if user is None:
         return JsonResponse({"error": "Invalid credentials"}, status=401)
 
@@ -167,6 +177,7 @@ def get_csrf(request):
 def register_voter(request):
     """
     Register a new voter. Method: POST
+    Accepts: { name, email, password, province_id, district_id, electoral_area_id }
     """
     if request.method != "POST":
         return JsonResponse({"error": "POST request required"}, status=405)
@@ -179,11 +190,13 @@ def register_voter(request):
         password = data.get("password")
         province_id = data.get("province_id")
         district_id = data.get("district_id")
-        electoral_area_id = data.get("electoral_area")
+        electoral_area_id = data.get("electoral_area_id") or data.get("electoral_area")
 
         # Basic validation
-        if not all([name, email, password, province_id, district_id, electoral_area_id]):
-            return JsonResponse({"error": "All fields are required"}, status=400)
+        if not all([name, email, password, province_id, district_id]):
+            return JsonResponse({
+                "error": "Missing required fields. Need: name, email, password, province_id, district_id"
+            }, status=400)
 
         if User.objects.filter(username=email).exists():
             return JsonResponse({"error": "User already exists"}, status=400)
@@ -191,7 +204,9 @@ def register_voter(request):
         # Validate region mapping
         province = Province.objects.get(id=province_id)
         district = District.objects.get(id=district_id, province=province)
-        electoral_area = ElectoralArea.objects.get(id=electoral_area_id, province=province)
+        electoral_area = None
+        if electoral_area_id:
+            electoral_area = ElectoralArea.objects.get(id=electoral_area_id, province=province)
 
         # Atomic creation
         with transaction.atomic():
@@ -205,16 +220,29 @@ def register_voter(request):
                 electoral_area=electoral_area
             )
 
-        return JsonResponse({"success": "Voter registered successfully"}, status=201)
+        # Do NOT auto-login: user should explicitly login after registration
+        return JsonResponse({
+            "success": True, 
+            "message": "Voter registered successfully",
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "name": user.first_name,
+                "province": {"id": province.id, "name": province.name} if province else None,
+                "district": {"id": district.id, "name": district.name} if district else None,
+                "electoral_area": {"id": electoral_area.id, "name": electoral_area.name} if electoral_area else None
+            }
+        }, status=201)
 
     except Province.DoesNotExist:
-        return JsonResponse({"error": "Invalid province"}, status=400)
+        return JsonResponse({"error": "Invalid province ID"}, status=400)
     except District.DoesNotExist:
         return JsonResponse({"error": "Invalid district for selected province"}, status=400)
     except ElectoralArea.DoesNotExist:
-        return JsonResponse({"error": "Invalid electoral area"}, status=400)
+        return JsonResponse({"error": "Invalid electoral area for selected province"}, status=400)
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+        return JsonResponse({"error": f"Registration failed: {str(e)}"}, status=500)
 
 
 # ------------------------------

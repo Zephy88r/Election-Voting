@@ -1,12 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 // import CameraCapture from './CameraCapture';
 import { validateADDate } from '../utils/dateValidation';
 import { validateField } from '../utils/validation';
-import { PROVINCE_OPTIONS } from '../constants/provinces';
-import { DISTRICTS_BY_PROVINCE } from '../constants/district';
+import { API_CONFIG } from '../config/apiConfig';
 import { getErrorMessage, getSuccessMessage } from '../utils/errorMessages';
 import { sanitizeEmail, sanitizePhone, sanitizeText } from '../utils/sanitize';
 import Button from './common/Button';
@@ -18,57 +17,8 @@ import LoadingSpinner from './common/LoadingSpinner';
 import PasswordStrength from './common/PasswordStrength';
 import './Register.css';
 
-/**
- * Helper functions to convert string names to integer IDs for backend API
- */
-const getProvinceId = (provinceName) => {
-  const provinceMap = {
-    'Province 1': 1,
-    'Province 2': 2,
-    'Province 3': 3,
-  };
-  return provinceMap[provinceName] || 1; // Default to 1 if not found
-};
-
-const getDistrictId = (provinceName, districtName) => {
-  // District IDs are sequential within provinces
-  const districtMap = {
-    'Province 1': {
-      'District 1': 1,
-      'District 2': 2,
-    },
-    'Province 2': {
-      'District 1': 3, // Next available ID
-    },
-    'Province 3': {
-      'District 1': 4,
-    },
-  };
-  return districtMap[provinceName]?.[districtName] || 1;
-};
-
-const getElectoralAreaId = (provinceName, areaName) => {
-  // Electoral area IDs are sequential within provinces
-  const areaMap = {
-    'Province 1': {
-      'Area 1': 1,
-    },
-    'Province 3': {
-      'Area 2': 2,
-    },
-  };
-  return areaMap[provinceName]?.[areaName] || 1;
-};
-
-const getElectoralAreasForProvince = (provinceName) => {
-  // Return available electoral areas for the selected province
-  const areasByProvince = {
-    'Province 1': ['Area 1'],
-    'Province 2': ['Area 1'], // Default area for Province 2
-    'Province 3': ['Area 2'],
-  };
-  return areasByProvince[provinceName] || [];
-};
+// We'll fetch registration data (provinces, districts, electoral areas)
+// from the backend on mount. This avoids hardcoded mappings.
 
 /**
  * Register Component
@@ -97,11 +47,29 @@ function Register() {
     confirm: '',
     province: '', // Province selection
     district:'', // District selection
-    electoral_area: '', // Electoral area selection
+    // electoral_area removed (no longer collected on registration)
   });
 
-  // Province options from constants
-  const provinces = PROVINCE_OPTIONS;
+  // Registration data loaded from backend: provinces with nested districts and electoral_areas
+  const [registrationData, setRegistrationData] = useState([]);
+  const provinces = registrationData;
+
+  // Fetch registration data on mount
+  useEffect(() => {
+    const base = API_CONFIG.API_BASE_URL || import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+    fetch(`${base}/elections/api/registration-data/`, { credentials: 'include' })
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load registration data');
+        return res.json();
+      })
+      .then((data) => {
+        setRegistrationData(data.provinces || []);
+      })
+      .catch((err) => {
+        console.error('Registration data load error:', err);
+        setRegistrationData([]);
+      });
+  }, []);
 
   const [errors, setErrors] = useState({});
 
@@ -183,10 +151,7 @@ function Register() {
       newErrors.district = 'District is required';
     }
 
-    // ✅ Validate electoral area
-    if (!formData.electoral_area || formData.electoral_area.trim() === '') {
-      newErrors.electoral_area = 'Electoral area is required';
-    }
+    // Electoral area is no longer required at registration and may be assigned later
 
     // Validate each field
     const nameValidation = validateField('name', formData.name);
@@ -258,9 +223,10 @@ function Register() {
         voterId: formData.voterId.trim(),
         password: formData.password,
         // Convert string names to integer IDs for backend
-        province_id: getProvinceId(formData.province),
-        district_id: getDistrictId(formData.province, formData.district),
-        electoral_area: getElectoralAreaId(formData.province, formData.electoral_area),
+        province_id: formData.province ? parseInt(formData.province, 10) : null,
+        district_id: formData.district ? parseInt(formData.district, 10) : null,
+        // electoral_area intentionally omitted from registration payload
+        // electoral_area_id: formData.electoral_area ? parseInt(formData.electoral_area, 10) : null,
         // faceImage: faceImage,
       };
 
@@ -268,10 +234,10 @@ function Register() {
       
       setSuccess(getSuccessMessage('register'));
       
-      // Redirect to login after 2 seconds
+      // Redirect to login page after registration
       setTimeout(() => {
         navigate('/login');
-      }, 2000);
+      }, 500);
     } catch (err) {
       setError(getErrorMessage(err, 'register'));
     } finally {
@@ -362,8 +328,8 @@ function Register() {
             >
               <option value="">Select your province</option>
               {provinces.map((province) => (
-                <option key={province} value={province}>
-                  {province}
+                <option key={province.id} value={province.id}>
+                  {province.name}
                 </option>
               ))}
             </select>
@@ -393,9 +359,9 @@ function Register() {
               </option>
 
               {formData.province &&
-                DISTRICTS_BY_PROVINCE[formData.province]?.map((district) => (
-                  <option key={district} value={district}>
-                    {district}
+                (registrationData.find((p) => String(p.id) === String(formData.province))?.districts || []).map((district) => (
+                  <option key={district.id} value={district.id}>
+                    {district.name}
                   </option>
                 ))}
             </select>
@@ -406,37 +372,6 @@ function Register() {
           </div>
 
 
-          {/* Electoral Area Selection */}
-          <div className="r-form-group">
-            <label htmlFor="electoral_area">
-              Electoral Area <span className="required">*</span>
-            </label>
-
-            <select
-              id="electoral_area"
-              name="electoral_area"
-              value={formData.electoral_area}
-              onChange={handleChange}
-              className={`r-select-input ${errors.electoral_area ? 'error' : ''}`}
-              disabled={!formData.province}
-              required
-            >
-              <option value="">
-                {formData.province ? 'Select your electoral area' : 'Select province first'}
-              </option>
-
-              {formData.province &&
-                getElectoralAreasForProvince(formData.province).map((area) => (
-                  <option key={area} value={area}>
-                    {area}
-                  </option>
-                ))}
-            </select>
-
-            {errors.electoral_area && (
-              <span className="r-error-message">{errors.electoral_area}</span>
-            )}
-          </div>
 
 
           {/* DOB + Voter ID Row */}

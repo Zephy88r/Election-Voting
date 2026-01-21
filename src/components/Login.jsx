@@ -182,7 +182,7 @@ function Login() {
               />
               <span>Remember me</span>
             </label>
-            <p className="remember-me-help">Stay logged in on this device</p>
+            <p className="remember-me-help">Stay logged in on this Device</p>
           </div>
 
           {/* Forgot Password */}

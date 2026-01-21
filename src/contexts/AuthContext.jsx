@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
     }, 60000); // Check every minute
 
     return () => clearInterval(sessionCheckInterval);
-  }, [authState.isAuthenticated]);
+  }, []);
 
   /**
    * Login user
@@ -73,7 +73,15 @@ export const AuthProvider = ({ children }) => {
       setAuthState((prev) => ({ ...prev, loading: true }));
 
       const response = await authService.login(credentials);
-      const user = response.user;
+      // After backend sets session cookie, fetch full profile
+      let profile = null;
+      try {
+        profile = await authService.getProfile();
+      } catch (err) {
+        console.warn('Login: could not fetch profile immediately', err);
+      }
+
+      const user = profile || response.user;
 
       const newAuthState = {
         isAuthenticated: true,
@@ -106,16 +114,8 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.register(userData);
       const user = response.user;
 
-      const newAuthState = {
-        isAuthenticated: true,
-        user: user,
-        loading: false,
-      };
-
-      setAuthState(newAuthState);
-      
-      // Set session timeout (30 minutes)
-      setSessionTimeout();
+      // Do NOT set authenticated state on registration (user must login explicitly)
+      setAuthState((prev) => ({ ...prev, loading: false }));
 
       return { user };
     } catch (error) {

@@ -28,6 +28,39 @@ class VotingService {
     }
   }
 
+  async getParties() {
+    try {
+      const res = await votingAPI.getParties();
+      return res || [];
+    } catch (error) {
+      console.error('Get parties API error:', error);
+      return [];
+    }
+  }
+
+  async submitPartyVote(partyId) {
+    try {
+      const res = await votingAPI.submitVote({ vote_type: 'PR', party_id: partyId });
+      return res;
+    } catch (error) {
+      console.error('Submit party vote API error:', error);
+      throw error;
+    }
+  }
+
+  async hasVotedInProvince(provinceName) {
+    try {
+      const history = await this.getVotingHistory();
+      // history items include vote.province (name) and possibly vote.party for PR votes
+      const found = history.find((vote) => vote.province === provinceName && vote.vote_type === 'PR');
+      if (found) return { voted: true, partyId: found.party?.id || null };
+      return { voted: false, partyId: null };
+    } catch (error) {
+      console.error('Check voting status error:', error);
+      return { voted: false, partyId: null };
+    }
+  }
+
   /**
    * Submit a vote
    * @param {object} voteData - Vote data
@@ -65,9 +98,9 @@ class VotingService {
    */
   async getVotingHistory() {
     try {
-      // Assuming there's an API endpoint for voting history
       const res = await votingAPI.getVotingHistory();
-      return res || [];
+      // API returns { votes: [...] }
+      return (res && res.votes) ? res.votes : (Array.isArray(res) ? res : []);
     } catch (error) {
       console.error('Get voting history API error:', error);
       // Return empty array if API not available

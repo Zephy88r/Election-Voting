@@ -207,7 +207,7 @@ export const votingAPI = {
    * @returns {Promise<object>} - Voting status information
    */
   getVotingStatus: async () => {
-    return apiRequest("/voting/status", {
+    return apiRequest("/elections/api/voting/status/", {
       method: "GET",
     });
   },

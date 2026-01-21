@@ -2,8 +2,31 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.utils import timezone
-from .models import Candidate, Party, District, Vote, Notification
+from .models import Candidate, Party, District, Vote, Notification, Province, ElectoralArea
 
+
+def get_registration_data(request):
+    """
+    Get all provinces with their districts and electoral areas for registration form
+    """
+    try:
+        provinces = Province.objects.all().prefetch_related('districts', 'electoral_areas')
+        
+        data = []
+        for province in provinces:
+            districts = list(province.districts.values('id', 'name'))
+            electoral_areas = list(province.electoral_areas.values('id', 'name'))
+            
+            data.append({
+                'id': province.id,
+                'name': province.name,
+                'districts': districts,
+                'electoral_areas': electoral_areas
+            })
+        
+        return JsonResponse({'provinces': data})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 def districts_by_province(request): 
@@ -23,14 +46,20 @@ def districts_by_province(request):
 @login_required
 def voter_profile(request):
     user = request.user
+
+    def safe_region(obj):
+        if obj is None:
+            return None
+        return {"id": obj.id, "name": obj.name}
+
     return JsonResponse({
+        "id": user.id,
         "username": user.username,
-        "province": {"id": user.province.id, "name": user.province.name},
-        "district": {"id": user.district.id, "name": user.district.name},
-        "electoral_area": {
-            "id": user.electoral_area.id,
-            "name": user.electoral_area.name
-        }
+        "name": user.first_name,
+        "email": user.email,
+        "province": safe_region(user.province),
+        "district": safe_region(user.district),
+        "electoral_area": safe_region(user.electoral_area)
     })
 
 

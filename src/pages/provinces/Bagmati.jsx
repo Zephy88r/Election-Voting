@@ -21,6 +21,7 @@ function Bagmati() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [hasVoted, setHasVoted] = useState(false);
+  const [votedPartyId, setVotedPartyId] = useState(null);
 
   const provinceId = 'bagmati';
   const provinceName = 'Bagmati';
@@ -35,46 +36,51 @@ function Bagmati() {
       setLoading(false);
       return;
     }
-    loadCandidates();
+    loadParties();
     checkVotingStatus();
   }, [hasAccess]);
 
-  const loadCandidates = async () => {
+  const loadParties = async () => {
     try {
       setLoading(true);
-      const data = await votingService.getCandidates(provinceId);
-      setCandidates(data);
+      const parties = [
+        { id: '1', name: 'CPN UML' },
+        { id: '2', name: 'Nepali Congress' },
+        { id: '3', name: 'Rastra Swatantra Party (RSP)' },
+        { id: '4', name: 'CPN UML (Moist)' },
+      ];
+      setCandidates(parties);
     } catch (err) {
-      setError(err.message || 'Failed to load candidates');
+      setError(err.message || 'Failed to load parties');
     } finally {
       setLoading(false);
     }
   };
 
-  const checkVotingStatus = () => {
-    const voted = votingService.hasVotedInProvince(provinceId);
-    setHasVoted(voted);
+  const checkVotingStatus = async () => {
+    try {
+      const result = await votingService.hasVotedInProvince(provinceName);
+      setHasVoted(result.voted);
+      setVotedPartyId(result.partyId);
+    } catch (error) {
+      console.error('Error checking voting status:', error);
+      setHasVoted(false);
+      setVotedPartyId(null);
+    }
   };
 
-  const handleVote = async (candidateId) => {
+  const handleVote = async (partyId) => {
     try {
       setSubmitting(true);
       setError('');
       setSuccess('');
 
-      const candidate = candidates.find((c) => c.id === candidateId);
-      if (!candidate) {
-        throw new Error('Candidate not found');
+      const party = candidates.find((p) => p.id === partyId);
+      if (!party) {
+        throw new Error('Party not found');
       }
 
-      const voteData = {
-        provinceId,
-        candidateId,
-        candidateName: candidate.name,
-        provinceName,
-      };
-
-      const result = await votingService.submitVote(voteData);
+      const result = await votingService.submitPartyVote(partyId);
 
       setSuccess(result.message || 'Vote submitted successfully!');
       setHasVoted(true);
@@ -82,12 +88,12 @@ function Bagmati() {
       notificationService.createNotification({
         type: 'success',
         title: 'Vote Submitted',
-        message: `Your vote for ${candidate.name} in ${provinceName} has been recorded.`,
+        message: `Your vote for ${party.name} has been recorded.`,
         userId: user?.id || 'api-user',
       });
 
       setTimeout(() => {
-        loadCandidates();
+        loadParties();
       }, 1000);
     } catch (err) {
       setError(err.message || 'Failed to submit vote');
@@ -137,7 +143,7 @@ function Bagmati() {
         <Card className="province-page-card" variant="elevated">
           <div className="province-page-header">
             <h1>{provinceName} Province</h1>
-            <p>Select your candidate and cast your vote</p>
+            <p>Select your party and cast your vote</p>
           </div>
 
           {error && <ErrorMessage message={error} />}
@@ -151,10 +157,10 @@ function Bagmati() {
 
           <div className="province-page-content">
             <div className="candidates-grid">
-              {candidates.map((candidate) => (
+              {candidates.map((party) => (
                 <VotingCard
-                  key={candidate.id}
-                  candidate={candidate}
+                  key={party.id}
+                  candidate={party}
                   hasVoted={hasVoted}
                   onVote={handleVote}
                   isSubmitting={submitting}

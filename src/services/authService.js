@@ -24,9 +24,7 @@ class AuthService {
     try {
       const response = await authAPI.register(userData);
       const user = response.user || response;
-      // For session auth, store user locally for UI
-      setLoggedInUser(user);
-      setToken(user.id?.toString() || user.username || 'session');
+      // Do not set local session state here because backend does not auto-login on registration
       return { user };
     } catch (error) {
       throw error;
