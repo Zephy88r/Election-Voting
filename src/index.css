@@ -94,21 +94,30 @@ a:focus {
   border-radius: var(--radius-sm);
 }
 
-@media (prefers-color-scheme: dark) {
-  input,
-  textarea,
-  select {
-    color: #fff !important;
-  }
-}
 
 @media (prefers-color-scheme: dark) {
   input,
   textarea,
   select {
-    color: #fff !important;
-    background-color: #1e1e1e !important;  /* add this */
-    border: 1px solid #333 !important;     /* optional */
+    color: black !important;
+    background-color: white !important;
+    border: 1px solid whitesmoke !important;
   }
 }
+
+/* Autofill fix */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: black !important;
+  box-shadow: 0 0 0px 1000px white inset !important;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
 

@@ -23,7 +23,7 @@ const PARTY_LIST = [
   {
     id: 2,
     name: 'Rastra Swotantra Party (RSP)',
-    symbol: '🗳️',
+    symbol: '🔔',
     tagline: 'Transparency, meritocracy, and youth-led transformation.',
     ideology: 'Reformist',
     focus: 'Governance',
@@ -31,7 +31,7 @@ const PARTY_LIST = [
   {
     id: 3,
     name: 'Nepali Congress',
-    symbol: '🌾',
+    symbol: '🌳',
     tagline: 'Democracy, inclusion, and institutional stability.',
     ideology: 'Centrist',
     focus: 'Democracy',
@@ -44,6 +44,7 @@ const PARTY_LIST = [
     ideology: 'Left',
     focus: 'Welfare',
   },
+  
 ];
 
 function normalizeProvinceName(user) {

@@ -326,14 +326,19 @@ function Register() {
           {/* Phone */}
           <Input
             type="tel"
-            label="Phone Number"
+            label="Phone Number" 
             name="phone"
             value={formData.phone}
             onChange={handleChange}
             placeholder="+977 XXX-XXXXXXX"
             required
             error={errors.phone}
-            helperText="Nepal format: +977 XXX-XXXXXXX"
+            helperText={
+            <span style={{ color: "black" }}>
+              Nepal format: +977 XXX-XXXXXXX
+            </span>
+          }
+
           />
 
 {/* Province Selection */}
@@ -492,7 +497,11 @@ function Register() {
               placeholder="Enter your password"
               required
               error={errors.password}
-              helperText="Must contain uppercase, lowercase, and special characters"
+              helperText={
+            <span style={{ color: "black" }}>
+              "Must contain uppercase, lowercase, and special characters"
+            </span>
+          }
               rightIcon={
                 <span
                   onClick={() => setIsPasswordVisible(!isPasswordVisible)}

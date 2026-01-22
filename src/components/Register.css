@@ -64,7 +64,7 @@
 }
 
 .register-header p {
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-medium);
 }
@@ -100,7 +100,7 @@
 }
 
 .r-date-conversion {
-  color: var(--color-secondary);
+  color: var(--color-primary);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   margin-top: var(--spacing-1);
@@ -120,7 +120,7 @@
 }
 
 .r-cam h3 {
-  color: var(--color-secondary);
+  color: var(--color-primary);
   text-align: center;
   text-decoration: none;
   padding: 0 0 var(--spacing-4) 0;
@@ -167,7 +167,7 @@
 }
 
 .Already-account p {
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
   font-weight: var(--font-weight-medium);
   font-size: var(--font-size-base);
   margin: 0;
@@ -210,7 +210,7 @@
 
 .r-date-helper {
   display: block;
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
   font-size: var(--font-size-xs);
   margin-top: var(--spacing-1);
 }

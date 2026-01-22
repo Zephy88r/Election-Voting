@@ -31,10 +31,10 @@ const VotingCard = ({ candidate, hasVoted, onVote, isSubmitting, votedPartyId })
   // Party symbols mapping
   const getPartySymbol = (partyName) => {
     const symbols = {
-      'CPN UML': '☭',
-      'Nepali Congress': '🌾',
-      'Rastra Swatantra Party (RSP)': '🏛️',
-      'CPN UML (Moist)': '⚡'
+      'CPN UML': '☀️',
+      'Nepali Congress': '🌳',
+      'Rastra Swatantra Party (RSP)': '🔔',
+      'CPN UML (Moist)': '☭'
     };
     return symbols[partyName] || '🏛️';
   };
