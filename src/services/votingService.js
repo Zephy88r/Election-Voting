@@ -14,20 +14,33 @@ import { getToken } from '../utils/authUtils';
  */
 class VotingService {
   // Local fallback (when API history isn't available)
-  // Stores a single PR vote globally: { vote_type: 'PR', party_id, province_id, created_at }
-  LOCAL_PR_VOTE_KEY = 'nepal-election:local-pr-vote';
+  // IMPORTANT: Vote lock must be per-user, not global.
+  // We store one PR vote per user.
 
-  _getLocalPRVote() {
+  _getUserKey(userKey) {
+    return `nepal-election:local-pr-vote:${userKey}`;
+  }
+
+  _safeUserKey(userKey) {
+    if (!userKey) return null;
+    return String(userKey).trim();
+  }
+
+  _getLocalPRVote(userKey) {
     try {
-      const raw = localStorage.getItem(this.LOCAL_PR_VOTE_KEY);
+      const k = this._safeUserKey(userKey);
+      if (!k) return null;
+      const raw = localStorage.getItem(this._getUserKey(k));
       return raw ? JSON.parse(raw) : null;
     } catch {
       return null;
     }
   }
 
-  _setLocalPRVote(vote) {
-    localStorage.setItem(this.LOCAL_PR_VOTE_KEY, JSON.stringify(vote));
+  _setLocalPRVote(userKey, vote) {
+    const k = this._safeUserKey(userKey);
+    if (!k) return;
+    localStorage.setItem(this._getUserKey(k), JSON.stringify(vote));
   }
 
   /**
@@ -58,9 +71,9 @@ class VotingService {
   /**
    * Submit PR vote (party). Enforces 1 party vote only.
    */
-  async submitPartyVote(partyId, provinceId = null) {
-    // Enforce single PR vote (global)
-    const existing = this._getLocalPRVote();
+  async submitPartyVote(partyId, provinceId = null, userKey = null) {
+    // Enforce single PR vote per user (not global)
+    const existing = this._getLocalPRVote(userKey);
     if (existing?.party_id) {
       const err = new Error('You have already voted. Only one party vote is allowed.');
       err.code = 'ALREADY_VOTED';
@@ -71,7 +84,7 @@ class VotingService {
       const res = await votingAPI.submitVote({ vote_type: 'PR', party_id: partyId });
 
       // On success, persist local marker too (helps UI enforce without refetch)
-      this._setLocalPRVote({
+      this._setLocalPRVote(userKey, {
         vote_type: 'PR',
         party_id: partyId,
         province_id: provinceId,
@@ -85,7 +98,7 @@ class VotingService {
 
       // Fallback: if API fails, still record locally so user can proceed in UI demo mode
       // If you want strict backend-only voting, remove this block.
-      this._setLocalPRVote({
+      this._setLocalPRVote(userKey, {
         vote_type: 'PR',
         party_id: partyId,
         province_id: provinceId,
@@ -101,7 +114,7 @@ class VotingService {
    * Unified PR vote status check.
    * Returns { voted: boolean, partyId: number|null }
    */
-  async getPRVoteStatus(provinceId = null) {
+  async getPRVoteStatus(provinceId = null, userKey = null) {
     // First try backend history
     try {
       const history = await this.getVotingHistory();
@@ -120,7 +133,7 @@ class VotingService {
       // ignore and fallback to local
     }
 
-    const local = this._getLocalPRVote();
+    const local = this._getLocalPRVote(userKey);
     if (local?.party_id) {
       return { voted: true, partyId: local.party_id, source: local.source || 'local' };
     }
@@ -160,8 +173,8 @@ class VotingService {
   /**
    * Backwards compatible helper used in pages.
    */
-  async hasVotedInProvince(provinceId) {
-    const status = await this.getPRVoteStatus(provinceId);
+  async hasVotedInProvince(provinceId, userKey = null) {
+    const status = await this.getPRVoteStatus(provinceId, userKey);
     return status;
   }
 

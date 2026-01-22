@@ -71,6 +71,9 @@ export default function ProvinceTemplate({
   const userProvinceName = normalizeProvinceName(user);
   const hasAccess = userProvinceName === requiredProvinceName;
 
+  // Per-user vote lock key (real-life logic: every user can vote once)
+  const userKey = String(user?.id || user?.voterId || user?.username || user?.email || 'anonymous');
+
   const parties = useMemo(() => PARTY_LIST, []);
 
   useEffect(() => {
@@ -82,7 +85,7 @@ export default function ProvinceTemplate({
 
       try {
         setLoading(true);
-        const status = await votingService.hasVotedInProvince(provinceId);
+        const status = await votingService.hasVotedInProvince(provinceId, userKey);
         if (typeof status === 'boolean') {
           setHasVoted(status);
           setVotedPartyId(null);
@@ -110,7 +113,7 @@ export default function ProvinceTemplate({
       const party = parties.find((p) => p.id === partyId);
       if (!party) throw new Error('Party not found');
 
-      const res = await votingService.submitPartyVote(partyId, provinceId);
+      const res = await votingService.submitPartyVote(partyId, provinceId, userKey);
 
       setHasVoted(true);
       setVotedPartyId(partyId);
