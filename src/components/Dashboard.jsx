@@ -112,7 +112,7 @@ function Dashboard() {
                       <div className="province-overlay">
                         <h2>{province.name}</h2>
                         {isAuthenticated && !isAccessible && (
-                          <p className="province-restricted">Access Restricted</p>
+                          <p className="province-restricted"> Access Restricted</p>
                         )}
                         {isAccessible && (
                           <p className="province-accessible">Your Province</p>

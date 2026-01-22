@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { FaUser } from 'react-icons/fa';
@@ -8,20 +9,22 @@ function Navbar() {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
+  const [language, setLanguage] = useState('EN');
+
   const handleHomeClick = () => {
     navigate('/');
   };
 
-  /**
-   * Handle profile icon click
-   * Navigates directly to profile page if authenticated, otherwise to login
-   */
   const handleProfileClick = () => {
     if (isAuthenticated) {
       navigate('/profile');
     } else {
       navigate('/login');
     }
+  };
+
+  const handleLanguageSwitch = () => {
+    setLanguage((prev) => (prev === 'EN' ? 'NP' : 'EN'));
   };
 
   return (
@@ -41,8 +44,22 @@ function Navbar() {
       <div className="navbar-right">
         {isAuthenticated && <NotificationBell />}
 
+        {/* LANGUAGE SWITCH */}
+        <div className="lang-switch">
+          <span className="lang-text">{language}</span>
+
+          <input
+            type="checkbox"
+            id="languageToggle"
+            className="lang-toggle"
+            onChange={handleLanguageSwitch}
+          />
+
+          <label htmlFor="languageToggle" className="lang-slider"></label>
+        </div>
 
 
+        {/* PROFILE */}
         <div
           className="profile-containe"
           onClick={handleProfileClick}
@@ -56,7 +73,6 @@ function Navbar() {
             }
           }}
         >
-
           <div className="profile-icon">
             {user?.avatar ? (
               <img src={user.avatar} alt="Profile" className="profile-img" />
