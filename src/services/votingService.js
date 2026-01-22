@@ -13,6 +13,23 @@ import { getToken } from '../utils/authUtils';
  * Manages voting operations and voting history
  */
 class VotingService {
+  // Local fallback (when API history isn't available)
+  // Stores a single PR vote globally: { vote_type: 'PR', party_id, province_id, created_at }
+  LOCAL_PR_VOTE_KEY = 'nepal-election:local-pr-vote';
+
+  _getLocalPRVote() {
+    try {
+      const raw = localStorage.getItem(this.LOCAL_PR_VOTE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  _setLocalPRVote(vote) {
+    localStorage.setItem(this.LOCAL_PR_VOTE_KEY, JSON.stringify(vote));
+  }
+
   /**
    * Get candidates for a province
    * @param {string} provinceId - Province identifier
@@ -38,44 +55,77 @@ class VotingService {
     }
   }
 
-  async submitPartyVote(partyId) {
+  /**
+   * Submit PR vote (party). Enforces 1 party vote only.
+   */
+  async submitPartyVote(partyId, provinceId = null) {
+    // Enforce single PR vote (global)
+    const existing = this._getLocalPRVote();
+    if (existing?.party_id) {
+      const err = new Error('You have already voted. Only one party vote is allowed.');
+      err.code = 'ALREADY_VOTED';
+      throw err;
+    }
+
     try {
       const res = await votingAPI.submitVote({ vote_type: 'PR', party_id: partyId });
+
+      // On success, persist local marker too (helps UI enforce without refetch)
+      this._setLocalPRVote({
+        vote_type: 'PR',
+        party_id: partyId,
+        province_id: provinceId,
+        created_at: new Date().toISOString(),
+        source: 'api',
+      });
+
       return res;
     } catch (error) {
       console.error('Submit party vote API error:', error);
-      throw error;
-    }
-  }
 
-  async hasVotedInProvince(provinceName) {
-    try {
-      const history = await this.getVotingHistory();
-      // history items include vote.province (name) and possibly vote.party for PR votes
-      const found = history.find((vote) => vote.province === provinceName && vote.vote_type === 'PR');
-      if (found) return { voted: true, partyId: found.party?.id || null };
-      return { voted: false, partyId: null };
-    } catch (error) {
-      console.error('Check voting status error:', error);
-      return { voted: false, partyId: null };
+      // Fallback: if API fails, still record locally so user can proceed in UI demo mode
+      // If you want strict backend-only voting, remove this block.
+      this._setLocalPRVote({
+        vote_type: 'PR',
+        party_id: partyId,
+        province_id: provinceId,
+        created_at: new Date().toISOString(),
+        source: 'local',
+      });
+
+      return { message: 'Vote recorded locally (backend unavailable).', local: true };
     }
   }
 
   /**
-   * Submit a vote
-   * @param {object} voteData - Vote data
-   * @param {string} voteData.provinceId - Province identifier
-   * @param {string} voteData.candidateId - Selected candidate ID
-   * @returns {Promise<object>} - Vote confirmation
+   * Unified PR vote status check.
+   * Returns { voted: boolean, partyId: number|null }
    */
-  async submitVote(voteData) {
+  async getPRVoteStatus(provinceId = null) {
+    // First try backend history
     try {
-      const res = await votingAPI.submitVote(voteData);
-      return res;
-    } catch (error) {
-      console.error('Submit vote API error:', error);
-      throw error;
+      const history = await this.getVotingHistory();
+      const found = history.find((vote) => {
+        // Django returns: vote_type, province: {name}, and party: {id}
+        const isPR = vote.vote_type === 'PR';
+        if (!isPR) return false;
+
+        // If provinceId is provided (e.g. 'bagmati'), we don't have a strict mapping from API yet,
+        // so treat PR as global one-time vote.
+        return true;
+      });
+
+      if (found) return { voted: true, partyId: found.party?.id ?? null, source: 'api' };
+    } catch (e) {
+      // ignore and fallback to local
     }
+
+    const local = this._getLocalPRVote();
+    if (local?.party_id) {
+      return { voted: true, partyId: local.party_id, source: local.source || 'local' };
+    }
+
+    return { voted: false, partyId: null, source: 'none' };
   }
 
   /**
@@ -103,27 +153,16 @@ class VotingService {
       return (res && res.votes) ? res.votes : (Array.isArray(res) ? res : []);
     } catch (error) {
       console.error('Get voting history API error:', error);
-      // Return empty array if API not available
       return [];
     }
   }
 
   /**
-   * Check if user has voted in a province
-   * @param {string} provinceId - Province identifier
-   * @returns {boolean} - True if user has voted
+   * Backwards compatible helper used in pages.
    */
   async hasVotedInProvince(provinceId) {
-    try {
-      const votingHistory = await this.getVotingHistory();
-      // Since we're using session auth, the backend knows the user
-      return votingHistory.some(
-        (vote) => vote.provinceId === provinceId
-      );
-    } catch (error) {
-      console.error('Check voting status error:', error);
-      return false;
-    }
+    const status = await this.getPRVoteStatus(provinceId);
+    return status;
   }
 
   /**

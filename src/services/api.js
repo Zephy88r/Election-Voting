@@ -187,6 +187,16 @@ export const votingAPI = {
   },
 
   /**
+   * Get parties for voting
+   * @returns {Promise<Array>} - List of parties
+   */
+  getParties: async () => {
+    return apiRequest("/elections/api/parties/", {
+      method: "GET",
+    });
+  },
+
+  /**
    * Submit vote
    * @param {object} voteData - Vote data
    * @param {string} voteData.provinceId - Province identifier

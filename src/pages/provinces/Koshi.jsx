@@ -32,8 +32,10 @@ function Koshi() {
   const provinceName = 'Koshi';
   const requiredProvince = 'Province 1'; // Maps to Koshi - TODO: Use getProvinceDisplayName from constants
 
+  const userProvinceName = typeof user?.province === 'string' ? user?.province : user?.province?.name;
+
   // Check if user has access to this province
-  const hasAccess = user?.province?.name === requiredProvince;
+  const hasAccess = userProvinceName === requiredProvince;
 
   useEffect(() => {
     if (!hasAccess) {
@@ -93,7 +95,7 @@ function Koshi() {
         throw new Error('Party not found');
       }
 
-      const result = await votingService.submitPartyVote(partyId);
+      const result = await votingService.submitPartyVote(partyId, provinceId);
 
       setSuccess(result.message || 'Vote submitted successfully!');
       setHasVoted(true);
@@ -127,7 +129,7 @@ function Koshi() {
           <Card className="province-page-card" variant="elevated">
             <div className="access-denied">
               <h2>Access Denied</h2>
-              <ErrorMessage message={`You can only vote in ${user?.province || 'your registered province'}.`} />
+              <ErrorMessage message={`You can only vote in ${userProvinceName || 'your registered province'}.`} />
               <Button variant="primary" onClick={() => navigate('/dashboard')}>
                 Back to Dashboard
               </Button>

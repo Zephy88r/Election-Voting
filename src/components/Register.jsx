@@ -56,19 +56,34 @@ function Register() {
 
   // Fetch registration data on mount
   useEffect(() => {
-    const base = API_CONFIG.API_BASE_URL || import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
-    fetch(`${base}/elections/api/registration-data/`, { credentials: 'include' })
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to load registration data');
-        return res.json();
-      })
-      .then((data) => {
+    const fetchRegistrationData = async () => {
+      try {
+        // Use relative URL for dev (Vite proxy), absolute for production
+        const url = import.meta.env.DEV 
+          ? '/elections/api/registration-data/' 
+          : `${API_CONFIG.API_BASE_URL}/elections/api/registration-data/`;
+        
+        const response = await fetch(url, { 
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: Failed to load registration data`);
+        }
+        
+        const data = await response.json();
         setRegistrationData(data.provinces || []);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error('Registration data load error:', err);
+        setError(`Failed to load provinces: ${err.message}`);
         setRegistrationData([]);
-      });
+      }
+    };
+    
+    fetchRegistrationData();
   }, []);
 
   const [errors, setErrors] = useState({});

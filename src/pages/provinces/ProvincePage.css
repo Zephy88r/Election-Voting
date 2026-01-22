@@ -1,35 +1,49 @@
 /**
  * Province Page Styles
- * Consistent styling for all province pages
+ * Consistent styling for all province pages with inline CSS optimization
  */
 
 .province-page {
   min-height: 100vh;
   padding: calc(75px + var(--spacing-8)) var(--spacing-4) var(--spacing-8);
-  background-image: url('../../assets/Background.png');
+  background: linear-gradient(135deg, rgba(220, 20, 60, 0.1) 0%, rgba(0, 56, 147, 0.1) 100%),
+              url('../../assets/Background.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  background-attachment: fixed;
   display: flex;
   justify-content: center;
   align-items: flex-start;
 }
 
 .province-page-card {
-  background-color: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 100%);
+  backdrop-filter: blur(20px);
   border-radius: var(--radius-xl);
   padding: var(--spacing-10);
-  max-width: 900px;
+  max-width: 1000px;
   width: 100%;
-  box-shadow: var(--shadow-xl);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.province-page-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
 }
 
 .province-page-header {
   text-align: center;
   margin-bottom: var(--spacing-8);
   padding-bottom: var(--spacing-5);
-  border-bottom: 2px solid var(--color-border-default);
+  border-bottom: 3px solid var(--color-primary);
+  background: linear-gradient(135deg, rgba(220, 20, 60, 0.05) 0%, rgba(0, 56, 147, 0.05) 100%);
+  padding: var(--spacing-5);
+  border-radius: var(--radius-lg);
+  margin: calc(-1 * var(--spacing-10)) calc(-1 * var(--spacing-10)) var(--spacing-8) calc(-1 * var(--spacing-10));
+  padding: var(--spacing-6) var(--spacing-10);
 }
 
 .province-page-header h1 {
@@ -37,17 +51,104 @@
   font-size: var(--font-size-4xl);
   margin-bottom: var(--spacing-2);
   font-weight: var(--font-weight-bold);
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .province-page-header p {
   color: var(--color-text-secondary);
   font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
 }
 
 .province-page-content {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-6);
+  margin-bottom: var(--spacing-6);
+}
+
+/* Voting intro */
+.province-voting-intro {
+  text-align: center;
+  padding: var(--spacing-6) var(--spacing-4);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(0, 56, 147, 0.06) 0%, rgba(220, 20, 60, 0.06) 100%);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.province-voting-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.4px;
+  color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(220, 20, 60, 0.25);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.province-voting-title {
+  margin: var(--spacing-3) 0 var(--spacing-2);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.province-voting-subtitle {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+}
+
+/* Party card wrapper and footer */
+.province-party-wrap {
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.province-party-wrap:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.12);
+}
+
+.province-party-footer {
+  padding: var(--spacing-4) var(--spacing-4);
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.province-party-meta {
+  display: flex;
+  gap: var(--spacing-3);
+  align-items: flex-start;
+}
+
+.province-party-symbol {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+  flex: 0 0 auto;
+}
+
+.province-party-desc {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
 }
 
 .province-info {
@@ -61,43 +162,80 @@
 }
 
 .province-page-alert {
-  background: rgba(40, 167, 69, 0.1);
-  border: 1px solid var(--color-border-success);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-3) var(--spacing-4);
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.15) 0%, rgba(40, 167, 69, 0.05) 100%);
+  border: 2px solid var(--color-success);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-4) var(--spacing-5);
   margin-bottom: var(--spacing-6);
   color: var(--color-success);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-semibold);
   text-align: center;
+  font-size: var(--font-size-base);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.1);
 }
 
 .province-page-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: var(--spacing-4);
-  padding: var(--spacing-10);
+  padding: var(--spacing-16);
   color: var(--color-text-primary);
+  min-height: 400px;
+}
+
+.province-page-loading p {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
 }
 
 .candidates-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--spacing-6);
-  margin-bottom: var(--spacing-6);
+  margin-bottom: var(--spacing-4);
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .province-page-actions {
   display: flex;
   justify-content: center;
   gap: var(--spacing-4);
-  margin-top: var(--spacing-4);
+  margin-top: var(--spacing-6);
   flex-wrap: wrap;
+  padding-top: var(--spacing-6);
+  border-top: 1px solid var(--color-border-default);
+}
+
+.province-page-actions button {
+  min-width: 150px;
+  transition: all 0.3s ease;
+}
+
+.province-page-actions button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 .access-denied {
   text-align: center;
-  padding: var(--spacing-8);
+  padding: var(--spacing-12);
+  background: linear-gradient(135deg, rgba(220, 20, 60, 0.05) 0%, rgba(220, 20, 60, 0.02) 100%);
+  border-radius: var(--radius-lg);
+  border: 2px dashed var(--color-error);
 }
 
 .access-denied h2 {
@@ -107,25 +245,95 @@
   font-weight: var(--font-weight-bold);
 }
 
+.access-denied button {
+  margin-top: var(--spacing-4);
+}
+
 /* Responsive Design */
+@media (max-width: 1024px) {
+  .candidates-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
 @media (max-width: 768px) {
   .province-page {
     padding: calc(75px + var(--spacing-4)) var(--spacing-2) var(--spacing-4);
+  }
+
+  .province-voting-title {
+    font-size: var(--font-size-xl);
   }
 
   .province-page-card {
     padding: var(--spacing-6) var(--spacing-4);
   }
 
+  .province-page-header {
+    margin: calc(-1 * var(--spacing-6)) calc(-1 * var(--spacing-4)) var(--spacing-6) calc(-1 * var(--spacing-4));
+    padding: var(--spacing-4) var(--spacing-4);
+  }
+
   .province-page-header h1 {
     font-size: var(--font-size-2xl);
   }
 
+  .province-page-header p {
+    font-size: var(--font-size-base);
+  }
+
+  .candidates-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--spacing-4);
+  }
+
   .province-page-actions {
     flex-direction: column;
+    gap: var(--spacing-3);
   }
 
   .province-page-actions button {
     width: 100%;
+  }
+
+  .province-page-loading {
+    padding: var(--spacing-8);
+    min-height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .province-page {
+    padding: calc(75px + var(--spacing-2)) var(--spacing-2) var(--spacing-2);
+  }
+
+  .province-page-card {
+    padding: var(--spacing-4) var(--spacing-3);
+  }
+
+  .province-page-header {
+    margin: calc(-1 * var(--spacing-4)) calc(-1 * var(--spacing-3)) var(--spacing-4) calc(-1 * var(--spacing-3));
+    padding: var(--spacing-3) var(--spacing-3);
+  }
+
+  .province-page-header h1 {
+    font-size: var(--font-size-xl);
+  }
+
+  .province-page-header p {
+    font-size: var(--font-size-sm);
+  }
+
+  .candidates-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-3);
+  }
+
+  .access-denied {
+    padding: var(--spacing-6);
+  }
+
+  .access-denied h2 {
+    font-size: var(--font-size-lg);
   }
 }
