@@ -1,8 +1,8 @@
-/**
+/* *
  * VotingHistory Page Styles
  */
 
-.voting-history-page {
+/* .voting-history-page {
   min-height: 100vh;
   padding: calc(75px + var(--spacing-8)) var(--spacing-4) var(--spacing-8);
   background-image: url('../assets/Background.png');
@@ -140,10 +140,10 @@
   display: flex;
   justify-content: center;
   gap: var(--spacing-4);
-}
+} */
 
 /* Responsive */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .voting-history-page {
     padding: calc(75px + var(--spacing-4)) var(--spacing-2) var(--spacing-4);
   }
@@ -168,4 +168,4 @@
   .voting-history-item__date {
     white-space: normal;
   }
-}
+} */
