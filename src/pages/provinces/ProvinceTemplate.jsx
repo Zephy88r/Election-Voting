@@ -68,6 +68,10 @@ export default function ProvinceTemplate({
   const [hasVoted, setHasVoted] = useState(false);
   const [votedPartyId, setVotedPartyId] = useState(null);
 
+  // Confirm vote modal
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingPartyId, setPendingPartyId] = useState(null);
+
   const userProvinceName = normalizeProvinceName(user);
   const hasAccess = userProvinceName === requiredProvinceName;
 
@@ -104,7 +108,21 @@ export default function ProvinceTemplate({
     init();
   }, [hasAccess, provinceId]);
 
-  const handleVote = async (partyId) => {
+  const requestVote = (partyId) => {
+    // Open a custom confirm modal (better than window.confirm)
+    setPendingPartyId(partyId);
+    setConfirmOpen(true);
+  };
+
+  const cancelVote = () => {
+    setConfirmOpen(false);
+    setPendingPartyId(null);
+  };
+
+  const confirmVote = async () => {
+    const partyId = pendingPartyId;
+    if (!partyId) return;
+
     try {
       setSubmitting(true);
       setError('');
@@ -125,8 +143,12 @@ export default function ProvinceTemplate({
         message: `Your vote for ${party.name} has been recorded.`,
         userId: user?.id || 'api-user',
       });
+
+      setConfirmOpen(false);
+      setPendingPartyId(null);
     } catch (e) {
       setError(e?.message || 'Failed to submit vote');
+      setConfirmOpen(false);
     } finally {
       setSubmitting(false);
     }
@@ -135,6 +157,65 @@ export default function ProvinceTemplate({
   return (
     <>
       <Navbar />
+
+      {/* Confirm Vote Modal */}
+      {confirmOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.55)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 16,
+          }}
+          onClick={cancelVote}
+        >
+          <div
+            style={{
+              width: 'min(560px, 100%)',
+              background: 'linear-gradient(135deg, rgba(255,255,255,0.96), rgba(255,255,255,0.90))',
+              borderRadius: 18,
+              border: '1px solid rgba(255,255,255,0.35)',
+              boxShadow: '0 22px 70px rgba(0,0,0,0.25)',
+              backdropFilter: 'blur(14px)',
+              padding: 18,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
+              <div>
+                <div style={{ fontWeight: 900, fontSize: 18, color: 'var(--color-text-primary)' }}>Confirm your vote</div>
+                <div style={{ marginTop: 4, color: 'var(--color-text-secondary)', fontSize: 13, lineHeight: 1.5 }}>
+                  You are about to cast your vote. This action cannot be undone.
+                </div>
+              </div>
+              <div style={{ fontSize: 22 }}>🗳️</div>
+            </div>
+
+            <div style={{ marginTop: 14, padding: 12, borderRadius: 14, background: 'rgba(0,0,0,0.04)' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>Selected Party</div>
+              <div style={{ marginTop: 4, fontWeight: 900, color: 'var(--color-text-primary)' }}>
+                {parties.find((p) => p.id === pendingPartyId)?.name || '—'}
+              </div>
+            </div>
+
+            <div style={{ marginTop: 16, display: 'flex', gap: 10, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+              <Button variant="secondary" onClick={cancelVote} disabled={submitting}>
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={confirmVote} disabled={submitting} loading={submitting}>
+                Yes, Cast Vote
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="provinceShell">
         <div className="provinceWrap">
           {!hasAccess ? (
@@ -223,7 +304,7 @@ export default function ProvinceTemplate({
                               variant={isSelected ? 'secondary' : 'primary'}
                               disabled={disabled}
                               loading={submitting && !hasVoted}
-                              onClick={() => handleVote(p.id)}
+                              onClick={() => requestVote(p.id)}
                             >
                               {hasVoted ? (isSelected ? 'Voted' : 'Locked') : 'Vote'}
                             </Button>

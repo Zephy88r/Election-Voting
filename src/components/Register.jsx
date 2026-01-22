@@ -46,8 +46,8 @@ function Register() {
     password: '',
     confirm: '',
     province: '', // Province selection
-    district:'', // District selection
-    // electoral_area removed (no longer collected on registration)
+    district: '', // District selection
+    electoral_area: '', // Electoral Area selection
   });
 
   // Registration data loaded from backend: provinces with nested districts and electoral_areas
@@ -131,8 +131,14 @@ function Register() {
     newValue = sanitizePhone(value);
   } else if (name === 'citizenshipNumber' || name === 'voterId') {
     newValue = value.replace(/[^0-9-+]/g, '');
-  }else {
-    newValue = sanitizeText(value);
+  } else {
+    // Allow spaces in full name; keep sanitization for other text fields
+    if (name === 'name') {
+      newValue = sanitizeText(value).replace(/\s+/g, ' ');
+      // Do not trim here; keep user's cursor behavior. We'll trim on submit.
+    } else {
+      newValue = sanitizeText(value);
+    }
   }
 
   // ✅ Update state (district handled here)
@@ -161,12 +167,15 @@ function Register() {
       newErrors.province = 'Province selection is required';
     }
 
-    // ✅ Validate district (ONLY this addition)
+    // ✅ Validate district
     if (!formData.district || formData.district.trim() === '') {
       newErrors.district = 'District is required';
     }
 
-    // Electoral area is no longer required at registration and may be assigned later
+    // ✅ Validate electoral area
+    if (!formData.electoral_area || formData.electoral_area.trim() === '') {
+      newErrors.electoral_area = 'Electoral area is required';
+    }
 
     // Validate each field
     const nameValidation = validateField('name', formData.name);
@@ -237,11 +246,10 @@ function Register() {
         citizenshipNumber: formData.citizenshipNumber.trim(),
         voterId: formData.voterId.trim(),
         password: formData.password,
-        // Convert string names to integer IDs for backend
+        // Convert string IDs to integer IDs for backend
         province_id: formData.province ? parseInt(formData.province, 10) : null,
         district_id: formData.district ? parseInt(formData.district, 10) : null,
-        // electoral_area intentionally omitted from registration payload
-        // electoral_area_id: formData.electoral_area ? parseInt(formData.electoral_area, 10) : null,
+        electoral_area_id: formData.electoral_area ? parseInt(formData.electoral_area, 10) : null,
         // faceImage: faceImage,
       };
 
@@ -386,7 +394,37 @@ function Register() {
             )}
           </div>
 
+          {/* Electoral Area Selection */}
+          <div className="r-form-group">
+            <label htmlFor="electoral_area">
+              Electoral Area <span className="required">*</span>
+            </label>
 
+            <select
+              id="electoral_area"
+              name="electoral_area"
+              value={formData.electoral_area}
+              onChange={handleChange}
+              className={`r-select-input ${errors.electoral_area ? 'error' : ''}`}
+              disabled={!formData.province}
+              required
+            >
+              <option value="">
+                {formData.province ? 'Select your electoral area' : 'Select province first'}
+              </option>
+
+              {formData.province &&
+                (registrationData.find((p) => String(p.id) === String(formData.province))?.electoral_areas || []).map((ea) => (
+                  <option key={ea.id} value={ea.id}>
+                    {ea.name}
+                  </option>
+                ))}
+            </select>
+
+            {errors.electoral_area && (
+              <span className="r-error-message">{errors.electoral_area}</span>
+            )}
+          </div>
 
 
           {/* DOB + Voter ID Row */}

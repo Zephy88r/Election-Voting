@@ -154,6 +154,20 @@ export const AuthProvider = ({ children }) => {
     return storedAuth?.isAuthenticated === true;
   }, []);
 
+  const updateUser = useCallback(async (userData) => {
+    try {
+      // Persist to backend when session auth is enabled
+      const updated = await authService.updateProfile(userData);
+      // If backend returns full user, use it; otherwise merge
+      const nextUser = updated?.user || updated || { ...(authState.user || {}), ...(userData || {}) };
+      setAuthState((prev) => ({ ...prev, user: nextUser }));
+      return nextUser;
+    } catch (error) {
+      console.error('Update profile error:', error);
+      throw error;
+    }
+  }, [authState.user]);
+
   const value = {
     user: authState.user,
     isAuthenticated: authState.isAuthenticated,
@@ -162,6 +176,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     checkAuth,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
