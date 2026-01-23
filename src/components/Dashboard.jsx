@@ -112,13 +112,16 @@ function Dashboard() {
                     >
                       <img src={province.img} alt={province.name} loading="lazy" />
                       <div className="province-overlay">
-                        <h2>{getTranslatedProvinceName(province.routeName, t)}</h2>
-                        {isAuthenticated && !isAccessible && (
-                          <p className="province-restricted">{t('accessRestricted')}</p>
-                        )}
-                        {isAccessible && (
-                          <p className="province-accessible">{t('yourProvince')}</p>
-                        )}
+                        <div className="province-info">
+                          <h2>{getTranslatedProvinceName(province.routeName, t).replace(' Province', '').replace(' प्रदेश', '')}</h2>
+                          <p className="province-label">{t('province')}</p>
+                          {isAuthenticated && !isAccessible && (
+                            <p className="province-restricted">{t('accessRestricted')}</p>
+                          )}
+                          {isAccessible && (
+                            <p className="province-accessible">{t('yourProvince')}</p>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
