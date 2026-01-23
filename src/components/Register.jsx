@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 // import CameraCapture from './CameraCapture';
 import { validateADDate } from '../utils/dateValidation';
@@ -28,6 +29,7 @@ import './Register.css';
 function Register() {
   const navigate = useNavigate();
   const { register } = useAuth();
+  const { t } = useLanguage();
   
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmVisible, setIsConfirmVisible] = useState(false);
@@ -131,14 +133,11 @@ function Register() {
     newValue = sanitizePhone(value);
   } else if (name === 'citizenshipNumber' || name === 'voterId') {
     newValue = value.replace(/[^0-9-+]/g, '');
+  } else if (name === 'name') {
+    // Allow letters and spaces only, no numbers
+    newValue = value.replace(/[^a-zA-Z\s]/g, '');
   } else {
-    // Allow spaces in full name; keep sanitization for other text fields
-    if (name === 'name') {
-      newValue = sanitizeText(value).replace(/\s+/g, ' ');
-      // Do not trim here; keep user's cursor behavior. We'll trim on submit.
-    } else {
-      newValue = sanitizeText(value);
-    }
+    newValue = sanitizeText(value);
   }
 
   // ✅ Update state (district handled here)
@@ -294,19 +293,19 @@ function Register() {
     <div className="register-container">
       <Card className="register-card" variant="elevated">
         <div className="register-header">
-          <h1>Nepal Election Voting System</h1>
-          <p>Please enter your details to continue</p>
+          <h1>{t('nepalElectionVotingSystem')}</h1>
+          <p>{t('pleaseEnterDetails')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="register-form" noValidate>
           {/* Name */}
           <Input
             type="text"
-            label="Full Name"
+            label={t('fullName')}
             name="name"
             value={formData.name}
             onChange={handleChange}
-            placeholder="Enter your full name"
+            placeholder={t('enterFullName')}
             required
             error={errors.name}
           />
@@ -314,11 +313,11 @@ function Register() {
           {/* Email */}
           <Input
             type="email"
-            label="Email"
+            label={t('email')}
             name="email"
             value={formData.email}
             onChange={handleChange}
-            placeholder="Enter your email"
+            placeholder={t('enterEmail')}
             required
             error={errors.email}
           />
@@ -326,7 +325,7 @@ function Register() {
           {/* Phone */}
           <Input
             type="tel"
-            label="Phone Number" 
+            label={t('phoneNumber')} 
             name="phone"
             value={formData.phone}
             onChange={handleChange}
@@ -335,7 +334,7 @@ function Register() {
             error={errors.phone}
             helperText={
             <span style={{ color: "black" }}>
-              Nepal format: +977 XXX-XXXXXXX
+              {t('nepalPhoneFormat')}
             </span>
           }
 
@@ -344,7 +343,7 @@ function Register() {
 {/* Province Selection */}
           <div className="r-form-group">
             <label htmlFor="province">
-              Province <span className="required">*</span>
+              {t('province')} <span className="required">*</span>
             </label>
             <select
               id="province"
@@ -354,7 +353,7 @@ function Register() {
               className={`r-select-input ${errors.province ? 'error' : ''}`}
               required
             >
-              <option value="">Select your province</option>
+              <option value="">{t('selectProvince')}</option>
               {provinces.map((province) => (
                 <option key={province.id} value={province.id}>
                   {province.name}
@@ -370,7 +369,7 @@ function Register() {
           {/* District Selection */}
           <div className="r-form-group">
             <label htmlFor="district">
-              District <span className="required">*</span>
+              {t('district')} <span className="required">*</span>
             </label>
 
             <select
@@ -383,7 +382,7 @@ function Register() {
               required
             >
               <option value="">
-                {formData.province ? 'Select your district' : 'Select province first'}
+                {formData.province ? t('selectDistrict') : t('selectProvinceFirst')}
               </option>
 
               {formData.province &&
@@ -402,7 +401,7 @@ function Register() {
           {/* Electoral Area Selection */}
           <div className="r-form-group">
             <label htmlFor="electoral_area">
-              Electoral Area <span className="required">*</span>
+              {t('electoralArea')} <span className="required">*</span>
             </label>
 
             <select
@@ -415,7 +414,7 @@ function Register() {
               required
             >
               <option value="">
-                {formData.province ? 'Select your electoral area' : 'Select province first'}
+                {formData.province ? t('selectElectoralArea') : t('selectProvinceFirst')}
               </option>
 
               {formData.province &&
@@ -438,7 +437,7 @@ function Register() {
             <div className="r-flex-child">
               <div className="r-form-group">
                 <label htmlFor="dateOfBirth">
-                  Date of Birth <span className="required">*</span>
+                  {t('dateOfBirth')} <span className="required">*</span>
                 </label>
                 <input
                   type="date"
@@ -462,11 +461,11 @@ function Register() {
             <div className="r-flex-child">
               <Input
                 type="text"
-                label="Voter ID"
+                label={t('voterId')}
                 name="voterId"
                 value={formData.voterId}
                 onChange={handleChange}
-                placeholder="Enter your voter ID"
+                placeholder={t('enterVoterId')}
                 required
                 error={errors.voterId}
               />
@@ -476,11 +475,11 @@ function Register() {
           {/* Citizenship Number */}
           <Input
             type="text"
-            label="Citizenship Number"
+            label={t('citizenshipNumber')}
             name="citizenshipNumber"
             value={formData.citizenshipNumber}
             onChange={handleChange}
-            placeholder="Enter your citizenship number"
+            placeholder={t('enterCitizenshipNumber')}
             required
             error={errors.citizenshipNumber}
           />
@@ -490,16 +489,16 @@ function Register() {
           <div className="r-form-group">
             <Input
               type={isPasswordVisible ? 'text' : 'password'}
-              label="Password"
+              label={t('password')}
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="Enter your password"
+              placeholder={t('enterPassword')}
               required
               error={errors.password}
               helperText={
             <span style={{ color: "black" }}>
-              "Must contain uppercase, lowercase, and special characters"
+              {t('passwordRequirements')}
             </span>
           }
               rightIcon={
@@ -528,11 +527,11 @@ function Register() {
           <div className="r-form-group">
             <Input
               type={isConfirmVisible ? 'text' : 'password'}
-              label="Confirm Password"
+              label={t('confirmPassword')}
               name="confirm"
               value={formData.confirm}
               onChange={handleChange}
-              placeholder="Confirm your password"
+              placeholder={t('confirmYourPassword')}
               required
               error={errors.confirm}
               rightIcon={
@@ -568,20 +567,20 @@ function Register() {
             loading={isLoading}
             className="r-submit-button"
           >
-            {isLoading ? 'Registering...' : 'Register'}
+            {isLoading ? t('registering') : t('register')}
           </Button>
 
           {/* Already have account */}
           <div className="Already-account">
             <p>
-              Already have an account?{' '}
+              {t('alreadyHaveAccount')}{' '}
             <Button
               type="button"
               variant="primary"
               onClick={() => navigate('/login')}
               className="r-gradient-button"
             >
-              Sign In
+              {t('signIn')}
             </Button>
             </p>
           </div>

@@ -355,7 +355,7 @@ export default function ProvinceTemplate({
                       </div>
                     </div>
                   );
-                })}}
+                })}
               </div>
 
               <div className="provinceDivider" />

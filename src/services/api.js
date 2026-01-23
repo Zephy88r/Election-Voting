@@ -307,11 +307,11 @@ export const notificationAPI = {
  */
 export const provinceAPI = {
   /**
-   * Get all provinces
-   * @returns {Promise<object>} - List of provinces
+   * Get registration data (provinces, districts, electoral areas)
+   * @returns {Promise<object>} - Registration data
    */
-  getAll: async () => {
-    return apiRequest("/elections/api/provinces/", {
+  getRegistrationData: async () => {
+    return apiRequest("/elections/api/registration-data/", {
       method: "GET",
     });
   },

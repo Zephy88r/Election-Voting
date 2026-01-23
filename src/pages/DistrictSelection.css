@@ -1,0 +1,327 @@
+/**
+ * District Selection Page Styles
+ */
+
+.districtShell {
+  min-height: 100vh;
+  padding: calc(72px + 24px) 16px 32px;
+  background:
+    radial-gradient(1200px 600px at 10% 10%, rgba(220, 20, 60, 0.18), transparent 55%),
+    radial-gradient(900px 500px at 90% 20%, rgba(0, 56, 147, 0.18), transparent 55%),
+    radial-gradient(900px 500px at 40% 100%, rgba(40, 167, 69, 0.10), transparent 55%),
+    url('../assets/Background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.districtWrap {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.districtHero {
+  border-radius: 18px;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.85), rgba(255,255,255,0.72));
+  border: 1px solid rgba(255,255,255,0.35);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.18);
+  backdrop-filter: blur(14px);
+}
+
+.districtHeader {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.districtTitleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.districtTitle {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  color: var(--color-text-primary);
+}
+
+.districtSubtitle {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.districtBadges {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.districtGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.districtCard {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.40);
+  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.76));
+  box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.districtCard:hover:not(.restricted) {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+}
+
+.districtCard.restricted {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: linear-gradient(135deg, rgba(200,200,200,0.5), rgba(180,180,180,0.4));
+}
+
+.districtCard.userDistrict {
+  border-color: rgba(40, 167, 69, 0.4);
+  box-shadow: 0 12px 40px rgba(40, 167, 69, 0.15);
+}
+
+.districtCardInner {
+  padding: 24px;
+  text-align: center;
+  position: relative;
+}
+
+.districtIcon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+  height: 64px;
+}
+
+.voteLogoIcon {
+  width: 40px;
+  height: 64px;
+  object-fit: contain;
+}
+
+.districtName {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.districtInfo {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.userBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(40, 167, 69, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.restrictedBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(220, 20, 60, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.districtActions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0,0,0,0.08);
+}
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modalContent {
+  width: min(600px, 100%);
+  background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(255,255,255,0.90));
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.35);
+  box-shadow: 0 25px 80px rgba(0,0,0,0.3);
+  backdrop-filter: blur(16px);
+  max-height: 80vh;
+  overflow: hidden;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.modalClose {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  padding: 4px;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.modalClose:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+.modalBody {
+  padding: 24px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.modalSubtext {
+  margin: 0 0 20px 0;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.electoralGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.electoralCard {
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,0.40);
+  background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.6));
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.electoralCard:hover:not(.restricted) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.electoralCard.restricted {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: linear-gradient(135deg, rgba(200,200,200,0.4), rgba(180,180,180,0.3));
+}
+
+.electoralCard.userArea {
+  border-color: rgba(40, 167, 69, 0.4);
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(40, 167, 69, 0.05));
+}
+
+.electoralIcon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.electoralName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.3;
+}
+
+.loadingBox {
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  color: var(--color-text-secondary);
+}
+
+.accessDenied {
+  max-width: 600px;
+  margin: 0 auto;
+  border-radius: 18px;
+  padding: 32px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.88), rgba(255,255,255,0.76));
+  border: 2px dashed rgba(220,20,60,0.35);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.18);
+  backdrop-filter: blur(14px);
+  text-align: center;
+}
+
+.accessDenied h2 {
+  margin: 0 0 16px;
+  font-weight: 700;
+  color: var(--color-error);
+}
+
+@media (max-width: 768px) {
+  .districtHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .districtTitle {
+    font-size: 24px;
+  }
+  
+  .districtGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .modalContent {
+    margin: 16px;
+  }
+  
+  .electoralGrid {
+    grid-template-columns: 1fr;
+  }
+}

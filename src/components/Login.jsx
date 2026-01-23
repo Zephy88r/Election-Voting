@@ -112,10 +112,9 @@ function Login() {
 
       setSuccess(getSuccessMessage('login', { name: response.user?.name }));
 
-      // Redirect to dashboard or previous location
-      const from = location.state?.from?.pathname || '/dashboard';
+      // Redirect to dashboard always after login
       setTimeout(() => {
-        navigate(from, { replace: true });
+        navigate('/dashboard', { replace: true });
       }, 1000);
     } catch (err) {
       setError(getErrorMessage(err, 'login'));

@@ -60,49 +60,49 @@ export const PROVINCES_DATA = [
     displayName: 'Province 1', 
     routeName: 'koshi',
     img: p1, 
-    path: '/koshi' 
+    path: '/koshi/districts' 
   },
   { 
     name: 'Madhesh', 
     displayName: 'Province 2', 
     routeName: 'madhesh',
     img: p2, 
-    path: '/madhesh' 
+    path: '/madhesh/districts' 
   },
   { 
     name: 'Bagmati', 
     displayName: 'Province 3', 
     routeName: 'bagmati',
     img: p3, 
-    path: '/bagmati' 
+    path: '/bagmati/districts' 
   },
   { 
     name: 'Gandaki', 
     displayName: 'Province 4', 
     routeName: 'gandaki',
     img: p4, 
-    path: '/gandaki' 
+    path: '/gandaki/districts' 
   },
   { 
     name: 'Lumbini', 
     displayName: 'Province 5', 
     routeName: 'lumbini',
     img: p5, 
-    path: '/lumbini' 
+    path: '/lumbini/districts' 
   },
   { 
     name: 'Karnali', 
     displayName: 'Province 6', 
     routeName: 'karnali',
     img: p6, 
-    path: '/karnali' 
+    path: '/karnali/districts' 
   },
   { 
     name: 'Sudurpashchim', 
     displayName: 'Province 7', 
     routeName: 'sudurpaschim',
     img: p7, 
-    path: '/sudurpaschim' 
+    path: '/sudurpaschim/districts' 
   },
 ];
 

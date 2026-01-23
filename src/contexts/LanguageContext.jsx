@@ -120,6 +120,24 @@ const translations = {
     passwordRequired: 'Password is required',
     passwordMinLength: 'Password must be at least 6 characters',
     
+    // Register Form
+    fullName: 'Full Name',
+    enterFullName: 'Enter your full name',
+    phoneNumber: 'Phone Number',
+    nepalPhoneFormat: 'Nepal format: +977 XXX-XXXXXXX',
+    selectProvince: 'Select your province',
+    selectDistrict: 'Select your district',
+    selectProvinceFirst: 'Select province first',
+    enterVoterId: 'Enter your voter ID',
+    enterCitizenshipNumber: 'Enter your citizenship number',
+    passwordRequirements: 'Must contain uppercase, lowercase, and special characters',
+    confirmPassword: 'Confirm Password',
+    confirmYourPassword: 'Confirm your password',
+    registering: 'Registering...',
+    register: 'Register',
+    alreadyHaveAccount: 'Already have an account?',
+    signIn: 'Sign In',
+    
     // Profile Page
     userProfile: 'User Profile',
     editAccountInfo: 'Edit your account information',
@@ -276,6 +294,24 @@ const translations = {
     fixFormErrors: 'कृपया फारममा त्रुटिहरू सुधार गर्नुहोस्',
     passwordRequired: 'पासवर्ड आवश्यक छ',
     passwordMinLength: 'पासवर्ड कम्तिमा ६ अक्षरको हुनुपर्छ',
+    
+    // Register Form
+    fullName: 'पूरा नाम',
+    enterFullName: 'आफ्नो पूरा नाम प्रविष्ट गर्नुहोस्',
+    phoneNumber: 'फोन नम्बर',
+    nepalPhoneFormat: 'नेपाल ढाँचा: +977 XXX-XXXXXXX',
+    selectProvince: 'आफ्नो प्रदेश चयन गर्नुहोस्',
+    selectDistrict: 'आफ्नो जिल्ला चयन गर्नुहोस्',
+    selectProvinceFirst: 'पहिले प्रदेश चयन गर्नुहोस्',
+    enterVoterId: 'आफ्नो मतदाता परिचयपत्र प्रविष्ट गर्नुहोस्',
+    enterCitizenshipNumber: 'आफ्नो नागरिकता नम्बर प्रविष्ट गर्नुहोस्',
+    passwordRequirements: 'ठूलो अक्षर, सानो अक्षर र विशेष वर्णहरू समावेश गर्नुपर्छ',
+    confirmPassword: 'पासवर्ड पुष्टि गर्नुहोस्',
+    confirmYourPassword: 'आफ्नो पासवर्ड पुष्टि गर्नुहोस्',
+    registering: 'दर्ता गर्दै...',
+    register: 'दर्ता गर्नुहोस्',
+    alreadyHaveAccount: 'पहिले नै खाता छ?',
+    signIn: 'साइन इन',
     
     // Profile Page
     userProfile: 'प्रयोगकर्ता प्रोफाइल',

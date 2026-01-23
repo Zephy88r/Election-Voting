@@ -9,6 +9,7 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Register from './components/Register';
 import Profile from './pages/Profile';
+import DistrictSelection from './pages/DistrictSelection';
 
 // Province Pages
 import Koshi from './pages/provinces/Koshi';
@@ -60,8 +61,20 @@ function App() {
             </ProtectedRoute>
           } 
         />
+        
+        {/* District Selection Routes */}
         <Route 
-          path="/koshi" 
+          path="/:provinceId/districts" 
+          element={
+            <ProtectedRoute>
+              <DistrictSelection />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Voting Routes */}
+        <Route 
+          path="/koshi/vote" 
           element={
             <ProtectedRoute>
               <Koshi />
@@ -69,7 +82,7 @@ function App() {
           } 
         />
         <Route 
-          path="/madhesh" 
+          path="/madhesh/vote" 
           element={
             <ProtectedRoute>
               <Madhesh />
@@ -77,7 +90,7 @@ function App() {
           } 
         />
         <Route 
-          path="/bagmati" 
+          path="/bagmati/vote" 
           element={
             <ProtectedRoute>
               <Bagmati />
@@ -85,7 +98,7 @@ function App() {
           } 
         />
         <Route 
-          path="/gandaki" 
+          path="/gandaki/vote" 
           element={
             <ProtectedRoute>
               <Gandaki />
@@ -93,7 +106,7 @@ function App() {
           } 
         />
         <Route 
-          path="/lumbini" 
+          path="/lumbini/vote" 
           element={
             <ProtectedRoute>
               <Lumbini />
@@ -101,7 +114,7 @@ function App() {
           } 
         />
         <Route 
-          path="/karnali" 
+          path="/karnali/vote" 
           element={
             <ProtectedRoute>
               <Karnali />
@@ -109,7 +122,7 @@ function App() {
           } 
         />
         <Route 
-          path="/sudurpaschim" 
+          path="/sudurpaschim/vote" 
           element={
             <ProtectedRoute>
               <Sudurpashchim />
