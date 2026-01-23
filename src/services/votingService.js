@@ -1,11 +1,10 @@
 /**
  * Voting Service
  * Handles voting operations, candidate management, and voting history
- * Ready for backend API integration
+ * Connected to backend API for database operations
  */
 
 import { votingAPI } from './api';
-import { storage } from './storageService';
 import { getToken } from '../utils/authUtils';
 
 /**
@@ -13,36 +12,6 @@ import { getToken } from '../utils/authUtils';
  * Manages voting operations and voting history
  */
 class VotingService {
-  // Local fallback (when API history isn't available)
-  // IMPORTANT: Vote lock must be per-user, not global.
-  // We store one PR vote per user.
-
-  _getUserKey(userKey) {
-    return `nepal-election:local-pr-vote:${userKey}`;
-  }
-
-  _safeUserKey(userKey) {
-    if (!userKey) return null;
-    return String(userKey).trim();
-  }
-
-  _getLocalPRVote(userKey) {
-    try {
-      const k = this._safeUserKey(userKey);
-      if (!k) return null;
-      const raw = localStorage.getItem(this._getUserKey(k));
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
-  }
-
-  _setLocalPRVote(userKey, vote) {
-    const k = this._safeUserKey(userKey);
-    if (!k) return;
-    localStorage.setItem(this._getUserKey(k), JSON.stringify(vote));
-  }
-
   /**
    * Get candidates for a province
    * @param {string} provinceId - Province identifier
@@ -72,70 +41,35 @@ class VotingService {
    * Submit PR vote (party). Enforces 1 party vote only.
    */
   async submitPartyVote(partyId, provinceId = null, userKey = null) {
-    // Enforce single PR vote per user (not global)
-    const existing = this._getLocalPRVote(userKey);
-    if (existing?.party_id) {
-      const err = new Error('You have already voted. Only one party vote is allowed.');
-      err.code = 'ALREADY_VOTED';
-      throw err;
-    }
-
     try {
       const res = await votingAPI.submitVote({ vote_type: 'PR', party_id: partyId });
-
-      // On success, persist local marker too (helps UI enforce without refetch)
-      this._setLocalPRVote(userKey, {
-        vote_type: 'PR',
-        party_id: partyId,
-        province_id: provinceId,
-        created_at: new Date().toISOString(),
-        source: 'api',
-      });
-
       return res;
     } catch (error) {
       console.error('Submit party vote API error:', error);
-
-      // Fallback: if API fails, still record locally so user can proceed in UI demo mode
-      // If you want strict backend-only voting, remove this block.
-      this._setLocalPRVote(userKey, {
-        vote_type: 'PR',
-        party_id: partyId,
-        province_id: provinceId,
-        created_at: new Date().toISOString(),
-        source: 'local',
-      });
-
-      return { message: 'Vote recorded locally (backend unavailable).', local: true };
+      throw error;
     }
   }
 
   /**
-   * Unified PR vote status check.
+   * Check PR vote status from backend
    * Returns { voted: boolean, partyId: number|null }
    */
   async getPRVoteStatus(provinceId = null, userKey = null) {
-    // First try backend history
     try {
       const history = await this.getVotingHistory();
       const found = history.find((vote) => {
-        // Django returns: vote_type, province: {name}, and party: {id}
-        const isPR = vote.vote_type === 'PR';
-        if (!isPR) return false;
-
-        // If provinceId is provided (e.g. 'bagmati'), we don't have a strict mapping from API yet,
-        // so treat PR as global one-time vote.
-        return true;
+        return vote.vote_type === 'PR';
       });
 
-      if (found) return { voted: true, partyId: found.party?.id ?? null, source: 'api' };
+      if (found) {
+        return { 
+          voted: true, 
+          partyId: found.party?.id ?? null, 
+          source: 'api' 
+        };
+      }
     } catch (e) {
-      // ignore and fallback to local
-    }
-
-    const local = this._getLocalPRVote(userKey);
-    if (local?.party_id) {
-      return { voted: true, partyId: local.party_id, source: local.source || 'local' };
+      console.error('Error checking PR vote status:', e);
     }
 
     return { voted: false, partyId: null, source: 'none' };
@@ -179,7 +113,7 @@ class VotingService {
   }
 
   /**
-   * Get mock candidates for demonstration
+   * Get mock candidates for demonstration (fallback only)
    * @param {string} provinceId - Province identifier
    * @returns {Array} - Mock candidates
    */

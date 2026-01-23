@@ -111,11 +111,12 @@ def api_logout(request):
     return JsonResponse({"success": True}, status=200)
 
 
+@csrf_exempt
 @api_login_required
 def api_vote(request):
     """
     JSON vote endpoint: POST JSON { vote_type: 'FPTP'|'PR', candidate_id?, party_id? }
-    Uses session auth and CSRF protection; frontend must include X-CSRFToken header.
+    Uses session auth and stores vote in database.
     """
     if request.method != "POST":
         return JsonResponse({"error": "POST required"}, status=405)
@@ -133,8 +134,13 @@ def api_vote(request):
     if vote_type not in ("FPTP", "PR"):
         return JsonResponse({"error": "Invalid vote type."}, status=400)
 
+    # Check if user already voted for this type
     if Vote.objects.filter(voter=user, vote_type=vote_type).exists():
         return JsonResponse({"error": "You have already voted."}, status=409)
+
+    # Validate user has required profile data
+    if not user.province or not user.district:
+        return JsonResponse({"error": "User profile incomplete. Province and district required."}, status=400)
 
     vote = Vote(
         voter=user,
@@ -148,20 +154,34 @@ def api_vote(request):
         candidate_id = data.get("candidate_id")
         if not candidate_id:
             return JsonResponse({"error": "candidate_id is required for FPTP vote."}, status=400)
-        candidate = get_object_or_404(Candidate, id=candidate_id)
-        if candidate.electoral_area != user.electoral_area:
-            return JsonResponse({"error": "Candidate is not in your electoral area."}, status=403)
-        vote.candidate = candidate
+        try:
+            candidate = Candidate.objects.get(id=candidate_id)
+            if user.electoral_area and candidate.electoral_area != user.electoral_area:
+                return JsonResponse({"error": "Candidate is not in your electoral area."}, status=403)
+            vote.candidate = candidate
+        except Candidate.DoesNotExist:
+            return JsonResponse({"error": "Invalid candidate ID."}, status=400)
 
     elif vote_type == "PR":
         party_id = data.get("party_id")
         if not party_id:
             return JsonResponse({"error": "party_id is required for PR vote."}, status=400)
-        party = get_object_or_404(Party, id=party_id)
-        vote.party = party
+        try:
+            party = Party.objects.get(id=party_id, is_active=True)
+            vote.party = party
+        except Party.DoesNotExist:
+            return JsonResponse({"error": "Invalid party ID."}, status=400)
 
-    vote.save()
-    return JsonResponse({"success": "Vote recorded successfully."}, status=201)
+    # Save vote to database
+    try:
+        vote.save()
+        return JsonResponse({
+            "success": True,
+            "message": "Vote recorded successfully.",
+            "vote_id": vote.id
+        }, status=201)
+    except Exception as e:
+        return JsonResponse({"error": f"Failed to save vote: {str(e)}"}, status=500)
 
 
 @ensure_csrf_cookie

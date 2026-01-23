@@ -139,18 +139,20 @@
 .provinceGrid {
   margin-top: 18px;
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 16px;
 }
 
 .partyCard {
-  grid-column: span 6;
   border-radius: 18px;
   overflow: hidden;
   border: 1px solid rgba(255,255,255,0.40);
   background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.76));
   box-shadow: 0 16px 52px rgba(0,0,0,0.14);
   transition: transform 0.18s ease, box-shadow 0.18s ease;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
 }
 
 .partyCard:hover {
@@ -159,7 +161,11 @@
 }
 
 .partyCardInner {
-  padding: 16px 16px;
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .partyHeader {
@@ -167,17 +173,19 @@
   gap: 12px;
   align-items: flex-start;
   justify-content: space-between;
+  margin-bottom: 12px;
 }
 
 .partyIdentity {
   display: flex;
   gap: 12px;
   align-items: flex-start;
+  flex: 1;
 }
 
 .partyMark {
-  width: 46px;
-  height: 46px;
+  width: 48px;
+  height: 48px;
   border-radius: 14px;
   display: flex;
   align-items: center;
@@ -185,54 +193,58 @@
   border: 1px solid rgba(0,0,0,0.08);
   background: rgba(255,255,255,0.85);
   box-shadow: 0 10px 22px rgba(0,0,0,0.10);
-  font-size: 20px;
+  font-size: 22px;
+  flex-shrink: 0;
 }
 
 .partyName {
-  margin: 0;
+  margin: 0 0 4px 0;
   font-weight: 900;
   font-size: 16px;
   letter-spacing: 0.2px;
   color: var(--color-text-primary);
+  line-height: 1.3;
 }
 
 .partyTagline {
-  margin: 4px 0 0;
+  margin: 0;
   color: var(--color-text-secondary);
   font-size: 13px;
   line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .partyFooter {
-  margin-top: 14px;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0,0,0,0.06);
 }
 
 .partyMeta {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
-  color: var(--color-text-secondary);
-  font-size: 12px;
+  margin-bottom: 8px;
 }
 
 .miniPill {
-  padding: 6px 10px;
+  padding: 4px 8px;
   border-radius: 999px;
   border: 1px solid rgba(0,0,0,0.08);
   background: rgba(255,255,255,0.80);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
 }
 
 .voteHint {
-  width: 100%;
-  margin-top: 10px;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--color-text-secondary);
-  line-height: 1.5;
+  line-height: 1.4;
+  opacity: 0.8;
 }
 
 .centerBox {
@@ -274,12 +286,24 @@
     grid-template-columns: 1fr;
   }
 
-  .partyCard {
-    grid-column: span 12;
+  .provinceGrid {
+    grid-template-columns: 1fr;
   }
 
   .provinceActions {
     justify-content: flex-start;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1200px) {
+  .provinceGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .provinceGrid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 

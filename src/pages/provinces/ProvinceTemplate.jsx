@@ -12,42 +12,6 @@ import { votingService } from '../../services/votingService';
 import { notificationService } from '../../services/notificationService';
 import './ProvincePage.css';
 
-const PARTY_LIST = [
-  {
-    id: 1,
-    name: 'CPN UML',
-    symbol: '☀️',
-    tagline: 'Economic growth, governance reform, and national development.',
-    ideology: 'Center-left',
-    focus: 'Development',
-  },
-  {
-    id: 2,
-    name: 'Rastra Swotantra Party (RSP)',
-    symbol: '🔔',
-    tagline: 'Transparency, meritocracy, and youth-led transformation.',
-    ideology: 'Reformist',
-    focus: 'Governance',
-  },
-  {
-    id: 3,
-    name: 'Nepali Congress',
-    symbol: '🌳',
-    tagline: 'Democracy, inclusion, and institutional stability.',
-    ideology: 'Centrist',
-    focus: 'Democracy',
-  },
-  {
-    id: 4,
-    name: 'CPN UML (Maoist)',
-    symbol: '⚒️',
-    tagline: 'Social justice, equitable development, and public welfare.',
-    ideology: 'Left',
-    focus: 'Welfare',
-  },
-  
-];
-
 function normalizeProvinceName(user) {
   const p = user?.province;
   if (!p) return null;
@@ -70,6 +34,7 @@ export default function ProvinceTemplate({
   const [success, setSuccess] = useState('');
   const [hasVoted, setHasVoted] = useState(false);
   const [votedPartyId, setVotedPartyId] = useState(null);
+  const [parties, setParties] = useState([]);
 
   // Confirm vote modal
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -78,10 +43,8 @@ export default function ProvinceTemplate({
   const userProvinceName = normalizeProvinceName(user);
   const hasAccess = userProvinceName === requiredProvinceName;
 
-  // Per-user vote lock key (real-life logic: every user can vote once)
+  // Per-user vote lock key
   const userKey = String(user?.id || user?.voterId || user?.username || user?.email || 'anonymous');
-
-  const parties = useMemo(() => PARTY_LIST, []);
 
   useEffect(() => {
     const init = async () => {
@@ -92,6 +55,12 @@ export default function ProvinceTemplate({
 
       try {
         setLoading(true);
+        
+        // Fetch parties from backend
+        const partiesData = await votingService.getParties();
+        setParties(partiesData || []);
+        
+        // Check voting status
         const status = await votingService.hasVotedInProvince(provinceId, userKey);
         if (typeof status === 'boolean') {
           setHasVoted(status);
@@ -100,7 +69,9 @@ export default function ProvinceTemplate({
           setHasVoted(Boolean(status?.voted));
           setVotedPartyId(status?.partyId ?? null);
         }
-      } catch {
+      } catch (err) {
+        console.error('Error loading data:', err);
+        setError('Failed to load voting data');
         setHasVoted(false);
         setVotedPartyId(null);
       } finally {
@@ -112,7 +83,6 @@ export default function ProvinceTemplate({
   }, [hasAccess, provinceId]);
 
   const requestVote = (partyId) => {
-    // Open a custom confirm modal (better than window.confirm)
     setPendingPartyId(partyId);
     setConfirmOpen(true);
   };
@@ -284,6 +254,63 @@ export default function ProvinceTemplate({
                   const isSelected = votedPartyId === p.id;
                   const disabled = submitting || hasVoted;
 
+                  // Map party symbols for better display
+                  const getPartySymbol = (symbol, name) => {
+                    const symbolMap = {
+                      'NC': '🌳',
+                      'UML': '☀️', 
+                      'UMLM': '☀️',
+                      'MCP': '⚒️',
+                      'JD': '⚖️',
+                      'SP': '🌾',
+                      'RSP': '🔔'
+                    };
+                    return symbolMap[symbol] || symbol || '🏛️';
+                  };
+
+                  // Generate party tagline based on name
+                  const getPartyTagline = (name) => {
+                    const taglines = {
+                      'Nepali Congress': 'Democracy, inclusion, and institutional stability.',
+                      'CPN-UML': 'Economic growth, governance reform, and national development.',
+                      'CPN UML': 'Economic growth, governance reform, and national development.',
+                      'CPN-Maoist': 'Social justice, equitable development, and public welfare.',
+                      'CPN UML (Moist)': 'Social justice, equitable development, and public welfare.',
+                      'Janata Dal': 'Champion of social justice and equality.',
+                      'Socialist Party': 'Workers rights and social democracy.',
+                      'Rastra Swatantra Party (RSP)': 'Transparency, meritocracy, and youth-led transformation.'
+                    };
+                    return taglines[name] || 'Working for the people of Nepal.';
+                  };
+
+                  const getPartyIdeology = (name) => {
+                    const ideologies = {
+                      'Nepali Congress': 'Centrist',
+                      'CPN-UML': 'Center-left',
+                      'CPN UML': 'Center-left', 
+                      'CPN-Maoist': 'Left',
+                      'CPN UML (Moist)': 'Left',
+                      'Janata Dal': 'Center-left',
+                      'Socialist Party': 'Left',
+                      'Rastra Swatantra Party (RSP)': 'Reformist'
+                    };
+                    return ideologies[name] || 'Democratic';
+                  };
+
+                  const getPartyFocus = (name) => {
+                    const focuses = {
+                      'Nepali Congress': 'Democracy',
+                      'CPN-UML': 'Development',
+                      'CPN UML': 'Development',
+                      'CPN-Maoist': 'Welfare', 
+                      'CPN UML (Moist)': 'Welfare',
+                      'Janata Dal': 'Justice',
+                      'Socialist Party': 'Workers',
+                      'Rastra Swatantra Party (RSP)': 'Governance'
+                    };
+                    return focuses[name] || 'Progress';
+                  };
+
                   return (
                     <div
                       key={p.id}
@@ -295,10 +322,10 @@ export default function ProvinceTemplate({
                       <div className="partyCardInner">
                         <div className="partyHeader">
                           <div className="partyIdentity">
-                            <div className="partyMark">{p.symbol}</div>
+                            <div className="partyMark">{getPartySymbol(p.symbol, p.name)}</div>
                             <div>
                               <h3 className="partyName">{p.name}</h3>
-                              <p className="partyTagline">{p.tagline}</p>
+                              <p className="partyTagline">{getPartyTagline(p.name)}</p>
                             </div>
                           </div>
 
@@ -316,8 +343,8 @@ export default function ProvinceTemplate({
 
                         <div className="partyFooter">
                           <div className="partyMeta">
-                            <span className="miniPill">Ideology: {p.ideology}</span>
-                            <span className="miniPill">Focus: {p.focus}</span>
+                            <span className="miniPill">Ideology: {getPartyIdeology(p.name)}</span>
+                            <span className="miniPill">Focus: {getPartyFocus(p.name)}</span>
                             <span className="miniPill">Ballot ID: {p.id}</span>
                           </div>
                         </div>
@@ -328,7 +355,7 @@ export default function ProvinceTemplate({
                       </div>
                     </div>
                   );
-                })}
+                })}}
               </div>
 
               <div className="provinceDivider" />

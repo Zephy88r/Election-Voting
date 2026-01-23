@@ -113,12 +113,12 @@ class VoteAdmin(admin.ModelAdmin):
     candidate_or_party.short_description = "Vote For"
 
     # Optional: Add vote summary dashboard in changelist
-    change_list_template = "admin/vote_change_list.html"
+    # change_list_template = "admin/vote_change_list.html"
 
     def changelist_view(self, request, extra_context=None):
         # Aggregate votes per candidate and party
         candidate_votes = Candidate.objects.annotate(vote_count=Count('votes')).order_by('-vote_count')
-        party_votes = Party.objects.annotate(vote_count=Count('vote')).order_by('-vote_count')
+        party_votes = Party.objects.annotate(vote_count=Count('votes')).order_by('-vote_count')
 
         extra_context = extra_context or {}
         extra_context['candidate_votes'] = candidate_votes
