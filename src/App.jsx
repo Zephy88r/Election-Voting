@@ -9,7 +9,6 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Register from './components/Register';
 import Profile from './pages/Profile';
-import VotingHistory from './pages/VotingHistory';
 
 // Province Pages
 import Koshi from './pages/provinces/Koshi';
@@ -58,14 +57,6 @@ function App() {
           element={
             <ProtectedRoute>
               <Profile />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/voting-history" 
-          element={
-            <ProtectedRoute>
-              <VotingHistory />
             </ProtectedRoute>
           } 
         />

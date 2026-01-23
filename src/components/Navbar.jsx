@@ -1,15 +1,14 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { FaUser } from 'react-icons/fa';
 import NotificationBell from './common/NotificationBell';
 import './Navbar.css';
 
 function Navbar() {
   const { isAuthenticated, user } = useAuth();
+  const { language, toggleLanguage, t } = useLanguage();
   const navigate = useNavigate();
-
-  const [language, setLanguage] = useState('EN');
 
   const handleHomeClick = () => {
     navigate('/');
@@ -24,7 +23,7 @@ function Navbar() {
   };
 
   const handleLanguageSwitch = () => {
-    setLanguage((prev) => (prev === 'EN' ? 'NP' : 'EN'));
+    toggleLanguage();
   };
 
   return (
@@ -38,7 +37,7 @@ function Navbar() {
           if (e.key === 'Enter' || e.key === ' ') handleHomeClick();
         }}
       >
-        🇳🇵 Nepal Voting System
+        🇳🇵 {t('appName')}
       </div>
 
       <div className="navbar-right">

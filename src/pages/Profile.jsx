@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import Navbar from '../components/Navbar';
 import { formatDate } from '../utils/dateValidation';
 import { validateField } from '../utils/validation';
@@ -20,6 +21,7 @@ import './Profile.css';
 function Profile() {
   const navigate = useNavigate();
   const { user, updateUser, isLoading: authLoading, logout } = useAuth();
+  const { t } = useLanguage();
   const fileInputRef = useRef(null);
 
   const [loading, setLoading] = useState(true);
@@ -88,13 +90,13 @@ function Profile() {
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      setError('Please select a valid image file');
+      setError(t('selectValidImage'));
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      setError('Image size must be less than 5MB');
+      setError(t('imageSizeLimit'));
       return;
     }
 
@@ -105,7 +107,7 @@ function Profile() {
       setError('');
     };
     reader.onerror = () => {
-      setError('Failed to read image file');
+      setError(t('failedToReadImage'));
     };
     reader.readAsDataURL(file);
   };
@@ -143,7 +145,7 @@ function Profile() {
     setSaving(true);
 
     if (!validateForm()) {
-      setError('Please fix the errors in the form');
+      setError(t('fixFormErrors'));
       setSaving(false);
       return;
     }
@@ -159,10 +161,10 @@ function Profile() {
 
       await updateUser(updatedUserData);
 
-      setSuccess('Profile updated successfully!');
+      setSuccess(t('profileUpdated'));
       setIsEditing(false);
     } catch (err) {
-      setError(err.message || 'Failed to update profile. Please try again.');
+      setError(err.message || t('failedToUpdateProfile'));
     } finally {
       setSaving(false);
     }
@@ -197,7 +199,7 @@ function Profile() {
         <div className="profile-container">
           <div className="profile-loading">
             <LoadingSpinner size="lg" />
-            <p>Loading profile...</p>
+            <p>{t('loadingProfile')}</p>
           </div>
         </div>
       </>
@@ -210,9 +212,9 @@ function Profile() {
         <Navbar />
         <div className="profile-container">
           <div className="profile-error">
-            <ErrorMessage message="User not found. Please log in again." />
+            <ErrorMessage message={t('userNotFound')} />
             <Button onClick={() => navigate('/login')} variant="primary" style={{ marginTop: '20px' }}>
-              Go to Login
+              {t('goToLogin')}
             </Button>
           </div>
         </div>
@@ -226,8 +228,8 @@ function Profile() {
       <div className="profile-container">
         <Card className="profile-card" variant="elevated">
           <div className="profile-header">
-            <h1>User Profile</h1>
-            <p>{isEditing ? 'Edit your account information' : 'Your account information'}</p>
+            <h1>{t('userProfile')}</h1>
+            <p>{isEditing ? t('editAccountInfo') : t('yourAccountInfo')}</p>
           </div>
 
           <div className="profile-content">
@@ -238,7 +240,7 @@ function Profile() {
                   {profileImage ? (
                     <img src={profileImage} alt="Profile" />
                   ) : (
-                    <div className="avatar-placeholder">No Photo</div>
+                    <div className="avatar-placeholder">{t('noPhoto')}</div>
                   )}
                 </div>
                 {isEditing && (
@@ -255,7 +257,7 @@ function Profile() {
                       size="sm"
                       onClick={() => fileInputRef.current?.click()}
                     >
-                      {profileImage ? 'Change Photo' : 'Upload Photo'}
+                      {profileImage ? t('changePhoto') : t('uploadPhoto')}
                     </Button>
                   </div>
                 )}
@@ -269,7 +271,7 @@ function Profile() {
             {/* Profile Details */}
             <div className="profile-details">
               <div className="detail-row">
-                <span className="detail-label">Full Name:</span>
+                <span className="detail-label">{t('fullName')}:</span>
                 {isEditing ? (
                   <Input
                     type="text"
@@ -285,7 +287,7 @@ function Profile() {
               </div>
 
               <div className="detail-row">
-                <span className="detail-label">Email:</span>
+                <span className="detail-label">{t('email')}:</span>
                 {isEditing ? (
                   <Input
                     type="email"
@@ -302,7 +304,7 @@ function Profile() {
 
               {isEditing && (
                 <div className="detail-row">
-                  <span className="detail-label">Phone:</span>
+                  <span className="detail-label">{t('phone')}:</span>
                   <Input
                     type="tel"
                     name="phone"
@@ -316,7 +318,7 @@ function Profile() {
               )}
 
               <div className="detail-row">
-                <span className="detail-label">Address:</span>
+                <span className="detail-label">{t('address')}:</span>
                 {isEditing ? (
                   <Input
                     type="text"
@@ -332,7 +334,7 @@ function Profile() {
               </div>
 
               <div className="detail-row">
-                <span className="detail-label">Date of Birth:</span>
+                <span className="detail-label">{t('dateOfBirth')}:</span>
                 {isEditing ? (
                   <Input
                     type="date"
@@ -348,12 +350,12 @@ function Profile() {
               </div>
 
               <div className="detail-row">
-                <span className="detail-label">Citizenship Number:</span>
+                <span className="detail-label">{t('citizenshipNumber')}:</span>
                 <span className="detail-value">{user.citizenshipNumber || 'N/A'}</span>
               </div>
 
               <div className="detail-row">
-                <span className="detail-label">Voter ID:</span>
+                <span className="detail-label">{t('voterId')}:</span>
                 <span className="detail-value">{user.voterId || 'N/A'}</span>
               </div>
             </div>
@@ -367,7 +369,7 @@ function Profile() {
                     onClick={handleCancel}
                     disabled={saving}
                   >
-                    Cancel
+                    {t('cancel')}
                   </Button>
                   <Button
                     variant="primary"
@@ -375,7 +377,7 @@ function Profile() {
                     disabled={saving}
                     loading={saving}
                   >
-                    {saving ? 'Saving...' : 'Save Changes'}
+                    {saving ? t('saving') : t('saveChanges')}
                   </Button>
                 </>
               ) : (
@@ -384,19 +386,19 @@ function Profile() {
                     variant="secondary"
                     onClick={() => navigate('/')}
                   >
-                    Back to Dashboard
+                    {t('backToDashboard')}
                   </Button>
                   <Button
                     variant="primary"
                     onClick={() => setIsEditing(true)}
                   >
-                    Edit Profile
+                    {t('editProfile')}
                   </Button>
                   <Button
                     variant="danger"
                     onClick={logout}
                   >
-                    Logout
+                    {t('logout')}
                   </Button>
                 </>
               )}

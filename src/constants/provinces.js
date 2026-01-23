@@ -142,6 +142,16 @@ export const getProvinceByRouteName = (routeName) => {
   return PROVINCES_DATA.find(p => p.routeName === routeName) || null;
 };
 
+/**
+ * Get translated province name
+ * @param {string} routeName - Route name (e.g., 'koshi')
+ * @param {function} t - Translation function from useLanguage hook
+ * @returns {string} - Translated province name
+ */
+export const getTranslatedProvinceName = (routeName, t) => {
+  return t(`provinces.${routeName}`) || routeName;
+};
+
 export default {
   PROVINCE_MAPPING,
   PROVINCE_REVERSE_MAPPING,

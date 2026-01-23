@@ -7,6 +7,7 @@ import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
 import SuccessMessage from '../../components/common/SuccessMessage';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import { votingService } from '../../services/votingService';
 import { notificationService } from '../../services/notificationService';
 import './ProvincePage.css';
@@ -61,6 +62,7 @@ export default function ProvinceTemplate({
 }) {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -190,16 +192,16 @@ export default function ProvinceTemplate({
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
               <div>
-                <div style={{ fontWeight: 900, fontSize: 18, color: 'var(--color-text-primary)' }}>Confirm your vote</div>
+                <div style={{ fontWeight: 900, fontSize: 18, color: 'var(--color-text-primary)' }}>{t('confirmVote')}</div>
                 <div style={{ marginTop: 4, color: 'var(--color-text-secondary)', fontSize: 13, lineHeight: 1.5 }}>
-                  You are about to cast your vote. This action cannot be undone.
+                  {t('confirmMessage')}
                 </div>
               </div>
               <div style={{ fontSize: 22 }}>🗳️</div>
             </div>
 
             <div style={{ marginTop: 14, padding: 12, borderRadius: 14, background: 'rgba(0,0,0,0.04)' }}>
-              <div style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>Selected Party</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>{t('selectedParty')}</div>
               <div style={{ marginTop: 4, fontWeight: 900, color: 'var(--color-text-primary)' }}>
                 {parties.find((p) => p.id === pendingPartyId)?.name || '—'}
               </div>
@@ -207,10 +209,10 @@ export default function ProvinceTemplate({
 
             <div style={{ marginTop: 16, display: 'flex', gap: 10, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
               <Button variant="secondary" onClick={cancelVote} disabled={submitting}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Button variant="primary" onClick={confirmVote} disabled={submitting} loading={submitting}>
-                Yes, Cast Vote
+                {t('yesCastVote')}
               </Button>
             </div>
           </div>
@@ -221,33 +223,33 @@ export default function ProvinceTemplate({
         <div className="provinceWrap">
           {!hasAccess ? (
             <div className="accessDenied">
-              <h2>Access Denied</h2>
+              <h2>{t('accessDenied').split(':')[0]}</h2>
               <p style={{ margin: '0 0 14px', color: 'var(--color-text-secondary)' }}>
-                You can only vote in <b>{userProvinceName || 'your registered province'}</b>.
+                {t('onlyVoteInRegistered')} <b>{userProvinceName || t('yourRegisteredProvince')}</b>.
               </p>
               <Button variant="primary" onClick={() => navigate('/dashboard')}>
-                Back to Dashboard
+                {t('backToDashboard')}
               </Button>
             </div>
           ) : loading ? (
             <div className="loadingBox">
               <LoadingSpinner size="lg" />
-              <div>Preparing ballot…</div>
+              <div>{t('preparingBallot')}</div>
             </div>
           ) : (
             <div className="provinceHero">
               <div className="provinceHeroTop">
                 <div className="provinceTitleBlock">
-                  <h1 className="provinceTitle">{provinceLabel} — Provincial Ballot</h1>
-                  <p className="provinceSubtitle">Select exactly one party. Your choice is final.</p>
+                  <h1 className="provinceTitle">{provinceLabel} — {t('provincialBallot')}</h1>
+                  <p className="provinceSubtitle">{t('selectParty')}</p>
                 </div>
 
                 <div className="provinceBadges">
-                  <span className={`pill pillStrong`}>PR Vote</span>
+                  <span className={`pill pillStrong`}>{t('prVote')}</span>
                   <span className={`pill ${hasVoted ? 'pillOk' : 'pillWarn'}`}>
-                    {hasVoted ? 'Already Voted' : 'Not Voted Yet'}
+                    {hasVoted ? t('alreadyVoted') : t('notVotedYet')}
                   </span>
-                  <span className="pill">Province: {requiredProvinceName}</span>
+                  <span className="pill">{t('province')}: {requiredProvinceName}</span>
                 </div>
               </div>
 
@@ -255,7 +257,7 @@ export default function ProvinceTemplate({
 
               <div className="provinceInfoRow">
                 <div className="provinceInfoCard">
-                  <h3>How it works</h3>
+                  <h3>{t('howItWorks')}</h3>
                   <p>
                     Choose a party and submit your vote. The system enforces <b>one (1)</b> party vote only.
                     {heroHint ? ` ${heroHint}` : ''}
@@ -263,11 +265,11 @@ export default function ProvinceTemplate({
                 </div>
 
                 <div className="provinceInfoCard">
-                  <h3>Status</h3>
+                  <h3>{t('status')}</h3>
                   <p>
                     {hasVoted
-                      ? `Voted for party ID: ${votedPartyId ?? '—'}`
-                      : 'You have not voted yet.'}
+                      ? `${t('votedFor')} ${votedPartyId ?? '—'}`
+                      : t('notVoted')}
                   </p>
                 </div>
               </div>
@@ -307,7 +309,7 @@ export default function ProvinceTemplate({
                               loading={submitting && !hasVoted}
                               onClick={() => requestVote(p.id)}
                             >
-                              {hasVoted ? (isSelected ? 'Voted' : 'Locked') : 'Vote'}
+                              {hasVoted ? (isSelected ? t('voted') : t('locked')) : t('vote')}
                             </Button>
                           </div>
                         </div>
@@ -321,7 +323,7 @@ export default function ProvinceTemplate({
                         </div>
 
                         <div className="voteHint">
-                          Tip: Double-check your choice. After submitting, you cannot vote again.
+                          {t('tip')}
                         </div>
                       </div>
                     </div>
@@ -332,7 +334,7 @@ export default function ProvinceTemplate({
               <div className="provinceDivider" />
 
               <div className="provinceActions">
-                <Button variant="secondary" onClick={() => navigate('/dashboard')}>Back</Button>
+                <Button variant="secondary" onClick={() => navigate('/dashboard')}>{t('back')}</Button>
               </div>
             </div>
           )}

@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { PROVINCES_DATA } from '../constants/provinces';
+import { useLanguage } from '../contexts/LanguageContext';
+import { PROVINCES_DATA, getTranslatedProvinceName } from '../constants/provinces';
 import Navbar from './Navbar';
 import Card from './common/Card';
 import Button from './common/Button';
@@ -20,6 +21,7 @@ const provinces = PROVINCES_DATA;
 function Dashboard() {
   const navigate = useNavigate();
   const { isAuthenticated, user, loading } = useAuth();
+  const { t } = useLanguage();
 
   /**
    * Get user's province name from registration (e.g. 'Koshi')
@@ -42,14 +44,14 @@ function Dashboard() {
    */
   const handleProvinceClick = (province) => {
     if (!isAuthenticated) {
-      alert('Please sign in to access province voting pages');
+      alert(t('pleaseSignIn'));
       navigate('/login');
       return;
     }
 
     // Check if user has access to this province (pass the full province object)
     if (!isProvinceAccessible(province)) {
-      alert(`Access Denied: You can only vote in ${userProvinceName}`);
+      alert(t('accessDenied').replace('{provinceName}', userProvinceName));
       return;
     }
 
@@ -63,26 +65,26 @@ function Dashboard() {
         <div className="dashboard-content">
           {loading ? (
             <div className="dashboard-loading">
-              <p>Loading...</p>
+              <p>{t('loading')}</p>
             </div>
           ) : (
             <>
               {isAuthenticated && user && (
                 <div className="dashboard-welcome">
-                  <h2>Welcome back, {user.name}!</h2>
-                  <p>You are registered in: <strong>{userProvinceName}</strong></p>
-                  <p>Select your province to view voting information</p>
+                  <h2>{t('welcomeBack').replace('{name}', user.name)}</h2>
+                  <p>{t('registeredIn')}: <strong>{userProvinceName}</strong></p>
+                  <p>{t('selectProvinceToViewVoting')}</p>
                 </div>
               )}
 
               {!isAuthenticated && (
                 <div className="dashboard-welcome">
-                  <h2>Nepal Election Voting System</h2>
-                  <p>Please sign in to access your province voting page</p>
+                  <h2>{t('nepalElectionVotingSystem')}</h2>
+                  <p>{t('pleaseSignInToAccess')}</p>
                 </div>
               )}
 
-              <h1>Select Your Province</h1>
+              <h1>{t('selectYourProvince')}</h1>
 
               <div className="province-grid">
                 {provinces.map((province) => {
@@ -110,12 +112,12 @@ function Dashboard() {
                     >
                       <img src={province.img} alt={province.name} loading="lazy" />
                       <div className="province-overlay">
-                        <h2>{province.name}</h2>
+                        <h2>{getTranslatedProvinceName(province.routeName, t)}</h2>
                         {isAuthenticated && !isAccessible && (
-                          <p className="province-restricted"> Access Restricted</p>
+                          <p className="province-restricted">{t('accessRestricted')}</p>
                         )}
                         {isAccessible && (
-                          <p className="province-accessible">Your Province</p>
+                          <p className="province-accessible">{t('yourProvince')}</p>
                         )}
                       </div>
                     </div>
@@ -128,7 +130,7 @@ function Dashboard() {
       </div>
 
       <footer className="footer">
-        <div className="footer-logo">🇳🇵 Nepal Voting System</div>
+        <div className="footer-logo">🇳🇵 {t('appName')}</div>
         <div className="footer-contact">
           <p>support@nepalvoting.gov.np</p>
           <p>+977-1-5555555</p>

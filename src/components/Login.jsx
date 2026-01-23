@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 // import CameraCapture from './CameraCapture';
 import { validateField } from '../utils/validation';
@@ -22,6 +23,7 @@ function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
+  const { t } = useLanguage();
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [faceImage, setFaceImage] = useState(null);
@@ -67,9 +69,9 @@ function Login() {
     }
 
     if (!formData.password.trim()) {
-      newErrors.password = 'Password is required';
+      newErrors.password = t('passwordRequired');
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = t('passwordMinLength');
     }
 
     setErrors(newErrors);
@@ -85,7 +87,7 @@ function Login() {
     setSuccess('');
 
     if (!validateForm()) {
-      setError('Please fix the errors in the form');
+      setError(t('fixFormErrors'));
       return;
     }
 
@@ -126,19 +128,19 @@ function Login() {
     <div className="login-container">
       <Card className="login-card" variant="elevated">
         <div className="login-header">
-          <h1>Nepal Election Voting System</h1>
-          <p>Please enter your details to continue</p>
+          <h1>{t('appName')}</h1>
+          <p>{t('pleaseEnterDetails')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form" noValidate>
           {/* Email */}
           <Input
             type="email"
-            label="Email"
+            label={t('email')}
             name="email"
             value={formData.email}
             onChange={handleChange}
-            placeholder="Enter your email"
+            placeholder={t('enterEmail')}
             required
             error={errors.email}
           />
@@ -146,11 +148,11 @@ function Login() {
           {/* Password */}
           <Input
             type={isPasswordVisible ? 'text' : 'password'}
-            label="Password"
+            label={t('password')}
             name="password"
             value={formData.password}
             onChange={handleChange}
-            placeholder="Enter your password"
+            placeholder={t('enterPassword')}
             required
             error={errors.password}
             rightIcon={
@@ -180,9 +182,9 @@ function Login() {
                 onChange={(e) => setFormData(prev => ({ ...prev, rememberMe: e.target.checked }))}
                 aria-label="Remember me on this device"
               />
-              <span>Remember me</span>
+              <span>{t('rememberMe')}</span>
             </label>
-            <p className="remember-me-help">Stay logged in on this Device</p>
+            <p className="remember-me-help">{t('stayLoggedIn')}</p>
           </div>
 
           {/* Forgot Password */}
@@ -190,10 +192,10 @@ function Login() {
             <Button
               type="button"
               variant="primary"
-              onClick={() => alert('Forgot password functionality coming soon!')}
+              onClick={() => alert(t('forgotPasswordSoon'))}
               className="gradient-button"
             >
-              Forgot Password?
+              {t('forgotPassword')}
             </Button>
           </div>
 
@@ -210,20 +212,20 @@ function Login() {
             loading={isLoading}
             className="submit-button-login"
           >
-            {isLoading ? 'Logging in...' : 'Log In'}
+            {isLoading ? t('loggingIn') : t('logIn')}
           </Button>
 
           {/* New User Register */}
           <div className="new-user">
             <p>
-              New User?{' '}
+              {t('newUser')}{' '}
               <Button
                 type="button"
                 variant="primary"
                 onClick={() => navigate('/register')}
                 className="gradient-button"
               >
-                Register Here
+                {t('registerHere')}
               </Button>
             </p>
           </div>
