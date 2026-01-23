@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-// import CameraCapture from './CameraCapture';
-import { validateADDate } from '../utils/dateValidation';
+import NepaliCalendar from './common/NepaliCalendar';
+import { validateBSDate, convertBSToAD } from '../utils/dateUtils';
 import { validateField } from '../utils/validation';
 import { API_CONFIG } from '../config/apiConfig';
 import { getErrorMessage, getSuccessMessage } from '../utils/errorMessages';
@@ -42,7 +42,7 @@ function Register() {
     name: '',
     email: '',
     phone: '',
-    dateOfBirth: '', // AD date string (YYYY-MM-DD)
+    dateOfBirth: '', // BS date string (YYYY-MM-DD)
     citizenshipNumber: '',
     voterId: '',
     password: '',
@@ -186,12 +186,12 @@ function Register() {
     const phoneValidation = validateField('phone', formData.phone);
     if (!phoneValidation.valid) newErrors.phone = phoneValidation.error;
 
-    // Date validation (AD date)
+    // Date validation (BS date)
     const dateValue = formData.dateOfBirth ? String(formData.dateOfBirth).trim() : '';
     if (!dateValue) {
       newErrors.dateOfBirth = 'Date of Birth is required';
     } else {
-      const dateValidation = validateADDate(dateValue);
+      const dateValidation = validateBSDate(dateValue);
       if (!dateValidation.valid) {
         newErrors.dateOfBirth = dateValidation.error;
       }
@@ -236,12 +236,19 @@ function Register() {
 
     try {
       // TODO: Replace with POST /api/register endpoint
+      // Convert BS date to AD date for backend
+      const adDate = convertBSToAD(formData.dateOfBirth);
+      if (!adDate) {
+        setError('Invalid date of birth. Please check the date and try again.');
+        return;
+      }
+
       // Prepare user data with correct field names and integer IDs
       const userData = {
         name: formData.name.trim(),
         email: formData.email.trim(),
         phone: formData.phone.trim(),
-        dateOfBirth: formData.dateOfBirth, // AD date
+        dateOfBirth: adDate, // Convert BS to AD for backend
         citizenshipNumber: formData.citizenshipNumber.trim(),
         voterId: formData.voterId.trim(),
         password: formData.password,
@@ -268,15 +275,14 @@ function Register() {
   };
 
   /**
-   * Handle date input change
+   * Handle Nepali date input change
    */
-  const handleDateChange = (e) => {
-    const { value } = e.target;
-    setFormData((prev) => ({ ...prev, dateOfBirth: value }));
+  const handleDateChange = (bsDate) => {
+    setFormData((prev) => ({ ...prev, dateOfBirth: bsDate }));
 
-    // Validate date
-    if (value) {
-      const dateValidation = validateADDate(value);
+    // Validate BS date
+    if (bsDate) {
+      const dateValidation = validateBSDate(bsDate);
       if (!dateValidation.valid) {
         setErrors((prev) => ({ ...prev, dateOfBirth: dateValidation.error }));
       } else {
@@ -433,25 +439,23 @@ function Register() {
 
           {/* DOB + Voter ID Row */}
           <div className="r-flex-row">
-            {/* Date of Birth */}
+            {/* Date of Birth - Nepali Date */}
             <div className="r-flex-child">
               <div className="r-form-group">
                 <label htmlFor="dateOfBirth">
-                  {t('dateOfBirth')} <span className="required">*</span>
+                  {t('dateOfBirth')} ({t('bsDate')}) <span className="required">*</span>
                 </label>
-                <input
-                  type="date"
-                  id="dateOfBirth"
-                  name="dateOfBirth"
+                <NepaliCalendar
                   value={formData.dateOfBirth}
                   onChange={handleDateChange}
-                  className={`r-date-input ${errors.dateOfBirth ? 'error' : ''}`}
-                  max={new Date().toISOString().split('T')[0]} // Prevent future dates
+                  placeholder={t('selectBSDate')}
+                  className={errors.dateOfBirth ? 'error' : ''}
+                  error={errors.dateOfBirth}
                 />
                 {errors.dateOfBirth && <span className="r-error-message">{errors.dateOfBirth}</span>}
                 {formData.dateOfBirth && !errors.dateOfBirth && (
                   <span className="r-date-helper">
-                    You must be 18+ years old to register
+                    {t('mustBe18Plus')}
                   </span>
                 )}
               </div>

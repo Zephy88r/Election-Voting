@@ -137,6 +137,9 @@ const translations = {
     register: 'Register',
     alreadyHaveAccount: 'Already have an account?',
     signIn: 'Sign In',
+    bsDate: 'BS',
+    selectBSDate: 'Select BS date',
+    mustBe18Plus: 'You must be 18+ years old to register',
     
     // Profile Page
     userProfile: 'User Profile',
@@ -312,6 +315,9 @@ const translations = {
     register: 'दर्ता गर्नुहोस्',
     alreadyHaveAccount: 'पहिले नै खाता छ?',
     signIn: 'साइन इन',
+    bsDate: 'बि.स.',
+    selectBSDate: 'बि.स. मिति चयन गर्नुहोस्',
+    mustBe18Plus: 'दर्ता गर्न तपाईं १८+ वर्षको हुनुपर्छ',
     
     // Profile Page
     userProfile: 'प्रयोगकर्ता प्रोफाइल',

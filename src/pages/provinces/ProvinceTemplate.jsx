@@ -238,7 +238,7 @@ export default function ProvinceTemplate({
                   <h3>{t('status')}</h3>
                   <p>
                     {hasVoted
-                      ? `${t('votedFor')} ${votedPartyId ?? '—'}`
+                      ? `${t('votedFor')} ${parties.find(p => p.id === votedPartyId)?.name || votedPartyId}`
                       : t('notVoted')}
                   </p>
                 </div>
