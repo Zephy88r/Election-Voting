@@ -49,6 +49,7 @@ function Profile() {
   useEffect(() => {
     if (!authLoading) {
       if (user) {
+        console.log('User object:', JSON.stringify(user, null, 2)); // Debug log
         setFormData({
           name: user.name || '',
           email: user.email || '',
@@ -58,7 +59,7 @@ function Profile() {
           citizenshipNumber: user.citizenshipNumber || '',
           voterId: user.voterId || '',
         });
-        setProfileImage(user.faceImage || null);
+        setProfileImage(user.faceImage || localStorage.getItem(`profileImage_${user.id}`) || null);
       }
       setLoading(false);
     }
@@ -84,7 +85,7 @@ function Profile() {
   /**
    * Handle profile photo upload
    */
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -102,9 +103,16 @@ function Profile() {
 
     // Convert to base64
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setProfileImage(reader.result);
-      setError('');
+    reader.onloadend = async () => {
+      try {
+        setProfileImage(reader.result);
+        // Store in localStorage to persist
+        localStorage.setItem(`profileImage_${user.id}`, reader.result);
+        setSuccess('Photo updated successfully!');
+        setError('');
+      } catch (err) {
+        setError(err.message || 'Failed to update photo');
+      }
     };
     reader.onerror = () => {
       setError(t('failedToReadImage'));
@@ -229,7 +237,7 @@ function Profile() {
         <Card className="profile-card" variant="elevated">
           <div className="profile-header">
             <h1>{t('userProfile')}</h1>
-            <p>{isEditing ? t('editAccountInfo') : t('yourAccountInfo')}</p>
+            <p>{t('yourAccountInfo')}</p>
           </div>
 
           <div className="profile-content">
@@ -243,24 +251,22 @@ function Profile() {
                     <div className="avatar-placeholder">{t('noPhoto')}</div>
                   )}
                 </div>
-                {isEditing && (
-                  <div className="profile-avatar-actions">
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      style={{ display: 'none' }}
-                    />
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      {profileImage ? t('changePhoto') : t('uploadPhoto')}
-                    </Button>
-                  </div>
-                )}
+                <div className="profile-avatar-actions">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    style={{ display: 'none' }}
+                  />
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    {profileImage ? t('changePhoto') : t('uploadPhoto')}
+                  </Button>
+                </div>
               </div>
             </div>
 
@@ -302,106 +308,36 @@ function Profile() {
                 )}
               </div>
 
-              {isEditing && (
-                <div className="detail-row">
-                  <span className="detail-label">{t('phone')}:</span>
-                  <Input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    placeholder="+977-98-1234567"
-                    error={errors.phone}
-                    className="profile-input"
-                  />
-                </div>
-              )}
-
               <div className="detail-row">
-                <span className="detail-label">{t('address')}:</span>
-                {isEditing ? (
-                  <Input
-                    type="text"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    error={errors.address}
-                    className="profile-input"
-                  />
-                ) : (
-                  <span className="detail-value">{user.address || 'N/A'}</span>
-                )}
+                <span className="detail-label">{t('registeredProvince')}:</span>
+                <span className="detail-value">{user.province?.name || 'N/A'}</span>
               </div>
 
               <div className="detail-row">
-                <span className="detail-label">{t('dateOfBirth')}:</span>
-                {isEditing ? (
-                  <Input
-                    type="date"
-                    name="DOB"
-                    value={formData.dateOfBirth}
-                    onChange={handleChange}
-                    error={errors.dateOfBirth}
-                    className="profile-input"
-                  />
-                ) : (
-                  <span className="detail-value">{user.address || 'N/A'}</span>
-                )}
+                <span className="detail-label">{t('registeredDistrict')}:</span>
+                <span className="detail-value">{user.district?.name || 'N/A'}</span>
               </div>
 
               <div className="detail-row">
-                <span className="detail-label">{t('citizenshipNumber')}:</span>
-                <span className="detail-value">{user.citizenshipNumber || 'N/A'}</span>
-              </div>
-
-              <div className="detail-row">
-                <span className="detail-label">{t('voterId')}:</span>
-                <span className="detail-value">{user.voterId || 'N/A'}</span>
+                <span className="detail-label">{t('registeredElectoralArea')}:</span>
+                <span className="detail-value">{user.electoral_area?.name || 'N/A'}</span>
               </div>
             </div>
 
             {/* Action Buttons */}
             <div className="profile-actions">
-              {isEditing ? (
-                <>
-                  <Button
-                    variant="secondary"
-                    onClick={handleCancel}
-                    disabled={saving}
-                  >
-                    {t('cancel')}
-                  </Button>
-                  <Button
-                    variant="primary"
-                    onClick={handleSave}
-                    disabled={saving}
-                    loading={saving}
-                  >
-                    {saving ? t('saving') : t('saveChanges')}
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    variant="secondary"
-                    onClick={() => navigate('/')}
-                  >
-                    {t('backToDashboard')}
-                  </Button>
-                  <Button
-                    variant="primary"
-                    onClick={() => setIsEditing(true)}
-                  >
-                    {t('editProfile')}
-                  </Button>
-                  <Button
-                    variant="danger"
-                    onClick={logout}
-                  >
-                    {t('logout')}
-                  </Button>
-                </>
-              )}
+              <Button
+                variant="secondary"
+                onClick={() => navigate('/')}
+              >
+                {t('backToDashboard')}
+              </Button>
+              <Button
+                variant="danger"
+                onClick={logout}
+              >
+                {t('logout')}
+              </Button>
             </div>
           </div>
         </Card>

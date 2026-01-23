@@ -14,7 +14,7 @@ export default function DistrictSelection() {
   const navigate = useNavigate();
   const { provinceId } = useParams();
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -31,6 +31,26 @@ export default function DistrictSelection() {
     lumbini: 'Lumbini',
     karnali: 'Karnali',
     sudurpaschim: 'Sudurpashchim'
+  };
+
+  const getDistrictName = (districtName) => {
+    const districtTranslations = {
+      'Jhapa': { EN: 'Jhapa', NP: 'झापा' },
+      'Ilam': { EN: 'Ilam', NP: 'इलाम' },
+      'Panchthar': { EN: 'Panchthar', NP: 'पाँचथर' },
+      'Taplejung': { EN: 'Taplejung', NP: 'ताप्लेजुङ' },
+      'Morang': { EN: 'Morang', NP: 'मोरङ' },
+      'Sunsari': { EN: 'Sunsari', NP: 'सुनसरी' },
+      'Dhankuta': { EN: 'Dhankuta', NP: 'धनकुटा' },
+      'Terhathum': { EN: 'Terhathum', NP: 'तेह्रथुम' },
+      'Sankhuwasabha': { EN: 'Sankhuwasabha', NP: 'संखुवासभा' },
+      'Bhojpur': { EN: 'Bhojpur', NP: 'भोजपुर' },
+      'Solukhumbu': { EN: 'Solukhumbu', NP: 'सोलुखुम्बु' },
+      'Okhaldhunga': { EN: 'Okhaldhunga', NP: 'ओखलढुंगा' },
+      'Khotang': { EN: 'Khotang', NP: 'खोटाङ' },
+      'Udayapur': { EN: 'Udayapur', NP: 'उदयपुर' }
+    };
+    return districtTranslations[districtName]?.[language] || districtName;
   };
 
   const userProvinceName = user?.province?.name || user?.province;
@@ -187,11 +207,11 @@ export default function DistrictSelection() {
               <div className="districtHeader">
                 <div className="districtTitleBlock">
                   <h1 className="districtTitle">{requiredProvinceName} {t('districts')}</h1>
-                  <p className="districtSubtitle">{t('selectDistrictToProceed')}</p>
+                  <p className="districtSubtitle">{t('selectDistrict')}</p>
                 </div>
                 
                 <div className="districtBadges">
-                  <span className="pill pillStrong">{t('districtSelection')}</span>
+                  <span className="pill pillStrong">{t('districtVoting')}</span>
                   <span className="pill">{t('province')}: {requiredProvinceName}</span>
                 </div>
               </div>
@@ -214,7 +234,7 @@ export default function DistrictSelection() {
                         <div className="districtIcon">
                           <img src={voteLogo} alt="Vote" className="voteLogoIcon" />
                         </div>
-                        <h3 className="districtName">{district.name}</h3>
+                        <h3 className="districtName">{getDistrictName(district.name)}</h3>
                         <p className="districtInfo">
                           {isUserDistrict ? t('yourRegisteredDistrict') : t('accessRestricted')}
                         </p>

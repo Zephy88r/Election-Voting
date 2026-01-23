@@ -73,8 +73,8 @@ function Navbar() {
           }}
         >
           <div className="profile-icon">
-            {user?.avatar ? (
-              <img src={user.avatar} alt="Profile" className="profile-img" />
+            {user?.faceImage || localStorage.getItem(`profileImage_${user?.id}`) ? (
+              <img src={user?.faceImage || localStorage.getItem(`profileImage_${user?.id}`)} alt="Profile" className="profile-img" />
             ) : user?.name ? (
               <span className="profile-initial">
                 {user.name[0]?.toUpperCase() || '👤'}
