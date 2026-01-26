@@ -84,35 +84,43 @@ def party_list(request):
 
 @login_required
 def voting_history(request):
-    """Get user's voting history"""
+    """Get user's voting history with pagination"""
     try:
         votes = Vote.objects.filter(voter=request.user).select_related(
             'candidate', 'party', 'province', 'district', 'electoral_area'
-        )
+        ).order_by('-created_at')
+
+        # Simple pagination
+        page = int(request.GET.get('page', 1))
+        per_page = int(request.GET.get('per_page', 10))
+        start = (page - 1) * per_page
+        end = start + per_page
+        
+        total_votes = votes.count()
+        votes_page = votes[start:end]
 
         history = []
-        for vote in votes:
+        for vote in votes_page:
             vote_data = {
                 'id': vote.id,
+                'voter_email': vote.voter.email,
                 'vote_type': vote.vote_type,
-                'province': {
-                    'id': vote.province.id,
-                    'name': vote.province.name
-                },
-                'district': {
-                    'id': vote.district.id,
-                    'name': vote.district.name
-                },
-                'voted_at': vote.created_at.isoformat(),
+                'vote_type_label': vote.vote_type_label,
+                'vote_for': vote.vote_for,
+                'province': vote.province.name if vote.province else None,
+                'district': vote.district.name if vote.district else None,
+                'electoral_area': vote.electoral_area.name if vote.electoral_area else None,
+                'created_at': vote.created_at.isoformat(),
             }
 
-            if vote.vote_type == 'FPTP' and vote.candidate:
+            # Include specific vote data
+            if vote.vote_type == 'CANDIDATE' and vote.candidate:
                 vote_data['candidate'] = {
                     'id': vote.candidate.id,
                     'name': vote.candidate.name,
                     'party': vote.candidate.party.name if vote.candidate.party else None
                 }
-            elif vote.vote_type == 'PR' and vote.party:
+            elif vote.vote_type == 'PARTY' and vote.party:
                 vote_data['party'] = {
                     'id': vote.party.id,
                     'name': vote.party.name,
@@ -121,7 +129,15 @@ def voting_history(request):
 
             history.append(vote_data)
 
-        return JsonResponse({'votes': history})
+        return JsonResponse({
+            'votes': history,
+            'pagination': {
+                'page': page,
+                'per_page': per_page,
+                'total': total_votes,
+                'pages': (total_votes + per_page - 1) // per_page
+            }
+        })
 
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)

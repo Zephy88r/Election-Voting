@@ -15,6 +15,7 @@ urlpatterns = [
 
     # New API endpoints
     path("api/voting-history/", views_api.voting_history, name="voting-history"),
+    path("api/voting-history/consolidated/", views.voting_history, name="consolidated-voting-history"),
     path("api/voting/status/", views_api.voting_status, name="voting-status"),
     path("api/notifications/", views_api.get_notifications, name="get-notifications"),
     path("api/notifications/create/", views_api.create_notification, name="create-notification"),

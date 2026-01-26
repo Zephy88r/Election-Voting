@@ -92,129 +92,89 @@ class ElectionControlAdmin(admin.ModelAdmin):
 # -----------------------------
 # Vote Admin (Dashboard + List)
 # -----------------------------
-# Unregister previous Vote if registered
-try:
-    admin.site.unregister(Vote)
-except admin.sites.NotRegistered:
-    pass
-
 @admin.register(Vote)
 class VoteAdmin(admin.ModelAdmin):
-    list_display = ('voter', 'vote_type', 'province', 'district', 'electoral_area', 'candidate_or_party', 'created_at')
-    list_filter = ('province', 'district', 'electoral_area', 'vote_type')
+    """
+    Admin dashboard for monitoring votes with vote type filtering
+    """
+    list_display = ('id', 'voter_username', 'vote_type', 'candidate_or_party', 'province', 'district', 'electoral_area', 'created_at')
+    list_filter = ('vote_type', 'province', 'district', 'electoral_area', 'created_at')
     search_fields = ('voter__username', 'candidate__name', 'party__name')
-
-    # Show Candidate or Party depending on vote type
-    def candidate_or_party(self, obj):
-        if obj.vote_type == "FPTP":
-            return obj.candidate.name if obj.candidate else "-"
-        else:
-            return obj.party.name if obj.party else "-"
-    candidate_or_party.short_description = "Vote For"
-
-    # Optional: Add vote summary dashboard in changelist
-    # change_list_template = "admin/vote_change_list.html"
-
-    def changelist_view(self, request, extra_context=None):
-        # Aggregate votes per candidate and party
-        candidate_votes = Candidate.objects.annotate(vote_count=Count('votes')).order_by('-vote_count')
-        party_votes = Party.objects.annotate(vote_count=Count('votes')).order_by('-vote_count')
-
-        extra_context = extra_context or {}
-        extra_context['candidate_votes'] = candidate_votes
-        extra_context['party_votes'] = party_votes
-        #return super().changelist_view(request, extra_context=extra_context)
-    
-    #Admin summary vote count
-        response = super().changelist_view(request, extra_context)
-
-        try:
-            qs = response.context_data["cl"].queryset
-            summary = qs.values("vote_type").annotate(
-            total=Count("id")
-        )
-
-            response.context_data["summary"] = summary
-
-        except Exception:
-            pass
-
-        return response
-    
-    #Hides Voter Identity
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        return qs.select_related(
-            "province",
-            "district",
-            "electoral_area",
-    )
-    ordering = ("-created_at",)
-
- #Admin Dashboard monitoring read only
-class VoteAdmin(admin.ModelAdmin):
-    """
-    Admin dashboard for monitoring votes
-    """
-
-    list_display = (
-        "id",
-        "vote_type",
-        "province",
-        "district",
-        "electoral_area",
-        "created_at",
-    )
-
-    list_filter = (
-        "vote_type",
-        "province",
-        "district",
-        "electoral_area",
-    )
-
-
-    readonly_fields = (
-        "voter",
-        "vote_type",
-        "candidate",
-        "party",
-        "province",
-        "district",
-        "electoral_area",
-        "created_at",
-    )
+    readonly_fields = ('voter', 'vote_type', 'candidate', 'party', 'province', 'district', 'electoral_area', 'created_at')
+    ordering = ('-created_at',)
 
     fieldsets = (
-        ("Vote Info", {
-            "fields": (
-                "vote_type",
-                "candidate",
-                "party",
-            )
+        ('Vote Information', {
+            'fields': ('vote_type', 'candidate', 'party')
         }),
-        ("Location", {
-            "fields": (
-                "province",
-                "district",
-                "electoral_area",
-            )
+        ('Location', {
+            'fields': ('province', 'district', 'electoral_area')
         }),
-        ("Meta", {
-            "fields": (
-                "voter",
-                "created_at",
-            )
+        ('Metadata', {
+            'fields': ('voter', 'created_at')
         }),
     )
 
+    def voter_username(self, obj):
+        return obj.voter.username
+    voter_username.short_description = 'Voter'
+    voter_username.admin_order_field = 'voter__username'
+
+    def candidate_or_party(self, obj):
+        if obj.vote_type in ['CANDIDATE', 'FPTP']:
+            return f"Candidate: {obj.candidate.name}" if obj.candidate else "No candidate"
+        elif obj.vote_type in ['PARTY', 'PR']:
+            return f"Party: {obj.party.name}" if obj.party else "No party"
+        return "-"
+    candidate_or_party.short_description = 'Vote For'
+
     def has_add_permission(self, request):
-        # Votes must NEVER be added from admin
         return False
 
     def has_change_permission(self, request, obj=None):
-        # Votes must NEVER be edited
         return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def changelist_view(self, request, extra_context=None):
+        response = super().changelist_view(request, extra_context)
+        
+        try:
+            qs = response.context_data['cl'].queryset
+            
+            # Vote type summary
+            vote_type_summary = qs.values('vote_type').annotate(
+                total=Count('id')
+            ).order_by('vote_type')
+            
+            # Candidate votes (FPTP)
+            candidate_votes = qs.filter(vote_type='FPTP').values(
+                'candidate__name', 'candidate__electoral_area__name'
+            ).annotate(
+                total=Count('id')
+            ).order_by('-total')[:10]
+            
+            # Party votes (PR)
+            party_votes = qs.filter(vote_type='PR').values(
+                'party__name'
+            ).annotate(
+                total=Count('id')
+            ).order_by('-total')[:10]
+            
+            extra_context = extra_context or {}
+            extra_context.update({
+                'vote_type_summary': vote_type_summary,
+                'candidate_votes': candidate_votes,
+                'party_votes': party_votes,
+            })
+            
+            response.context_data.update(extra_context)
+            
+        except Exception as e:
+            pass
+            
+        return response
     
 #Admin Dashboard Monitoring
 @admin.register(FPTPResult)

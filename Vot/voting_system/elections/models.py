@@ -110,8 +110,11 @@ class Candidate(models.Model):
 # ==============================
 class Vote(models.Model):
     VOTE_TYPE_CHOICES = (
-        ("FPTP", "Candidate Vote"),
-        ("PR", "Party Vote"),
+        ("COMBINED", "Combined Vote"),     # New combined vote type
+        ("FPTP", "Candidate Vote"),       # Keep for backward compatibility
+        ("PR", "Party Vote"),             # Keep for backward compatibility
+        ("CANDIDATE", "Candidate Vote"),
+        ("PARTY", "Party Vote"),
     )
 
     voter = models.OneToOneField(
@@ -122,7 +125,8 @@ class Vote(models.Model):
 
     vote_type = models.CharField(
         max_length=10,
-        choices=VOTE_TYPE_CHOICES
+        choices=VOTE_TYPE_CHOICES,
+        default="COMBINED"
     )
 
     # Candidate vote (FPTP)
@@ -161,8 +165,27 @@ class Vote(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def vote_for(self):
+        parts = []
+        if self.candidate:
+            parts.append(f"Candidate: {self.candidate.name}")
+        if self.party:
+            parts.append(f"Party: {self.party.name}")
+        return ", ".join(parts) if parts else "-"
+
+    @property
+    def vote_type_label(self):
+        if self.candidate and self.party:
+            return "Combined Vote"
+        elif self.candidate:
+            return "Candidate Vote"
+        elif self.party:
+            return "Party Vote"
+        return "No Vote"
+
     def __str__(self):
-        return f"{self.voter} - {self.vote_type}"
+        return f"{self.voter} - {self.vote_type_label}"
 
 
 # ==============================

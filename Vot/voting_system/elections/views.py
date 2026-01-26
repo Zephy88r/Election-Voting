@@ -115,7 +115,7 @@ def api_logout(request):
 @api_login_required
 def api_vote(request):
     """
-    JSON vote endpoint: POST JSON { vote_type: 'FPTP'|'PR', candidate_id?, party_id? }
+    JSON vote endpoint: POST JSON { vote_type: 'CANDIDATE'|'PARTY', candidate_id?, party_id? }
     Uses session auth and stores vote in database.
     """
     if request.method != "POST":
@@ -131,29 +131,33 @@ def api_vote(request):
 
     user = request.user
     vote_type = data.get("vote_type")
-    if vote_type not in ("FPTP", "PR"):
-        return JsonResponse({"error": "Invalid vote type."}, status=400)
+    if vote_type not in ("CANDIDATE", "PARTY", "FPTP", "PR"):
+        return JsonResponse({"error": "Invalid vote type. Must be CANDIDATE, PARTY, FPTP, or PR."}, status=400)
+    
+    # Normalize vote types for backward compatibility
+    if vote_type == "FPTP":
+        vote_type = "CANDIDATE"
+    elif vote_type == "PR":
+        vote_type = "PARTY"
 
-    # Check if user already voted for this type
-    if Vote.objects.filter(voter=user, vote_type=vote_type).exists():
-        return JsonResponse({"error": "You have already voted."}, status=409)
-
-    # Validate user has required profile data
-    if not user.province or not user.district:
-        return JsonResponse({"error": "User profile incomplete. Province and district required."}, status=400)
-
-    vote = Vote(
+    # Get or create the user's vote record
+    vote, created = Vote.objects.get_or_create(
         voter=user,
-        vote_type=vote_type,
-        province=user.province,
-        district=user.district,
-        electoral_area=user.electoral_area,
+        defaults={
+            'vote_type': 'COMBINED',
+            'province': user.province,
+            'district': user.district,
+            'electoral_area': user.electoral_area,
+        }
     )
 
-    if vote_type == "FPTP":
+    if vote_type == "CANDIDATE":
         candidate_id = data.get("candidate_id")
         if not candidate_id:
-            return JsonResponse({"error": "candidate_id is required for FPTP vote."}, status=400)
+            return JsonResponse({"error": "candidate_id is required for CANDIDATE vote."}, status=400)
+        if vote.candidate:
+            return JsonResponse({"error": "You have already voted for a candidate."}, status=409)
+            
         try:
             candidate = Candidate.objects.get(id=candidate_id)
             if user.electoral_area and candidate.electoral_area != user.electoral_area:
@@ -162,10 +166,13 @@ def api_vote(request):
         except Candidate.DoesNotExist:
             return JsonResponse({"error": "Invalid candidate ID."}, status=400)
 
-    elif vote_type == "PR":
+    elif vote_type == "PARTY":
         party_id = data.get("party_id")
         if not party_id:
-            return JsonResponse({"error": "party_id is required for PR vote."}, status=400)
+            return JsonResponse({"error": "party_id is required for PARTY vote."}, status=400)
+        if vote.party:
+            return JsonResponse({"error": "You have already voted for a party."}, status=409)
+            
         try:
             party = Party.objects.get(id=party_id, is_active=True)
             vote.party = party
@@ -178,7 +185,9 @@ def api_vote(request):
         return JsonResponse({
             "success": True,
             "message": "Vote recorded successfully.",
-            "vote_id": vote.id
+            "vote_id": vote.id,
+            "vote_type": vote.vote_type,
+            "vote_for": vote.vote_for
         }, status=201)
     except Exception as e:
         return JsonResponse({"error": f"Failed to save vote: {str(e)}"}, status=500)
@@ -463,3 +472,83 @@ def voter_profile(request):
         "electoral_area": {"id": user.electoral_area.id if user.electoral_area else None, "name": user.electoral_area.name if user.electoral_area else None},
     }
     return JsonResponse(data, status=200)
+
+
+@api_login_required
+def voting_history(request):
+    """
+    Get voting history for current user
+    Returns both individual votes and consolidated view
+    """
+    user = request.user
+    vote = getattr(user, 'vote', None)
+    
+    if not vote:
+        return JsonResponse({
+            'votes': [],
+            'consolidated': []
+        }, status=200)
+    
+    # Individual votes (for backward compatibility)
+    vote_list = []
+    
+    if vote.candidate:
+        vote_list.append({
+            'id': f"{vote.id}_candidate",
+            'vote_type': 'CANDIDATE',
+            'timestamp': vote.created_at.isoformat(),
+            'candidate': {
+                'id': vote.candidate.id,
+                'name': vote.candidate.name,
+                'electoral_area': vote.candidate.electoral_area.name if vote.candidate.electoral_area else None
+            },
+            'party': None
+        })
+    
+    if vote.party:
+        vote_list.append({
+            'id': f"{vote.id}_party",
+            'vote_type': 'PARTY',
+            'timestamp': vote.created_at.isoformat(),
+            'candidate': None,
+            'party': {
+                'id': vote.party.id,
+                'name': vote.party.name,
+                'symbol': vote.party.symbol
+            }
+        })
+    
+    # Consolidated view - single record with both votes
+    consolidated = {
+        'id': vote.id,  # Use the actual vote ID
+        'candidateVote': None,
+        'partyVote': None,
+        'timestamp': vote.created_at.isoformat()
+    }
+    
+    if vote.candidate:
+        consolidated['candidateVote'] = {
+            'vote_type': 'Candidate Vote',
+            'candidate': {
+                'id': vote.candidate.id,
+                'name': vote.candidate.name,
+                'electoral_area': vote.candidate.electoral_area.name if vote.candidate.electoral_area else None
+            },
+            'timestamp': vote.created_at.isoformat()
+        }
+    
+    if vote.party:
+        consolidated['partyVote'] = {
+            'vote_type': 'Party Vote',
+            'party': {
+                'id': vote.party.id,
+                'name': vote.party.name,
+                'symbol': vote.party.symbol
+            },
+            'timestamp': vote.created_at.isoformat()
+        }
+    
+    return JsonResponse({
+        'votes': vote_list,
+        'consolidated': [consolidated]
+    }, status=200)
