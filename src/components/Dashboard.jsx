@@ -131,14 +131,6 @@ function Dashboard() {
           )}
         </div>
       </div>
-
-      <footer className="footer">
-        <div className="footer-logo">🇳🇵 {t('appName')}</div>
-        <div className="footer-contact">
-          <p>support@nepalvoting.gov.np</p>
-          <p>+977-1-5555555</p>
-        </div>
-      </footer>
     </>
   );
 }
