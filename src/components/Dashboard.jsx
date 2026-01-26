@@ -94,7 +94,7 @@ function Dashboard() {
                   return (
                     <div
                       key={province.name}
-                      className={`province-card ${isDisabled ? 'disabled' : ''}`}
+                      className={`province-card ${isDisabled ? 'disabled' : ''} ${!isAuthenticated ? 'not-authenticated' : ''}`}
                       onClick={() => handleProvinceClick(province)}
                       role="button"
                       tabIndex={isDisabled ? -1 : 0}

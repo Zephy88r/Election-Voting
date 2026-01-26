@@ -7,7 +7,7 @@ import './Navbar.css';
 
 function Navbar() {
   const { isAuthenticated, user } = useAuth();
-  const { language, toggleLanguage, t } = useLanguage();
+  const { language, toggleLanguage, t, getLanguageDisplayName } = useLanguage();
   const navigate = useNavigate();
 
   const handleHomeClick = () => {
@@ -45,7 +45,7 @@ function Navbar() {
 
         {/* LANGUAGE SWITCH */}
         <div className="lang-switch">
-          <span className="lang-text">{language}</span>
+          <span className="lang-text">{getLanguageDisplayName()}</span>
 
           <input
             type="checkbox"

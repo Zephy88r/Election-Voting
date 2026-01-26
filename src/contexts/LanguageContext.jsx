@@ -379,6 +379,11 @@ const translations = {
   },
 };
 
+const languageDisplayNames = {
+  EN: 'English',
+  NP: 'Nepali(नेपाली)'
+};
+
 const LanguageContext = createContext(null);
 
 export const LanguageProvider = ({ children }) => {
@@ -411,10 +416,15 @@ export const LanguageProvider = ({ children }) => {
     return value || key;
   };
 
+  const getLanguageDisplayName = () => {
+    return languageDisplayNames[language];
+  };
+
   const value = {
     language,
     toggleLanguage,
     t,
+    getLanguageDisplayName,
   };
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;

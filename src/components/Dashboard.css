@@ -139,7 +139,7 @@
 }
 
 .province-card.disabled::after {
-  content: 'Sign in required';
+  content: 'Access Restricted';
   position: absolute;
   top: 50%;
   left: 50%;
@@ -153,6 +153,10 @@
   z-index: 2;
   opacity: 0;
   transition: opacity var(--transition-normal);
+}
+
+.province-card.disabled.not-authenticated::after {
+  content: 'Sign in required';
 }
 
 .province-card.disabled:hover::after {
