@@ -173,6 +173,13 @@ const translations = {
     notVoted: 'You have not voted yet.',
     voteInstructions: 'Choose a party and submit your vote. The system enforces one (1) party vote only. This ballot is for proportional representation voting.',
     
+    // Footer
+    footerTitle: 'Nepal Election System',
+    footerTagline: 'Democratic • Transparent • Secure',
+    footerProvinces: 'Provinces',
+    footerDistricts: 'Districts',
+    footerCopyright: 'Nepal Election Commission',
+    
     // Province Names
     provinces: {
       koshi: 'Koshi Province',
@@ -351,6 +358,13 @@ const translations = {
     votedFor: 'मतदान गरियो',
     notVoted: 'तपाईंले अझै मतदान गर्नुभएको छैन।',
     voteInstructions: 'एक दल छान्नुहोस् र आफ्नो मत पेश गर्नुहोस्। प्रणालीले एक (१) दल मत मात्र लागू गर्छ। यो मतपत्र समानुपातिक प्रतिनिधित्व मतदानको लागि हो।',
+    
+    // Footer
+    footerTitle: 'नेपाल निर्वाचन प्रणाली',
+    footerTagline: 'लोकतान्त्रिक • पारदर्शी • सुरक्षित',
+    footerProvinces: 'प्रदेशहरू',
+    footerDistricts: 'जिल्लाहरू',
+    footerCopyright: 'नेपाल निर्वाचन आयोग',
     
     // Province Names
     provinces: {

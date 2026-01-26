@@ -1,7 +1,9 @@
 import React from 'react';
+import { useLanguage } from '../../contexts/LanguageContext';
 import './Footer.css';
 
 const Footer = () => {
+  const { t } = useLanguage();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -9,8 +11,8 @@ const Footer = () => {
       <div className="footer-content">
         <div className="footer-left">
           <div className="footer-logo">
-            <h3>Nepal Election System</h3>
-            <p className="tagline">Democratic • Transparent • Secure</p>
+            <h3>{t('footerTitle')}</h3>
+            <p className="tagline">{t('footerTagline')}</p>
           </div>
           <div className="contact-info">
             <div className="contact-item">
@@ -28,14 +30,14 @@ const Footer = () => {
           <div className="stats-info">
             <div className="stat-item">
               <span className="stat-number">7</span>
-              <span className="stat-label">Provinces</span>
+              <span className="stat-label">{t('footerProvinces')}</span>
             </div>
             <div className="stat-item">
               <span className="stat-number">77</span>
-              <span className="stat-label">Districts</span>
+              <span className="stat-label">{t('footerDistricts')}</span>
             </div>
           </div>
-          <p className="copyright">&copy; {currentYear} Nepal Election Commission</p>
+          <p className="copyright">&copy; {currentYear} {t('footerCopyright')}</p>
         </div>
       </div>
     </footer>
