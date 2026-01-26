@@ -171,6 +171,7 @@ const translations = {
     tip: 'Tip: Double-check your choice. After submitting, you cannot vote again.',
     votedFor: 'Voted for',
     notVoted: 'You have not voted yet.',
+    voteInstructions: 'Choose a party and submit your vote. The system enforces one (1) party vote only. This ballot is for proportional representation voting.',
     
     // Province Names
     provinces: {
@@ -349,6 +350,7 @@ const translations = {
     tip: 'सुझाव: आफ्नो छनौट दोब्बर जाँच गर्नुहोस्। पेश गरेपछि, तपाईं फेरि मतदान गर्न सक्नुहुन्न।',
     votedFor: 'मतदान गरियो',
     notVoted: 'तपाईंले अझै मतदान गर्नुभएको छैन।',
+    voteInstructions: 'एक दल छान्नुहोस् र आफ्नो मत पेश गर्नुहोस्। प्रणालीले एक (१) दल मत मात्र लागू गर्छ। यो मतपत्र समानुपातिक प्रतिनिधित्व मतदानको लागि हो।',
     
     // Province Names
     provinces: {

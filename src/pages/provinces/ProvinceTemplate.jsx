@@ -229,7 +229,7 @@ export default function ProvinceTemplate({
                 <div className="provinceInfoCard">
                   <h3>{t('howItWorks')}</h3>
                   <p>
-                    Choose a party and submit your vote. The system enforces <b>one (1)</b> party vote only.
+                    {t('voteInstructions')}
                     {heroHint ? ` ${heroHint}` : ''}
                   </p>
                 </div>

@@ -87,7 +87,32 @@ const NotificationBell = () => {
         aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
         aria-expanded={isOpen}
       >
-        <span className="notification-bell__icon">🔔</span>
+        <div className="notification-bell__icon-container">
+          <svg 
+            className="notification-bell__icon" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path 
+              d="M12 2C13.1 2 14 2.9 14 4C14 4.74 13.6 5.39 13 5.73V7C16.86 7.5 20 10.9 20 15V18L22 20V21H2V20L4 18V15C4 10.9 7.14 7.5 11 7V5.73C10.4 5.39 10 4.74 10 4C10 2.9 10.9 2 12 2ZM7.5 22C7.5 23.11 8.39 24 9.5 24H14.5C15.61 24 16.5 23.11 16.5 22H7.5Z" 
+              fill="currentColor"
+            />
+            {unreadCount > 0 && (
+              <>
+                <circle cx="18" cy="6" r="3" fill="#DC143C" className="notification-pulse" />
+                <circle cx="18" cy="6" r="2" fill="#FF4757" className="notification-pulse-inner" />
+              </>
+            )}
+          </svg>
+          {unreadCount > 0 && (
+            <div className="notification-ripple">
+              <div className="ripple-1"></div>
+              <div className="ripple-2"></div>
+              <div className="ripple-3"></div>
+            </div>
+          )}
+        </div>
         {unreadCount > 0 && (
           <span className="notification-bell__badge" aria-hidden="true">
             {unreadCount > 9 ? '9+' : unreadCount}

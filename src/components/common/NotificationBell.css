@@ -22,6 +22,11 @@
 
 .notification-bell__button:hover {
   background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
+}
+
+.notification-bell__button:hover .notification-bell__icon {
+  animation: bellRing 0.6s ease-in-out;
 }
 
 .notification-bell__button:focus {
@@ -29,9 +34,63 @@
   outline-offset: 2px;
 }
 
+.notification-bell__icon-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .notification-bell__icon {
-  font-size: var(--font-size-xl);
-  line-height: 1;
+  width: 24px;
+  height: 24px;
+  color: rgba(255, 255, 255, 0.9);
+  transition: all var(--transition-fast);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.notification-ripple {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.notification-ripple div {
+  position: absolute;
+  border: 2px solid #DC143C;
+  border-radius: 50%;
+  animation: ripple 2s infinite;
+}
+
+.ripple-1 {
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  animation-delay: 0s;
+}
+
+.ripple-2 {
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  animation-delay: 0.7s;
+}
+
+.ripple-3 {
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  animation-delay: 1.4s;
+}
+
+.notification-pulse {
+  animation: pulse 2s infinite;
+}
+
+.notification-pulse-inner {
+  animation: pulseInner 2s infinite;
 }
 
 .notification-bell__badge {
@@ -219,5 +278,44 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes bellRing {
+  0%, 100% { transform: rotate(0deg); }
+  10%, 30%, 50%, 70%, 90% { transform: rotate(-10deg); }
+  20%, 40%, 60%, 80% { transform: rotate(10deg); }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+@keyframes pulseInner {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(0.8);
+    opacity: 1;
   }
 }
