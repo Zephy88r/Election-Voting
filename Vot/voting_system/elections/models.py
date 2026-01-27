@@ -66,6 +66,7 @@ class User(AbstractUser):
         blank=True,
         on_delete=models.SET_NULL
     )
+    is_admin = models.BooleanField(default=False)
 
     def __str__(self):
         return self.username

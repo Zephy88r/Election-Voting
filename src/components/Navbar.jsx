@@ -22,6 +22,10 @@ function Navbar() {
     }
   };
 
+  const handleAdminClick = () => {
+    navigate('/admin');
+  };
+
   const handleLanguageSwitch = () => {
     toggleLanguage();
   };
@@ -42,6 +46,35 @@ function Navbar() {
 
       <div className="navbar-right">
         {isAuthenticated && <NotificationBell />}
+
+        {/* Admin Link for admin users */}
+        {isAuthenticated && (user?.is_admin || user?.is_superuser) && (
+          <div
+            className="admin-link"
+            onClick={handleAdminClick}
+            role="button"
+            tabIndex={0}
+            aria-label="Go to admin panel"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleAdminClick();
+              }
+            }}
+            style={{
+              padding: '8px 12px',
+              marginRight: '12px',
+              backgroundColor: '#dc3545',
+              color: 'white',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+          >
+            Admin
+          </div>
+        )}
 
         {/* LANGUAGE SWITCH */}
         <div className="lang-switch">

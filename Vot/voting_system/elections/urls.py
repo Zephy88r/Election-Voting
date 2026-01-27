@@ -24,6 +24,10 @@ urlpatterns = [
     path("api/notifications/mark-all-read/", views_api.mark_all_notifications_read, name="mark-all-notifications-read"),
     path("api/notifications/clear-all/", views_api.clear_all_notifications, name="clear-all-notifications"),
 
+    # Admin endpoints
+    path("api/admin/users/", views_api.get_all_users, name="admin-get-users"),
+    path("api/admin/users/<int:user_id>/delete/", views_api.delete_user, name="admin-delete-user"),
+
     # -------- Voting --------
     path("vote/submit/", views.submit_vote, name="submit-vote"),
     path("vote/candidate/", views.submit_candidate_vote, name="submit-candidate-vote"),

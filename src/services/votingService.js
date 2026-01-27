@@ -6,6 +6,7 @@
 
 import { votingAPI } from './api';
 import { getToken } from '../utils/authUtils';
+import { API_CONFIG } from '../config/apiConfig';
 
 /**
  * Voting Service
@@ -23,7 +24,8 @@ class VotingService {
       return res || [];
     } catch (error) {
       console.error('Get candidates API error:', error);
-      throw error;
+      // Fallback to mock data
+      return this.getMockCandidates(provinceId);
     }
   }
 
@@ -38,15 +40,54 @@ class VotingService {
   }
 
   /**
-   * Submit PR vote (party). Enforces 1 party vote only.
+   * Submit FPTP vote (candidate)
+   */
+  async submitFPTPVote(candidateId) {
+    if (API_CONFIG.USE_API) {
+      try {
+        const res = await votingAPI.submitVote({ vote_type: 'CANDIDATE', candidate_id: candidateId });
+        return res;
+      } catch (error) {
+        console.error('Submit FPTP vote API error:', error);
+        throw error;
+      }
+    } else {
+      // Use localStorage fallback
+      const userKey = this.getUserKey();
+      const voteKey = `fptp_vote_${userKey}`;
+      const voteData = {
+        vote_type: 'FPTP',
+        candidate_id: candidateId,
+        timestamp: new Date().toISOString()
+      };
+      localStorage.setItem(voteKey, JSON.stringify(voteData));
+      return { message: 'Vote recorded locally' };
+    }
+  }
+
+  /**
+   * Submit PR vote (party)
    */
   async submitPartyVote(partyId, provinceId = null, userKey = null) {
-    try {
-      const res = await votingAPI.submitVote({ vote_type: 'PR', party_id: partyId });
-      return res;
-    } catch (error) {
-      console.error('Submit party vote API error:', error);
-      throw error;
+    if (API_CONFIG.USE_API) {
+      try {
+        const res = await votingAPI.submitVote({ vote_type: 'PARTY', party_id: partyId });
+        return res;
+      } catch (error) {
+        console.error('Submit party vote API error:', error);
+        throw error;
+      }
+    } else {
+      // Use localStorage fallback
+      const demoUserKey = this.getUserKey();
+      const voteKey = `pr_vote_${demoUserKey}`;
+      const voteData = {
+        vote_type: 'PR',
+        party_id: partyId,
+        timestamp: new Date().toISOString()
+      };
+      localStorage.setItem(voteKey, JSON.stringify(voteData));
+      return { message: 'Vote recorded locally' };
     }
   }
 
@@ -94,14 +135,100 @@ class VotingService {
    * @returns {Array} - Array of votes
    */
   async getVotingHistory() {
-    try {
-      const res = await votingAPI.getVotingHistory();
-      // API returns { votes: [...] }
-      return (res && res.votes) ? res.votes : (Array.isArray(res) ? res : []);
-    } catch (error) {
-      console.error('Get voting history API error:', error);
-      return [];
+    if (API_CONFIG.USE_API) {
+      try {
+        const res = await votingAPI.getVotingHistory();
+        return (res && res.votes) ? res.votes : (Array.isArray(res) ? res : []);
+      } catch (error) {
+        console.error('Get voting history API error:', error);
+        return [];
+      }
+    } else {
+      // Use localStorage mode
+      const userKey = this.getUserKey();
+      const fptpVote = localStorage.getItem(`fptp_vote_${userKey}`);
+      const prVote = localStorage.getItem(`pr_vote_${userKey}`);
+      
+      const history = [];
+      if (fptpVote) {
+        const vote = JSON.parse(fptpVote);
+        history.push({
+          vote_type: 'FPTP',
+          candidate: { id: vote.candidate_id },
+          timestamp: vote.timestamp
+        });
+      }
+      if (prVote) {
+        const vote = JSON.parse(prVote);
+        history.push({
+          vote_type: 'PR',
+          party: { id: vote.party_id },
+          timestamp: vote.timestamp
+        });
+      }
+      return history;
     }
+  }
+
+  /**
+   * Get consolidated voting history - groups candidate and party votes together
+   * @returns {Array} - Array of consolidated vote records
+   */
+  async getConsolidatedVotingHistory() {
+    if (API_CONFIG.USE_API) {
+      try {
+        const res = await votingAPI.getConsolidatedVotingHistory();
+        return res.consolidated || [];
+      } catch (error) {
+        console.error('Get consolidated voting history API error:', error);
+        // Fallback to regular history and consolidate locally
+        return this.getLocalConsolidatedHistory();
+      }
+    } else {
+      return this.getLocalConsolidatedHistory();
+    }
+  }
+
+  /**
+   * Get consolidated history from localStorage or regular API
+   */
+  async getLocalConsolidatedHistory() {
+    const history = await this.getVotingHistory();
+    
+    // Group votes by user (in this case, all votes are for current user)
+    const candidateVote = history.find(vote => vote.vote_type === 'FPTP' || vote.vote_type === 'CANDIDATE');
+    const partyVote = history.find(vote => vote.vote_type === 'PR' || vote.vote_type === 'PARTY');
+    
+    if (candidateVote || partyVote) {
+      return [{
+        id: `${this.getUserKey()}_consolidated`, // Use consistent consolidated ID
+        candidateVote: candidateVote || null,
+        partyVote: partyVote || null,
+        timestamp: candidateVote?.timestamp || partyVote?.timestamp || new Date().toISOString()
+      }];
+    }
+    
+    return [];
+  }
+
+  /**
+   * Get consistent user key for localStorage
+   */
+  getUserKey() {
+    let userKey = localStorage.getItem('demo_user_key');
+    if (!userKey) {
+      userKey = 'user_' + Date.now();
+      localStorage.setItem('demo_user_key', userKey);
+    }
+    return userKey;
+  }
+
+  /**
+   * Get user ID for consolidated vote display
+   */
+  getUserId() {
+    // Return consistent user ID for vote consolidation
+    return this.getUserKey();
   }
 
   /**
@@ -128,12 +255,12 @@ class VotingService {
       sudurpaschim: 'Sudurpashchim',
     };
 
-    const provinceName = provinceNames[provinceId.toLowerCase()] || 'Province';
+    const provinceName = provinceNames[provinceId?.toLowerCase()] || 'Province';
 
     // Mock candidates with different parties
     return [
       {
-        id: `${provinceId}-1`,
+        id: 1,
         name: 'Ram Shrestha',
         party: 'Nepal Communist Party',
         symbol: '☭',
@@ -141,7 +268,7 @@ class VotingService {
         image: null,
       },
       {
-        id: `${provinceId}-2`,
+        id: 2,
         name: 'Sita Tamang',
         party: 'Nepali Congress',
         symbol: '🌾',
@@ -149,7 +276,7 @@ class VotingService {
         image: null,
       },
       {
-        id: `${provinceId}-3`,
+        id: 3,
         name: 'Hari Gurung',
         party: 'Rastriya Prajatantra Party',
         symbol: '🏛️',
@@ -157,7 +284,7 @@ class VotingService {
         image: null,
       },
       {
-        id: `${provinceId}-4`,
+        id: 4,
         name: 'Gita Thapa',
         party: 'Janata Samajbadi Party',
         symbol: '⚖️',

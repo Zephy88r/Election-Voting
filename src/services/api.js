@@ -173,14 +173,14 @@ export const authAPI = {
  */
 export const votingAPI = {
   /**
-   * Get candidates for a province
-   * @param {string} provinceId - Province identifier
+   * Get candidates for a province or electoral area
+   * @param {string} electoralAreaId - Electoral area identifier
    * @returns {Promise<object>} - List of candidates
    */
-  getCandidates: async (provinceId) => {
+  getCandidates: async (electoralAreaId) => {
     // Backend endpoint returns candidates for logged-in user's electoral area.
-    // If a provinceId is supplied, append as query param (backend may ignore).
-    const q = provinceId ? `?province_id=${provinceId}` : "";
+    // If an electoralAreaId is supplied, append as query param.
+    const q = electoralAreaId ? `?electoral_area_id=${electoralAreaId}` : "";
     return apiRequest(`/elections/api/candidates/${q}`, {
       method: "GET",
     });
@@ -228,6 +228,16 @@ export const votingAPI = {
    */
   getVotingHistory: async () => {
     return apiRequest("/elections/api/voting-history/", {
+      method: "GET",
+    });
+  },
+
+  /**
+   * Get consolidated voting history for current user
+   * @returns {Promise<object>} - Consolidated vote information
+   */
+  getConsolidatedVotingHistory: async () => {
+    return apiRequest("/elections/api/voting-history/consolidated/", {
       method: "GET",
     });
   },

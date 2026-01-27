@@ -114,13 +114,13 @@ def voting_history(request):
             }
 
             # Include specific vote data
-            if vote.vote_type == 'CANDIDATE' and vote.candidate:
+            if vote.candidate:
                 vote_data['candidate'] = {
                     'id': vote.candidate.id,
                     'name': vote.candidate.name,
                     'party': vote.candidate.party.name if vote.candidate.party else None
                 }
-            elif vote.vote_type == 'PARTY' and vote.party:
+            if vote.party:
                 vote_data['party'] = {
                     'id': vote.party.id,
                     'name': vote.party.name,
@@ -279,5 +279,84 @@ def clear_all_notifications(request):
 
         return JsonResponse({'success': True})
 
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+# ==============================
+# Admin Functions
+# ==============================
+
+@login_required
+def get_all_users(request):
+    """Get all users (admin only)"""
+    if not request.user.is_admin and not request.user.is_superuser:
+        return JsonResponse({'error': 'Admin access required'}, status=403)
+    
+    try:
+        from .models import User
+        users = User.objects.all().select_related('province', 'district', 'electoral_area')
+        
+        data = []
+        for user in users:
+            data.append({
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'province': user.province.name if user.province else None,
+                'district': user.district.name if user.district else None,
+                'electoral_area': user.electoral_area.name if user.electoral_area else None,
+                'is_admin': user.is_admin,
+                'is_active': user.is_active,
+                'date_joined': user.date_joined.isoformat()
+            })
+        
+        return JsonResponse({'users': data})
+    
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["DELETE"])
+def delete_user(request, user_id):
+    """Delete a user (admin only)"""
+    if not request.user.is_admin and not request.user.is_superuser:
+        return JsonResponse({'error': 'Admin access required'}, status=403)
+    
+    try:
+        from .models import User, Vote, Notification
+        from django.db import transaction
+        
+        user_to_delete = User.objects.get(id=user_id)
+        
+        # Prevent admin from deleting themselves
+        if user_to_delete.id == request.user.id:
+            return JsonResponse({'error': 'Cannot delete your own account'}, status=400)
+        
+        # Prevent deletion of superusers by regular admins
+        if user_to_delete.is_superuser and not request.user.is_superuser:
+            return JsonResponse({'error': 'Cannot delete superuser account'}, status=403)
+        
+        username = user_to_delete.username
+        
+        # Manually delete related objects to bypass permission checks
+        with transaction.atomic():
+            # Delete user's votes
+            Vote.objects.filter(voter=user_to_delete).delete()
+            # Delete user's notifications
+            Notification.objects.filter(user=user_to_delete).delete()
+            # Finally delete the user
+            user_to_delete.delete()
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'User {username} deleted successfully'
+        })
+    
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'User not found'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)

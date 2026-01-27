@@ -113,8 +113,8 @@ export default function DistrictSelection() {
       return; // Restricted electoral area
     }
 
-    // Navigate to voting page
-    navigate(`/${provinceId}/vote`);
+    // Navigate to vote wizard with electoral area parameter
+    navigate(`/vote/${provinceId}?ea=${electoralArea.id || electoralArea.name}`);
   };
 
   const closeModal = () => {
@@ -182,7 +182,10 @@ export default function DistrictSelection() {
                 ) : (
                   <div
                     className="electoralCard userArea"
-                    onClick={() => handleElectoralAreaSelect({ name: user?.electoral_area?.name || user?.electoral_area })}
+                    onClick={() => handleElectoralAreaSelect({ 
+                      id: user?.electoral_area?.id || 'user-area',
+                      name: user?.electoral_area?.name || user?.electoral_area 
+                    })}
                   >
                     <div className="electoralIcon">🗳️</div>
                     <div className="electoralName">{user?.electoral_area?.name || user?.electoral_area || t('yourElectoralArea')}</div>

@@ -8,6 +8,7 @@ import { authAPI } from './api';
 import { setToken, setLoggedInUser, removeToken, removeLoggedInUser, getToken } from '../utils/authUtils';
 import { storage } from './storageService';
 import { notificationService } from './notificationService';
+import { API_CONFIG } from '../config/apiConfig';
 
 /**
  * Authentication Service
@@ -20,14 +21,51 @@ class AuthService {
    * @returns {Promise<object>} - Response with user and token
    */
   async register(userData) {
-    // Use backend API
-    try {
-      const response = await authAPI.register(userData);
-      const user = response.user || response;
-      // Do not set local session state here because backend does not auto-login on registration
-      return { user };
-    } catch (error) {
-      throw error;
+    if (API_CONFIG.USE_API) {
+      try {
+        const response = await authAPI.register(userData);
+        const user = response.user || response;
+        return { user };
+      } catch (error) {
+        console.error('API registration failed, falling back to localStorage');
+        // Fallback to localStorage
+        const users = storage.getItem('users') || [];
+        
+        if (users.find(u => u.email === userData.email || u.voterId === userData.voterId)) {
+          throw new Error('User already exists');
+        }
+        
+        const newUser = {
+          id: Date.now(),
+          username: userData.email,
+          voterId: userData.voterId || userData.email,
+          ...userData,
+          createdAt: new Date().toISOString()
+        };
+        
+        users.push(newUser);
+        storage.setItem('users', users);
+        return { user: newUser };
+      }
+    } else {
+      // Use localStorage mode
+      const users = storage.getItem('users') || [];
+      
+      if (users.find(u => u.email === userData.email || u.voterId === userData.voterId)) {
+        throw new Error('User already exists');
+      }
+      
+      const newUser = {
+        id: Date.now(),
+        username: userData.email,
+        voterId: userData.voterId || userData.email,
+        ...userData,
+        createdAt: new Date().toISOString()
+      };
+      
+      users.push(newUser);
+      storage.setItem('users', users);
+      return { user: newUser };
     }
   }
 
@@ -37,14 +75,51 @@ class AuthService {
    * @returns {Promise<object>} - Response with user and token
    */
   async login(credentials) {
-    try {
-      const response = await authAPI.login(credentials);
-      const user = response.user || response;
+    if (API_CONFIG.USE_API) {
+      try {
+        const response = await authAPI.login(credentials);
+        const user = response.user || response;
+        setLoggedInUser(user);
+        setToken(user.id?.toString() || user.username || 'session');
+        return { user };
+      } catch (error) {
+        console.error('API login failed, falling back to localStorage');
+        // Fallback to localStorage
+        const users = storage.getItem('users') || [];
+        const user = users.find(u => {
+          const emailMatch = u.email === credentials.voterId;
+          const voterIdMatch = u.voterId === credentials.voterId;
+          const usernameMatch = u.username === credentials.voterId;
+          const passwordMatch = u.password === credentials.password;
+          return (emailMatch || voterIdMatch || usernameMatch) && passwordMatch;
+        });
+        
+        if (!user) {
+          throw new Error('Invalid credentials');
+        }
+        
+        setLoggedInUser(user);
+        setToken(user.id?.toString() || user.email);
+        return { user };
+      }
+    } else {
+      // Use localStorage mode
+      const users = storage.getItem('users') || [];
+      const user = users.find(u => {
+        const emailMatch = u.email === credentials.voterId;
+        const voterIdMatch = u.voterId === credentials.voterId;
+        const usernameMatch = u.username === credentials.voterId;
+        const passwordMatch = u.password === credentials.password;
+        return (emailMatch || voterIdMatch || usernameMatch) && passwordMatch;
+      });
+      
+      if (!user) {
+        throw new Error('Invalid credentials');
+      }
+      
       setLoggedInUser(user);
-      setToken(user.id?.toString() || user.username || 'session');
+      setToken(user.id?.toString() || user.email);
       return { user };
-    } catch (error) {
-      throw error;
     }
   }
 
@@ -70,13 +145,27 @@ class AuthService {
    * @returns {Promise<object>} - User profile data
    */
   async getProfile() {
-    try {
-      const profile = await authAPI.getProfile();
-      // keep local copy
-      setLoggedInUser(profile);
-      return profile;
-    } catch (error) {
-      throw error;
+    if (API_CONFIG.USE_API) {
+      try {
+        const profile = await authAPI.getProfile();
+        setLoggedInUser(profile);
+        return profile;
+      } catch (error) {
+        console.error('Get profile API error:', error);
+        // Fallback to localStorage
+        const storedUser = storage.getItem('loggedInUser');
+        if (storedUser) {
+          return storedUser;
+        }
+        throw error;
+      }
+    } else {
+      // Use localStorage mode
+      const storedUser = storage.getItem('loggedInUser');
+      if (storedUser) {
+        return storedUser;
+      }
+      throw new Error('No user logged in');
     }
   }
 

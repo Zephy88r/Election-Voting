@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { authService } from '../services/authService';
 import { storageHelper } from '../utils/storage';
 import { setSessionTimeout, isSessionExpired, clearSessionTimeout } from '../utils/sessionManager';
+import { API_CONFIG } from '../config/apiConfig';
 
 /**
  * Authentication Context
@@ -27,22 +28,40 @@ export const AuthProvider = ({ children }) => {
    */
   useEffect(() => {
     const initAuth = async () => {
-      try {
-        // Try to get profile from API (session-based)
-        const profile = await authService.getProfile();
-        setAuthState({
-          isAuthenticated: true,
-          user: profile,
-          loading: false,
-        });
-        setSessionTimeout();
-      } catch (e) {
-        // Not authenticated via API
-        setAuthState({
-          isAuthenticated: false,
-          user: null,
-          loading: false,
-        });
+      if (API_CONFIG.USE_API) {
+        try {
+          // Try to get profile from API (session-based)
+          const profile = await authService.getProfile();
+          setAuthState({
+            isAuthenticated: true,
+            user: profile,
+            loading: false,
+          });
+          setSessionTimeout();
+        } catch (e) {
+          console.log('Not authenticated or API unavailable');
+          setAuthState({
+            isAuthenticated: false,
+            user: null,
+            loading: false,
+          });
+        }
+      } else {
+        // Use localStorage mode
+        const storedAuth = storageHelper.getAuthState();
+        if (storedAuth?.isAuthenticated && storedAuth?.user) {
+          setAuthState({
+            isAuthenticated: true,
+            user: storedAuth.user,
+            loading: false,
+          });
+        } else {
+          setAuthState({
+            isAuthenticated: false,
+            user: null,
+            loading: false,
+          });
+        }
       }
     };
 

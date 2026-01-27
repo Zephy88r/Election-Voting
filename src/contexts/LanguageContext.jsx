@@ -190,6 +190,45 @@ const translations = {
       karnali: 'Karnali Province',
       sudurpaschim: 'Sudurpashchim Province'
     },
+
+    // Common
+    common: {
+      loading: 'Loading...',
+      cancel: 'Cancel',
+      backToDashboard: 'Back to Dashboard',
+      accessDenied: 'Access Denied'
+    },
+
+    // Voting
+    voting: {
+      votingTitle: 'Voting',
+      candidateVote: 'Candidate Vote (FPTP)',
+      partyVote: 'Party Vote (PR)',
+      complete: 'Complete',
+      step1Title: 'Step 1: Select Your Candidate (FPTP)',
+      step1Description: 'Choose one candidate to represent your constituency',
+      step2Title: 'Step 2: Select Your Party (PR)',
+      step2Description: 'Choose one party for proportional representation',
+      alreadyVotedParty: 'You have already voted for:',
+      continueToPartyVote: 'Continue to Party Vote →',
+      backToCandidateVote: '← Back to Candidate Vote',
+      reviewVotes: 'Review Votes →',
+      reviewTitle: 'Review Your Votes',
+      reviewDescription: 'Please review your selections before finalizing.',
+      fptpVote: 'FPTP Vote',
+      prVote: 'PR Vote',
+      notVoted: 'Not voted',
+      backToPartyVote: '← Back to Party Vote',
+      completeAndDashboard: 'Complete & Go to Dashboard',
+      accessDeniedMessage: 'You can only vote in your registered province:',
+      confirmFPTPTitle: 'Confirm FPTP Vote',
+      confirmFPTPMessage: 'You can vote only once for a candidate.',
+      selectedCandidate: 'Selected Candidate',
+      confirmPRTitle: 'Confirm PR Vote',
+      confirmPRMessage: 'You can vote only once for a party.',
+      selectedParty: 'Selected Party',
+      yesCastVote: 'Yes, Cast Vote'
+    },
   },
   
   NP: {
@@ -375,6 +414,45 @@ const translations = {
       lumbini: 'लुम्बिनी प्रदेश',
       karnali: 'कर्णाली प्रदेश',
       sudurpaschim: 'सुदूरपश्चिम प्रदेश'
+    },
+
+    // Common
+    common: {
+      loading: 'लोड हुँदैछ...',
+      cancel: 'रद्द गर्नुहोस्',
+      backToDashboard: 'ड्यासबोर्डमा फर्कनुहोस्',
+      accessDenied: 'पहुँच अस्वीकृत'
+    },
+
+    // Voting
+    voting: {
+      votingTitle: 'मतदान',
+      candidateVote: 'उम्मेदवार मत (प्रत्यक्ष)',
+      partyVote: 'दल मत (समानुपातिक)',
+      complete: 'पूरा',
+      step1Title: 'चरण १: आफ्नो उम्मेदवार चयन गर्नुहोस् (प्रत्यक्ष)',
+      step1Description: 'आफ्नो निर्वाचन क्षेत्रको प्रतिनिधित्व गर्न एक उम्मेदवार छान्नुहोस्',
+      step2Title: 'चरण २: आफ्नो दल चयन गर्नुहोस् (समानुपातिक)',
+      step2Description: 'समानुपातिक प्रतिनिधित्वको लागि एक दल छान्नुहोस्',
+      alreadyVotedParty: 'तपाईंले पहिले नै मतदान गर्नुभएको छ:',
+      continueToPartyVote: 'दल मतदानमा जानुहोस् →',
+      backToCandidateVote: '← उम्मेदवार मतदानमा फर्कनुहोस्',
+      reviewVotes: 'मतहरू समीक्षा गर्नुहोस् →',
+      reviewTitle: 'आफ्ना मतहरूको समीक्षा गर्नुहोस्',
+      reviewDescription: 'अन्तिम गर्नु अघि कृपया आफ्ना छनौटहरूको समीक्षा गर्नुहोस्।',
+      fptpVote: 'प्रत्यक्ष मत',
+      prVote: 'समानुपातिक मत',
+      notVoted: 'मतदान गरिएको छैन',
+      backToPartyVote: '← दल मतदानमा फर्कनुहोस्',
+      completeAndDashboard: 'पूरा गर्नुहोस् र ड्यासबोर्डमा जानुहोस्',
+      accessDeniedMessage: 'तपाईं आफ्नो दर्ता गरिएको प्रदेशमा मात्र मतदान गर्न सक्नुहुन्छ:',
+      confirmFPTPTitle: 'प्रत्यक्ष मत पुष्टि गर्नुहोस्',
+      confirmFPTPMessage: 'तपाईं उम्मेदवारको लागि एक पटक मात्र मतदान गर्न सक्नुहुन्छ।',
+      selectedCandidate: 'चयन गरिएको उम्मेदवार',
+      confirmPRTitle: 'समानुपातिक मत पुष्टि गर्नुहोस्',
+      confirmPRMessage: 'तपाईं दलको लागि एक पटक मात्र मतदान गर्न सक्नुहुन्छ।',
+      selectedParty: 'चयन गरिएको दल',
+      yesCastVote: 'हो, मतदान गर्नुहोस्'
     },
   },
 };

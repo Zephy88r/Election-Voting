@@ -156,13 +156,14 @@ def api_vote(request):
         if not candidate_id:
             return JsonResponse({"error": "candidate_id is required for CANDIDATE vote."}, status=400)
         if vote.candidate:
-            return JsonResponse({"error": "You have already voted for a candidate."}, status=409)
+            return JsonResponse({"error": "You have already voted for a candidate. Vote cannot be changed."}, status=409)
             
         try:
             candidate = Candidate.objects.get(id=candidate_id)
             if user.electoral_area and candidate.electoral_area != user.electoral_area:
                 return JsonResponse({"error": "Candidate is not in your electoral area."}, status=403)
             vote.candidate = candidate
+            vote.save()
         except Candidate.DoesNotExist:
             return JsonResponse({"error": "Invalid candidate ID."}, status=400)
 
@@ -171,17 +172,17 @@ def api_vote(request):
         if not party_id:
             return JsonResponse({"error": "party_id is required for PARTY vote."}, status=400)
         if vote.party:
-            return JsonResponse({"error": "You have already voted for a party."}, status=409)
+            return JsonResponse({"error": "You have already voted for a party. Vote cannot be changed."}, status=409)
             
         try:
             party = Party.objects.get(id=party_id, is_active=True)
             vote.party = party
+            vote.save()
         except Party.DoesNotExist:
             return JsonResponse({"error": "Invalid party ID."}, status=400)
 
     # Save vote to database
     try:
-        vote.save()
         return JsonResponse({
             "success": True,
             "message": "Vote recorded successfully.",

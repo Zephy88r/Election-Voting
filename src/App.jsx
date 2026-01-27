@@ -11,6 +11,8 @@ import Dashboard from './components/Dashboard';
 import Register from './components/Register';
 import Profile from './pages/Profile';
 import DistrictSelection from './pages/DistrictSelection';
+import VoteWizard from './pages/VoteWizard';
+import AdminPanel from './pages/AdminPanel';
 
 // Province Pages
 import Koshi from './pages/provinces/Koshi';
@@ -64,6 +66,16 @@ function App() {
             } 
           />
           
+          {/* Admin Panel Route */}
+          <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute>
+                <AdminPanel />
+              </ProtectedRoute>
+            } 
+          />
+          
           {/* District Selection Routes */}
           <Route 
             path="/:provinceId/districts" 
@@ -74,7 +86,17 @@ function App() {
             } 
           />
           
-          {/* Voting Routes */}
+          {/* Vote Wizard Route */}
+          <Route 
+            path="/vote/:provinceId" 
+            element={
+              <ProtectedRoute>
+                <VoteWizard />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Legacy Voting Routes */}
           <Route 
             path="/koshi/vote" 
             element={
