@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Auth State</title>
+</head>
+<body>
+    <h1>Debug Auth State</h1>
+    <div id="output"></div>
+    
+    <script>
+        const authState = JSON.parse(localStorage.getItem('authState') || '{}');
+        const output = document.getElementById('output');
+        
+        output.innerHTML = `
+            <h2>Auth State:</h2>
+            <pre>${JSON.stringify(authState, null, 2)}</pre>
+            
+            <h2>User Email Check:</h2>
+            <p>user.email: ${authState.user?.email || 'NOT FOUND'}</p>
+            <p>user.username: ${authState.user?.username || 'NOT FOUND'}</p>
+            <p>Email for API: ${authState.user?.email || authState.user?.username || 'NOT FOUND'}</p>
+        `;
+    </script>
+</body>
+</html>

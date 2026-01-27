@@ -25,13 +25,13 @@ export default function DistrictSelection() {
   const [selectedDistrict, setSelectedDistrict] = useState(null);
 
   const provinceNames = {
-    koshi: 'Koshi',
-    madhesh: 'Madhesh', 
-    bagmati: 'Bagmati',
-    gandaki: 'Gandaki',
-    lumbini: 'Lumbini',
-    karnali: 'Karnali',
-    sudurpaschim: 'Sudurpashchim'
+    koshi: 'Province 1',
+    madhesh: 'Province 2', 
+    bagmati: 'Province 3',
+    gandaki: 'Province 4',
+    lumbini: 'Province 5',
+    karnali: 'Province 6',
+    sudurpaschim: 'Province 7'
   };
 
   const getDistrictName = (districtName) => {
@@ -41,6 +41,13 @@ export default function DistrictSelection() {
   const userProvinceName = user?.province?.name || user?.province;
   const requiredProvinceName = provinceNames[provinceId];
   const hasAccess = userProvinceName === requiredProvinceName;
+  
+  // Debug logging
+  console.log('District Selection Debug:');
+  console.log('User:', user);
+  console.log('User province:', userProvinceName);
+  console.log('Required province:', requiredProvinceName);
+  console.log('User district:', user?.district?.name || user?.district);
 
   useEffect(() => {
     const loadData = async () => {

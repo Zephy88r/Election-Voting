@@ -45,7 +45,7 @@ class VotingService {
   async submitFPTPVote(candidateId) {
     if (API_CONFIG.USE_API) {
       try {
-        const res = await votingAPI.submitVote({ vote_type: 'CANDIDATE', candidate_id: candidateId });
+        const res = await votingAPI.submitVote({ vote_type: 'FPTP', candidate_id: candidateId });
         return res;
       } catch (error) {
         console.error('Submit FPTP vote API error:', error);
@@ -71,7 +71,7 @@ class VotingService {
   async submitPartyVote(partyId, provinceId = null, userKey = null) {
     if (API_CONFIG.USE_API) {
       try {
-        const res = await votingAPI.submitVote({ vote_type: 'PARTY', party_id: partyId });
+        const res = await votingAPI.submitVote({ vote_type: 'PR', party_id: partyId });
         return res;
       } catch (error) {
         console.error('Submit party vote API error:', error);
@@ -89,6 +89,68 @@ class VotingService {
       localStorage.setItem(voteKey, JSON.stringify(voteData));
       return { message: 'Vote recorded locally' };
     }
+  }
+
+  /**
+   * Check if user has already voted (FPTP or PR)
+   * Now supports separate votes for each type
+   * @returns {Promise<boolean>} - True if user has voted either FPTP or PR
+   */
+  async hasUserVoted() {
+    try {
+      const history = await this.getVotingHistory();
+      return Array.isArray(history) && history.length > 0;
+    } catch (e) {
+      console.error('Error checking vote status:', e);
+      return false;
+    }
+  }
+
+  /**
+   * Check if user has voted for a candidate (FPTP)
+   * @returns {Promise<boolean>}
+   */
+  async hasUserVotedFPTP() {
+    try {
+      const history = await this.getVotingHistory();
+      if (!Array.isArray(history)) return false;
+      return history.some(vote => vote.vote_type === 'FPTP');
+    } catch (e) {
+      console.error('Error checking FPTP vote status:', e);
+      return false;
+    }
+  }
+
+  /**
+   * Check if user has voted for a party (PR)
+   * @returns {Promise<boolean>}
+   */
+  async hasUserVotedPR() {
+    try {
+      const history = await this.getVotingHistory();
+      if (!Array.isArray(history)) return false;
+      return history.some(vote => vote.vote_type === 'PR');
+    } catch (e) {
+      console.error('Error checking PR vote status:', e);
+      return false;
+    }
+  }
+
+  /**
+   * Get vote type that user has already submitted (if any)
+   * Returns first vote type found (either FPTP or PR)
+   * @returns {Promise<string|null>} - 'FPTP', 'PR', or null
+   */
+  async getUserVoteType() {
+    try {
+      const history = await this.getVotingHistory();
+      if (Array.isArray(history) && history.length > 0) {
+        return history[0].vote_type || null;
+      }
+    } catch (e) {
+      console.error('Error checking vote type:', e);
+    }
+    return null;
   }
 
   /**
@@ -135,38 +197,13 @@ class VotingService {
    * @returns {Array} - Array of votes
    */
   async getVotingHistory() {
-    if (API_CONFIG.USE_API) {
-      try {
-        const res = await votingAPI.getVotingHistory();
-        return (res && res.votes) ? res.votes : (Array.isArray(res) ? res : []);
-      } catch (error) {
-        console.error('Get voting history API error:', error);
-        return [];
-      }
-    } else {
-      // Use localStorage mode
-      const userKey = this.getUserKey();
-      const fptpVote = localStorage.getItem(`fptp_vote_${userKey}`);
-      const prVote = localStorage.getItem(`pr_vote_${userKey}`);
-      
-      const history = [];
-      if (fptpVote) {
-        const vote = JSON.parse(fptpVote);
-        history.push({
-          vote_type: 'FPTP',
-          candidate: { id: vote.candidate_id },
-          timestamp: vote.timestamp
-        });
-      }
-      if (prVote) {
-        const vote = JSON.parse(prVote);
-        history.push({
-          vote_type: 'PR',
-          party: { id: vote.party_id },
-          timestamp: vote.timestamp
-        });
-      }
-      return history;
+    // Always use API mode for voting history
+    try {
+      const res = await votingAPI.getVotingHistory();
+      return (res && res.votes) ? res.votes : (Array.isArray(res) ? res : []);
+    } catch (error) {
+      console.error('Get voting history API error:', error);
+      return [];
     }
   }
 
@@ -175,25 +212,26 @@ class VotingService {
    * @returns {Array} - Array of consolidated vote records
    */
   async getConsolidatedVotingHistory() {
-    if (API_CONFIG.USE_API) {
-      try {
-        const res = await votingAPI.getConsolidatedVotingHistory();
-        return res.consolidated || [];
-      } catch (error) {
-        console.error('Get consolidated voting history API error:', error);
-        // Fallback to regular history and consolidate locally
-        return this.getLocalConsolidatedHistory();
-      }
-    } else {
+    // Always use API for consolidated history
+    try {
+      const res = await votingAPI.getConsolidatedVotingHistory();
+      return res.consolidated || [];
+    } catch (error) {
+      console.error('Get consolidated voting history API error:', error);
+      // Fallback to regular history and consolidate locally
       return this.getLocalConsolidatedHistory();
     }
   }
 
   /**
-   * Get consolidated history from localStorage or regular API
+   * Get consolidated voting history from localStorage or regular API
    */
   async getLocalConsolidatedHistory() {
     const history = await this.getVotingHistory();
+    
+    if (!Array.isArray(history) || history.length === 0) {
+      return [];
+    }
     
     // Group votes by user (in this case, all votes are for current user)
     const candidateVote = history.find(vote => vote.vote_type === 'FPTP' || vote.vote_type === 'CANDIDATE');
@@ -201,10 +239,20 @@ class VotingService {
     
     if (candidateVote || partyVote) {
       return [{
-        id: `${this.getUserKey()}_consolidated`, // Use consistent consolidated ID
-        candidateVote: candidateVote || null,
-        partyVote: partyVote || null,
-        timestamp: candidateVote?.timestamp || partyVote?.timestamp || new Date().toISOString()
+        id: `${this.getUserKey()}_consolidated`,
+        candidateVote: candidateVote ? {
+          candidate: {
+            id: candidateVote.candidate?.id || 1,
+            name: candidateVote.candidate || 'Unknown Candidate'
+          }
+        } : null,
+        partyVote: partyVote ? {
+          party: {
+            id: partyVote.party?.id || 1,
+            name: partyVote.party || 'Unknown Party'
+          }
+        } : null,
+        timestamp: candidateVote?.created_at || partyVote?.created_at || new Date().toISOString()
       }];
     }
     

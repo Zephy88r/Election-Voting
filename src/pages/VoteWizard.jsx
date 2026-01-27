@@ -46,13 +46,13 @@ const VoteWizard = () => {
   const [history, setHistory] = useState([]);
 
   const provinceNames = {
-    koshi: 'Koshi',
-    madhesh: 'Madhesh',
-    bagmati: 'Bagmati',
-    gandaki: 'Gandaki',
-    lumbini: 'Lumbini',
-    karnali: 'Karnali',
-    sudurpaschim: 'Sudurpashchim'
+    koshi: 'Province 1',
+    madhesh: 'Province 2',
+    bagmati: 'Province 3',
+    gandaki: 'Province 4',
+    lumbini: 'Province 5',
+    karnali: 'Province 6',
+    sudurpaschim: 'Province 7'
   };
 
   const userProvinceName = user?.province?.name || user?.province;
@@ -88,32 +88,28 @@ const VoteWizard = () => {
         setParties(partiesData || []);
 
         // Check voting status
-        const history = await votingService.getConsolidatedVotingHistory();
+        const history = await votingService.getVotingHistory();
         setHistory(history); // Store history in state
-        console.log('Consolidated voting history:', history); // Debug log
+        console.log('Voting history:', history); // Debug log
+        
+        // Check if user has voted for FPTP or PR
+        const fptpVote = history.find(vote => vote.vote_type === 'FPTP');
+        const prVote = history.find(vote => vote.vote_type === 'PR');
+        
+        if (fptpVote) {
+          setFptpVoted(true);
+          setVotedCandidateId(fptpVote.candidate?.id || null);
+        }
+        
+        if (prVote) {
+          setPrVoted(true);
+          setVotedPartyId(prVote.party?.id || null);
+        }
         
         // If any vote exists, go to step 3
-        if (history && history.length > 0) {
+        if (fptpVote || prVote) {
           console.log('Vote found, setting step to 3');
           setCurrentStep(3);
-          setFptpVoted(true);
-          setPrVoted(true);
-          
-          const vote = history[0];
-          if (vote.candidate) {
-            setVotedCandidateId(vote.candidate.id);
-          }
-          if (vote.party) {
-            setVotedPartyId(vote.party.id);
-          }
-          
-          // Set candidates and parties data for display
-          if (vote.candidate && candidates.length === 0) {
-            setCandidates([vote.candidate]);
-          }
-          if (vote.party && parties.length === 0) {
-            setParties([vote.party]);
-          }
         } else {
           console.log('No votes found, setting step to 1');
           setCurrentStep(1);
@@ -155,14 +151,12 @@ const VoteWizard = () => {
         setVotedCandidateId(id);
         setSuccess(`Vote submitted for ${candidate?.name}`);
         
-        // Refresh consolidated voting history to get updated status
-        const updatedHistory = await votingService.getConsolidatedVotingHistory();
+        // Refresh voting history to get updated status
+        const updatedHistory = await votingService.getVotingHistory();
         setHistory(updatedHistory);
-        if (updatedHistory && updatedHistory.length > 0) {
-          const vote = updatedHistory[0];
-          if (vote.candidate) {
-            setVotedCandidateId(vote.candidate.id);
-          }
+        const updatedFptpVote = updatedHistory.find(vote => vote.vote_type === 'FPTP');
+        if (updatedFptpVote) {
+          setVotedCandidateId(updatedFptpVote.candidate?.id || null);
         }
         
         // Skip notification creation to avoid API errors
@@ -186,14 +180,12 @@ const VoteWizard = () => {
         setVotedPartyId(id);
         setSuccess(`Vote submitted for ${party?.name}`);
         
-        // Refresh consolidated voting history to get updated status
-        const updatedHistory = await votingService.getConsolidatedVotingHistory();
+        // Refresh voting history to get updated status
+        const updatedHistory = await votingService.getVotingHistory();
         setHistory(updatedHistory);
-        if (updatedHistory && updatedHistory.length > 0) {
-          const vote = updatedHistory[0];
-          if (vote.party) {
-            setVotedPartyId(vote.party.id);
-          }
+        const updatedPrVote = updatedHistory.find(vote => vote.vote_type === 'PR');
+        if (updatedPrVote) {
+          setVotedPartyId(updatedPrVote.party?.id || null);
         }
         
         // Skip notification creation to avoid API errors
@@ -212,14 +204,17 @@ const VoteWizard = () => {
 
       setConfirmModal({ open: false, type: null, id: null });
     } catch (err) {
-      setError(err?.message || 'Failed to submit vote');
-      // If error is about already voted, redirect to complete step
-      if (err?.message?.includes('already voted')) {
-        setTimeout(() => {
-          setCurrentStep(3);
-          setError('');
-        }, 2000);
+      console.error('Vote submission error:', err);
+      const errorMessage = err?.message || 'Failed to submit vote';
+      
+      // Handle OneToOneField constraint error from backend
+      if (errorMessage.includes('already') || errorMessage.includes('IntegrityError') || errorMessage.includes('UNIQUE constraint failed')) {
+        setError('You have already voted. Each voter can only submit one vote (either FPTP or PR, not both). This is due to a backend system limitation.');
+        setCurrentStep(3); // Go to completion step
+      } else {
+        setError(errorMessage);
       }
+      
       setConfirmModal({ open: false, type: null, id: null });
     } finally {
       setSubmitting(false);
@@ -394,7 +389,7 @@ const VoteWizard = () => {
                 <Button variant="secondary" onClick={() => setCurrentStep(1)}>
                   {t('voting.backToCandidateVote', '← Back to Candidate Vote')}
                 </Button>
-                <Button variant="primary" onClick={() => setCurrentStep(3)} disabled={!prVoted}>
+                <Button variant="primary" onClick={() => setCurrentStep(3)} disabled={!prVoted && !fptpVoted}>
                   {t('voting.reviewVotes', 'Review Votes →')}
                 </Button>
               </div>
@@ -409,13 +404,13 @@ const VoteWizard = () => {
                 <p>{t('voting.reviewDescription', 'Please review your selections before finalizing.')}</p>
                 <div className="vote-summary">
                   <div style={{marginBottom: '8px', fontSize: '16px'}}>
-                    <strong>{history && history[0]?.candidateVote?.candidate?.name ? 
-                      `${t('candidate')}: ${translateName(history[0].candidateVote.candidate.name, t)}` : 
+                    <strong>{history.find(vote => vote.vote_type === 'FPTP')?.candidate ? 
+                      `${t('candidate')}: ${translateName(history.find(vote => vote.vote_type === 'FPTP').candidate.name || history.find(vote => vote.vote_type === 'FPTP').candidate, t)}` : 
                       t('voting.notVoted', 'Not voted')}</strong>
                   </div>
                   <div style={{marginBottom: '8px', fontSize: '16px'}}>
-                    <strong>{history && history[0]?.partyVote?.party?.name ? 
-                      `${t('party')}: ${translateParty(history[0].partyVote.party.name, t)}` : 
+                    <strong>{history.find(vote => vote.vote_type === 'PR')?.party ? 
+                      `${t('party')}: ${translateParty(history.find(vote => vote.vote_type === 'PR').party.name || history.find(vote => vote.vote_type === 'PR').party, t)}` : 
                       t('voting.notVoted', 'Not voted')}</strong>
                   </div>
                 </div>

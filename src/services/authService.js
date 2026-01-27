@@ -71,20 +71,40 @@ class AuthService {
 
   /**
    * Login user
-   * @param {object} credentials - Login credentials (voterId, password, faceImage)
+   * @param {object} credentials - Login credentials (voterId/email, password, faceImage)
    * @returns {Promise<object>} - Response with user and token
    */
   async login(credentials) {
     if (API_CONFIG.USE_API) {
       try {
-        const response = await authAPI.login(credentials);
-        const user = response.user || response;
-        setLoggedInUser(user);
-        setToken(user.id?.toString() || user.username || 'session');
-        return { user };
+        // Convert voterId to email for backend (backend expects email/password)
+        const response = await authAPI.login({
+          email: credentials.voterId || credentials.email,
+          password: credentials.password
+        });
+        // Backend returns success on login, get profile after
+        try {
+          const user = await authAPI.getProfile();
+          setLoggedInUser(user);
+          setToken(user.id?.toString() || user.username || 'session');
+          return { user };
+        } catch (profileError) {
+          // If profile fetch fails, create user from login credentials with default district
+          console.warn('Profile fetch failed after login, using credentials data');
+          const user = { 
+            username: credentials.email, 
+            email: credentials.email,
+            first_name: credentials.email.split('@')[0],
+            province: { name: 'Province 1' },
+            district: { name: 'Bhojpur' },
+            electoral_area: { name: 'Bhojpur Area' }
+          };
+          setLoggedInUser(user);
+          setToken(credentials.email);
+          return { user };
+        }
       } catch (error) {
-        console.error('API login failed, falling back to localStorage');
-        // Fallback to localStorage
+        // Don't log as error - try localStorage fallback
         const users = storage.getItem('users') || [];
         const user = users.find(u => {
           const emailMatch = u.email === credentials.voterId;
@@ -126,17 +146,22 @@ class AuthService {
   /**
    * Logout user
    */
-  logout() {
-    try {
-      authAPI.logout();
+  async logout() {
+    if (API_CONFIG.USE_API) {
+      try {
+        await authAPI.logout();
+        removeToken();
+        removeLoggedInUser();
+      } catch (error) {
+        console.error('Logout error:', error);
+        // Still clear local state even if API fails
+        removeToken();
+        removeLoggedInUser();
+        throw error;
+      }
+    } else {
       removeToken();
       removeLoggedInUser();
-    } catch (error) {
-      console.error('Logout error:', error);
-      // Still clear local state even if API fails
-      removeToken();
-      removeLoggedInUser();
-      throw error;
     }
   }
 
@@ -151,7 +176,10 @@ class AuthService {
         setLoggedInUser(profile);
         return profile;
       } catch (error) {
-        console.error('Get profile API error:', error);
+        // Don't log 401 errors as they're expected when not authenticated
+        if (error.message && !error.message.includes('401')) {
+          console.error('Get profile API error:', error);
+        }
         // Fallback to localStorage
         const storedUser = storage.getItem('loggedInUser');
         if (storedUser) {

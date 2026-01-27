@@ -66,6 +66,21 @@ export const translateCandidateText = (text, t) => {
 export const translateElectoralArea = (electoralAreaName, t) => {
   if (!electoralAreaName) return '';
   
+  // First try direct translation from areas mapping
+  const directTranslation = t(`areas.${electoralAreaName}`);
+  if (directTranslation && directTranslation !== electoralAreaName) {
+    return directTranslation;
+  }
+  
+  // Handle pattern like "District Name Area" -> "District Name क्षेत्र"
+  const areaMatch = electoralAreaName.match(/^(.+)\s+Area$/);
+  if (areaMatch) {
+    const [, districtName] = areaMatch;
+    const translatedDistrict = t(`districts.${districtName}`) || districtName;
+    const translatedArea = t('electoralAreas.Electoral Area') || 'क्षेत्र';
+    return `${translatedDistrict} ${translatedArea}`;
+  }
+  
   // Handle common patterns like "Province Electoral Area 1"
   const match = electoralAreaName.match(/^(.+)\s+(Electoral Area)\s+(\d+)$/);
   if (match) {

@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
           });
           setSessionTimeout();
         } catch (e) {
-          console.log('Not authenticated or API unavailable');
+          // 401 is expected when not logged in - don't log as error
           setAuthState({
             isAuthenticated: false,
             user: null,
@@ -92,15 +92,27 @@ export const AuthProvider = ({ children }) => {
       setAuthState((prev) => ({ ...prev, loading: true }));
 
       const response = await authService.login(credentials);
-      // After backend sets session cookie, fetch full profile
-      let profile = null;
-      try {
-        profile = await authService.getProfile();
-      } catch (err) {
-        console.warn('Login: could not fetch profile immediately', err);
-      }
+      
+      // Give the session a moment to be established, then fetch profile
+      setTimeout(async () => {
+        try {
+          const profile = await authService.getProfile();
+          setAuthState(prev => ({
+            ...prev,
+            user: profile,
+            loading: false
+          }));
+        } catch (err) {
+          console.warn('Profile fetch failed after login delay:', err);
+        }
+      }, 100);
 
-      const user = profile || response.user;
+      // Use response user data immediately
+      const user = response.user || {
+        username: credentials.email || credentials.voterId,
+        email: credentials.email || credentials.voterId,
+        first_name: credentials.voterId?.split('@')[0] || 'User'
+      };
 
       const newAuthState = {
         isAuthenticated: true,
@@ -109,6 +121,9 @@ export const AuthProvider = ({ children }) => {
       };
 
       setAuthState(newAuthState);
+      
+      // Store in localStorage for API calls
+      localStorage.setItem('authState', JSON.stringify(newAuthState));
       
       // Set session timeout (30 minutes)
       setSessionTimeout();
@@ -151,6 +166,7 @@ export const AuthProvider = ({ children }) => {
     try {
       authService.logout();
       clearSessionTimeout();
+      localStorage.removeItem('authState');
       setAuthState({
         isAuthenticated: false,
         user: null,

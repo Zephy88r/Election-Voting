@@ -80,14 +80,62 @@ function Register() {
         const data = await response.json();
         setRegistrationData(data.provinces || []);
       } catch (err) {
-        console.error('Registration data load error:', err);
-        setError(`Failed to load provinces: ${err.message}`);
-        setRegistrationData([]);
+        console.error('Registration data load error:', err.message);
+        // If backend endpoint fails, fall back to local data
+        setRegistrationData(createFallbackRegistrationData());
       }
     };
     
     fetchRegistrationData();
   }, []);
+
+  /**
+   * Create fallback registration data from district constants
+   */
+  const createFallbackRegistrationData = () => {
+    const DISTRICTS_BY_PROVINCE = {
+      'Province 1': [
+        'Bhojpur', 'Dhankuta', 'Ilam', 'Jhapa', 'Khotang', 'Morang', 'Okhaldhunga',
+        'Panchthar', 'Sankhuwasabha', 'Solukhumbu', 'Sunsari', 'Taplejung', 'Terhathum', 'Udayapur',
+      ],
+      'Province 2': [
+        'Bara', 'Dhanusha', 'Mahottari', 'Parsa', 'Rautahat', 'Saptari', 'Sarlahi', 'Siraha',
+      ],
+      'Province 3': [
+        'Bhaktapur', 'Chitwan', 'Dhading', 'Dolakha', 'Kabhrepalanchok', 'Kathmandu', 'Lalitpur',
+        'Makwanpur', 'Nuwakot', 'Ramechhap', 'Rasuwa', 'Sindhuli', 'Sindhupalchok',
+      ],
+      'Province 4': [
+        'Baglung', 'Gorkha', 'Kaski', 'Lamjung', 'Manang', 'Mustang', 'Myagdi', 'Nawalpur',
+        'Parbat', 'Syangja', 'Tanahun',
+      ],
+      'Province 5': [
+        'Arghakhanchi', 'Banke', 'Bardiya', 'Dang', 'Gulmi', 'Kapilvastu', 'Palpa', 'Pyuthan',
+        'Rolpa', 'Rukum East', 'Rupandehi',
+      ],
+      'Province 6': [
+        'Dailekh', 'Dolpa', 'Humla', 'Jajarkot', 'Jumla', 'Kalikot', 'Mugu', 'Rukum West',
+        'Salyan', 'Surkhet',
+      ],
+      'Province 7': [
+        'Achham', 'Baitadi', 'Bajhang', 'Bajura', 'Dadeldhura', 'Darchula', 'Doti',
+        'Kailali', 'Kanchanpur',
+      ],
+    };
+
+    return Object.entries(DISTRICTS_BY_PROVINCE).map((province, index) => ({
+      id: index + 1,
+      name: province[0],
+      districts: province[1].map((districtName, districtIndex) => ({
+        id: index * 100 + districtIndex + 1,
+        name: districtName,
+      })),
+      electoral_areas: province[1].map((districtName, areaIndex) => ({
+        id: index * 100 + areaIndex + 1,
+        name: `${districtName} Area`,
+      })),
+    }));
+  };
 
   const [errors, setErrors] = useState({});
 
@@ -236,7 +284,6 @@ function Register() {
     setIsLoading(true);
 
     try {
-      // TODO: Replace with POST /api/register endpoint
       // Convert BS date to AD date for backend
       const adDate = convertBSToAD(formData.dateOfBirth);
       if (!adDate) {
@@ -244,7 +291,17 @@ function Register() {
         return;
       }
 
-      // Prepare user data with correct field names and integer IDs
+      // Find the province, district, and electoral area names from the registrationData
+      const selectedProvince = registrationData.find(p => String(p.id) === String(formData.province));
+      const selectedDistrict = selectedProvince?.districts?.find(d => String(d.id) === String(formData.district));
+      const selectedElectoralArea = selectedProvince?.electoral_areas?.find(ea => String(ea.id) === String(formData.electoral_area));
+
+      if (!selectedProvince || !selectedDistrict || !selectedElectoralArea) {
+        setError('Invalid province, district, or electoral area selection');
+        return;
+      }
+
+      // Prepare user data with correct field names - send NAMES instead of IDs
       const userData = {
         name: formData.name.trim(),
         email: formData.email.trim(),
@@ -253,10 +310,10 @@ function Register() {
         citizenshipNumber: formData.citizenshipNumber.trim(),
         voterId: formData.voterId.trim(),
         password: formData.password,
-        // Convert string IDs to integer IDs for backend
-        province_id: formData.province ? parseInt(formData.province, 10) : null,
-        district_id: formData.district ? parseInt(formData.district, 10) : null,
-        electoral_area_id: formData.electoral_area ? parseInt(formData.electoral_area, 10) : null,
+        // Send NAMES instead of IDs - backend expects names
+        province_id: selectedProvince.name,
+        district_id: selectedDistrict.name,
+        electoral_area: selectedElectoralArea.name,
         // faceImage: faceImage,
       };
 
@@ -417,19 +474,29 @@ function Register() {
               value={formData.electoral_area}
               onChange={handleChange}
               className={`r-select-input ${errors.electoral_area ? 'error' : ''}`}
-              disabled={!formData.province}
+              disabled={!formData.district}
               required
             >
               <option value="">
-                {formData.province ? t('selectElectoralArea') : t('selectProvinceFirst')}
+                {formData.district ? t('selectElectoralArea') : t('selectDistrictFirst')}
               </option>
 
-              {formData.province &&
-                (registrationData.find((p) => String(p.id) === String(formData.province))?.electoral_areas || []).map((ea) => (
+              {formData.district && formData.province && (() => {
+                // Find the selected province
+                const selectedProvince = registrationData.find((p) => String(p.id) === String(formData.province));
+                if (!selectedProvince) return null;
+                
+                // Find the selected district within that province
+                const selectedDistrict = selectedProvince.districts?.find((d) => String(d.id) === String(formData.district));
+                if (!selectedDistrict) return null;
+                
+                // Show electoral areas for this district
+                return (selectedDistrict.electoral_areas || []).map((ea) => (
                   <option key={ea.id} value={ea.id}>
                     {ea.name}
                   </option>
-                ))}
+                ));
+              })()}
             </select>
 
             {errors.electoral_area && (

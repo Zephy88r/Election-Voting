@@ -24,17 +24,21 @@ function Dashboard() {
   const { t } = useLanguage();
 
   /**
-   * Get user's province name from registration (e.g. 'Koshi')
+   * Get user's province name from registration (e.g. 'Province 1')
    */
   const userProvinceName = user?.province?.name;
+  
+  // Debug: Log user data
+  console.log('Dashboard user data:', user);
+  console.log('User province name:', userProvinceName);
 
   /**
    * Check if a province is accessible to the user
-   * Compare by `name` (e.g. 'Koshi') rather than the displayName ('Province 1')
+   * Compare by `displayName` (e.g. 'Province 1') which matches the backend data
    */
   const isProvinceAccessible = (provinceObj) => {
     if (!isAuthenticated || !userProvinceName) return false;
-    return String(provinceObj.name).toLowerCase().trim() === String(userProvinceName).toLowerCase().trim();
+    return String(provinceObj.displayName).toLowerCase().trim() === String(userProvinceName).toLowerCase().trim();
   };
 
   /**
@@ -71,8 +75,8 @@ function Dashboard() {
             <>
               {isAuthenticated && user && (
                 <div className="dashboard-welcome">
-                  <h2>{t('welcomeBack').replace('{name}', user.name)}</h2>
-                  <p>{t('registeredIn')}: <strong>{userProvinceName}</strong></p>
+                  <h2>{t('welcomeBack').replace('{name}', user.first_name || user.name || user.username)}</h2>
+                  <p>{t('registeredIn')}: <strong>{userProvinceName || 'Not specified'}</strong></p>
                   <p>{t('selectProvinceToViewVoting')}</p>
                 </div>
               )}

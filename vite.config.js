@@ -8,8 +8,8 @@ export default defineConfig({
     port: 5173,
     strictPort: false,
     proxy: {
-      // Proxy our Django API endpoints to avoid cross-origin cookie issues in dev
-      '/elections/api': {
+      // Proxy all elections endpoints to Django backend
+      '/elections': {
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
         secure: false,

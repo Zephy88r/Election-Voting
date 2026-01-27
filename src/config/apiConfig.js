@@ -10,11 +10,10 @@
 
 export const API_CONFIG = {
   // Set to true to use API, false to use localStorage
-  USE_API: true, // Enable to use backend authentication
+  USE_API: true, // Re-enable API mode
 
-  // Backend API base URL. In dev we use a relative URL so Vite proxy can forward requests to Django
-  // This avoids cross-origin cookie/session problems during local development
-  API_BASE_URL: import.meta.env.DEV ? '' : (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'),
+  // Backend API base URL
+  API_BASE_URL: 'http://127.0.0.1:8000',
 
   // Request timeout in milliseconds
   TIMEOUT: 30000,

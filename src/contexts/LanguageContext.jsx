@@ -265,6 +265,15 @@ const translations = {
       'Kanchanpur': 'Kanchanpur'
     },
 
+    // Areas (for electoral areas display)
+    areas: {
+      'Bhojpur Area': 'Bhojpur Area', 'Dhankuta Area': 'Dhankuta Area', 'Ilam Area': 'Ilam Area', 
+      'Jhapa Area': 'Jhapa Area', 'Khotang Area': 'Khotang Area', 'Morang Area': 'Morang Area', 
+      'Okhaldhunga Area': 'Okhaldhunga Area', 'Panchthar Area': 'Panchthar Area', 
+      'Sankhuwasabha Area': 'Sankhuwasabha Area', 'Sunsari Area': 'Sunsari Area', 
+      'Taplejung Area': 'Taplejung Area', 'Terhathum Area': 'Terhathum Area'
+    },
+
     // Parties
     parties: {
       'Nepal Communist Party': 'Nepal Communist Party', 'Nepali Congress': 'Nepali Congress',
@@ -283,7 +292,8 @@ const translations = {
       'Gita Thapa': 'Gita Thapa', 'Krishna Sharma': 'Krishna Sharma', 'Maya Poudel': 'Maya Poudel',
       'Bishnu Adhikari': 'Bishnu Adhikari', 'Kamala Rai': 'Kamala Rai', 'Gopal Khadka': 'Gopal Khadka',
       'Sunita Magar': 'Sunita Magar', 'Candidate 1': 'Candidate 1', 'Candidate 2': 'Candidate 2',
-      'Candidate 3': 'Candidate 3', 'Candidate 4': 'Candidate 4', 'Candidate 5': 'Candidate 5'
+      'Candidate 3': 'Candidate 3', 'Candidate 4': 'Candidate 4', 'Candidate 5': 'Candidate 5',
+      'Nepal Communist Party Candidate': 'Nepal Communist Party Candidate'
     },
 
     // Candidate Text
@@ -567,6 +577,15 @@ const translations = {
       'Kanchanpur': 'कञ्चनपुर'
     },
 
+    // Areas (for electoral areas display)
+    areas: {
+      'Bhojpur Area': 'भोजपुर क्षेत्र', 'Dhankuta Area': 'धनकुटा क्षेत्र', 'Ilam Area': 'इलाम क्षेत्र', 
+      'Jhapa Area': 'झापा क्षेत्र', 'Khotang Area': 'खोटाङ क्षेत्र', 'Morang Area': 'मोरङ क्षेत्र', 
+      'Okhaldhunga Area': 'ओखलढुङ्गा क्षेत्र', 'Panchthar Area': 'पाँचथर क्षेत्र', 
+      'Sankhuwasabha Area': 'संखुवासभा क्षेत्र', 'Sunsari Area': 'सुनसरी क्षेत्र', 
+      'Taplejung Area': 'ताप्लेजुङ क्षेत्र', 'Terhathum Area': 'तेह्रथुम क्षेत्र'
+    },
+
     // Parties
     parties: {
       'Nepal Communist Party': 'नेपाल कम्युनिष्ट पार्टी', 'Nepali Congress': 'नेपाली कांग्रेस',
@@ -585,7 +604,8 @@ const translations = {
       'Gita Thapa': 'गीता थापा', 'Krishna Sharma': 'कृष्ण शर्मा', 'Maya Poudel': 'माया पौडेल',
       'Bishnu Adhikari': 'बिष्णु अधिकारी', 'Kamala Rai': 'कमला राई', 'Gopal Khadka': 'गोपाल खड्का',
       'Sunita Magar': 'सुनिता मगर', 'Candidate 1': 'उम्मेदवार १', 'Candidate 2': 'उम्मेदवार २',
-      'Candidate 3': 'उम्मेदवार ३', 'Candidate 4': 'उम्मेदवार ४', 'Candidate 5': 'उम्मेदवार ५'
+      'Candidate 3': 'उम्मेदवार ३', 'Candidate 4': 'उम्मेदवार ४', 'Candidate 5': 'उम्मेदवार ५',
+      'Nepal Communist Party Candidate': 'नेपाल कम्युनिष्ट पार्टी उम्मेदवार'
     },
 
     // Candidate Text
