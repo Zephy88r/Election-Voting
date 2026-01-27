@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translateParty, translateCandidateText } from '../utils/translationUtils';
 import Card from './common/Card';
 import Button from './common/Button';
 import LoadingSpinner from './common/LoadingSpinner';
@@ -17,6 +19,7 @@ import './VotingCard.css';
  */
 const VotingCard = ({ candidate, hasVoted, onVote, isSubmitting, votedPartyId }) => {
   const [selected, setSelected] = useState(false);
+  const { t } = useLanguage();
 
   const isVotedParty = votedPartyId === candidate.id;
   const isDisabled = hasVoted && !isVotedParty;
@@ -47,25 +50,25 @@ const VotingCard = ({ candidate, hasVoted, onVote, isSubmitting, votedPartyId })
       <div className="voting-card__header">
         <div className="voting-card__symbol">{getPartySymbol(candidate.name)}</div>
         <div className="voting-card__info">
-          <h3 className="voting-card__name">{candidate.name}</h3>
-          <p className="voting-card__party">Political Party</p>
+          <h3 className="voting-card__name">{translateParty(candidate.name, t)}</h3>
+          <p className="voting-card__party">{translateCandidateText('Political Party', t)}</p>
         </div>
       </div>
 
       <div className="voting-card__body">
-        <p className="voting-card__bio">Vote for {candidate.name} to support their vision for Nepal's future.</p>
+        <p className="voting-card__bio">{translateCandidateText('Vote for', t)} {translateParty(candidate.name, t)} {translateCandidateText('to support their vision for Nepal\'s future', t)}.</p>
       </div>
 
       <div className="voting-card__footer">
         {isVotedParty ? (
           <div className="voting-card__status voting-card__status--voted">
             <span className="voting-card__status-icon">✓</span>
-            <span>You voted for this party</span>
+            <span>{translateCandidateText('You voted for this party', t)}</span>
           </div>
         ) : hasVoted ? (
           <div className="voting-card__status voting-card__status--disabled">
             <span className="voting-card__status-icon">✗</span>
-            <span>Voting completed</span>
+            <span>{translateCandidateText('Voting completed', t)}</span>
           </div>
         ) : (
           <Button
@@ -75,7 +78,7 @@ const VotingCard = ({ candidate, hasVoted, onVote, isSubmitting, votedPartyId })
             loading={isSubmitting && selected}
             className="voting-card__button"
           >
-            {selected ? 'Vote Submitted' : 'Vote for this Party'}
+            {selected ? translateCandidateText('Vote Submitted', t) : translateCandidateText('Vote for this Party', t)}
           </Button>
         )}
       </div>

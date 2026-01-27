@@ -6,6 +6,7 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { translateElectoralArea } from '../utils/translationUtils';
 import { votingAPI } from '../services/api';
 import voteLogo from '../assets/vote-logo.png';
 import './DistrictSelection.css';
@@ -34,23 +35,7 @@ export default function DistrictSelection() {
   };
 
   const getDistrictName = (districtName) => {
-    const districtTranslations = {
-      'Jhapa': { EN: 'Jhapa', NP: 'झापा' },
-      'Ilam': { EN: 'Ilam', NP: 'इलाम' },
-      'Panchthar': { EN: 'Panchthar', NP: 'पाँचथर' },
-      'Taplejung': { EN: 'Taplejung', NP: 'ताप्लेजुङ' },
-      'Morang': { EN: 'Morang', NP: 'मोरङ' },
-      'Sunsari': { EN: 'Sunsari', NP: 'सुनसरी' },
-      'Dhankuta': { EN: 'Dhankuta', NP: 'धनकुटा' },
-      'Terhathum': { EN: 'Terhathum', NP: 'तेह्रथुम' },
-      'Sankhuwasabha': { EN: 'Sankhuwasabha', NP: 'संखुवासभा' },
-      'Bhojpur': { EN: 'Bhojpur', NP: 'भोजपुर' },
-      'Solukhumbu': { EN: 'Solukhumbu', NP: 'सोलुखुम्बु' },
-      'Okhaldhunga': { EN: 'Okhaldhunga', NP: 'ओखलढुंगा' },
-      'Khotang': { EN: 'Khotang', NP: 'खोटाङ' },
-      'Udayapur': { EN: 'Udayapur', NP: 'उदयपुर' }
-    };
-    return districtTranslations[districtName]?.[language] || districtName;
+    return t(`districts.${districtName}`) || districtName;
   };
 
   const userProvinceName = user?.province?.name || user?.province;
@@ -173,9 +158,9 @@ export default function DistrictSelection() {
                         onClick={() => handleElectoralAreaSelect(electoralArea)}
                       >
                         <div className="electoralIcon">🗳️</div>
-                        <div className="electoralName">{electoralArea.name}</div>
-                        {isUserArea && <div className="userBadge">{t('yourArea')}</div>}
-                        {isRestricted && <div className="restrictedBadge">{t('restricted')}</div>}
+                        <div className="electoralName">{translateElectoralArea(electoralArea.name, t)}</div>
+                        {isUserArea && <div className="userBadge">{t('electoralAreas.yourArea')}</div>}
+                        {isRestricted && <div className="restrictedBadge">{t('electoralAreas.restricted')}</div>}
                       </div>
                     );
                   })
@@ -188,8 +173,8 @@ export default function DistrictSelection() {
                     })}
                   >
                     <div className="electoralIcon">🗳️</div>
-                    <div className="electoralName">{user?.electoral_area?.name || user?.electoral_area || t('yourElectoralArea')}</div>
-                    <div className="userBadge">{t('yourArea')}</div>
+                    <div className="electoralName">{translateElectoralArea(user?.electoral_area?.name || user?.electoral_area, t) || t('yourElectoralArea')}</div>
+                    <div className="userBadge">{t('electoralAreas.yourArea')}</div>
                   </div>
                 )}
               </div>
@@ -209,7 +194,7 @@ export default function DistrictSelection() {
             <div className="districtHero">
               <div className="districtHeader">
                 <div className="districtTitleBlock">
-                  <h1 className="districtTitle">{requiredProvinceName} {t('districts')}</h1>
+                  <h1 className="districtTitle">{requiredProvinceName} {t('footerDistricts')}</h1>
                   <p className="districtSubtitle">{t('selectDistrict')}</p>
                 </div>
                 
@@ -239,13 +224,13 @@ export default function DistrictSelection() {
                         </div>
                         <h3 className="districtName">{getDistrictName(district.name)}</h3>
                         <p className="districtInfo">
-                          {isUserDistrict ? t('yourRegisteredDistrict') : t('accessRestricted')}
+                          {isUserDistrict ? t('electoralAreas.available') : t('electoralAreas.restricted')}
                         </p>
                         {isUserDistrict && (
-                          <div className="userBadge">{t('available')}</div>
+                          <div className="userBadge">{t('electoralAreas.available')}</div>
                         )}
                         {isRestricted && (
-                          <div className="restrictedBadge">🔒 {t('restricted')}</div>
+                          <div className="restrictedBadge">🔒 {t('electoralAreas.restricted')}</div>
                         )}
                       </div>
                     </div>

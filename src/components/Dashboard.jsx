@@ -111,6 +111,13 @@ function Dashboard() {
                       }}
                     >
                       <img src={province.img} alt={province.name} loading="lazy" />
+                      {isDisabled && (
+                        <div className="province-disabled-overlay">
+                          <span className="province-disabled-text">
+                            {!isAuthenticated ? t('validation.signInRequired') : t('validation.accessRestricted')}
+                          </span>
+                        </div>
+                      )}
                       <div className="province-overlay">
                         <div className="province-info">
                           <h2>{getTranslatedProvinceName(province.routeName, t).replace(' Province', '').replace(' प्रदेश', '')}</h2>

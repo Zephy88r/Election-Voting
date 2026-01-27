@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { translateName, translateParty } from '../utils/translationUtils';
 import { votingService } from '../services/votingService';
 import { notificationService } from '../services/notificationService';
 import Navbar from '../components/Navbar';
@@ -409,12 +410,12 @@ const VoteWizard = () => {
                 <div className="vote-summary">
                   <div style={{marginBottom: '8px', fontSize: '16px'}}>
                     <strong>{history && history[0]?.candidateVote?.candidate?.name ? 
-                      `Candidate: ${history[0].candidateVote.candidate.name}` : 
+                      `${t('candidate')}: ${translateName(history[0].candidateVote.candidate.name, t)}` : 
                       t('voting.notVoted', 'Not voted')}</strong>
                   </div>
                   <div style={{marginBottom: '8px', fontSize: '16px'}}>
                     <strong>{history && history[0]?.partyVote?.party?.name ? 
-                      `Party: ${history[0].partyVote.party.name}` : 
+                      `${t('party')}: ${translateParty(history[0].partyVote.party.name, t)}` : 
                       t('voting.notVoted', 'Not voted')}</strong>
                   </div>
                 </div>

@@ -158,7 +158,7 @@ function Login() {
               <span
                 onClick={() => setIsPasswordVisible(!isPasswordVisible)}
                 role="button"
-                aria-label={isPasswordVisible ? 'Hide password' : 'Show password'}
+                aria-label={isPasswordVisible ? t('validation.hidePassword') : t('validation.showPassword')}
                 tabIndex={0}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {

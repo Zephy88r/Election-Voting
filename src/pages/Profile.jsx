@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { translateDistrict } from '../utils/translationUtils';
 import Navbar from '../components/Navbar';
 import { formatDate } from '../utils/dateValidation';
 import { validateField } from '../utils/validation';
@@ -315,7 +316,7 @@ function Profile() {
 
               <div className="detail-row">
                 <span className="detail-label">{t('registeredDistrict')}:</span>
-                <span className="detail-value">{user.district?.name || 'N/A'}</span>
+                <span className="detail-value">{user.district?.name ? translateDistrict(user.district.name, t) : 'N/A'}</span>
               </div>
 
               <div className="detail-row">

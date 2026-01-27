@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { translateDistrict } from '../utils/translationUtils';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import NepaliCalendar from './common/NepaliCalendar';
 import { validateBSDate, convertBSToAD } from '../utils/dateUtils';
@@ -163,17 +164,17 @@ function Register() {
 
     // Validate province
     if (!formData.province || formData.province.trim() === '') {
-      newErrors.province = 'Province selection is required';
+      newErrors.province = t('validation.provinceRequired');
     }
 
     // ✅ Validate district
     if (!formData.district || formData.district.trim() === '') {
-      newErrors.district = 'District is required';
+      newErrors.district = t('validation.districtRequired');
     }
 
     // ✅ Validate electoral area
     if (!formData.electoral_area || formData.electoral_area.trim() === '') {
-      newErrors.electoral_area = 'Electoral area is required';
+      newErrors.electoral_area = t('validation.electoralAreaRequired');
     }
 
     // Validate each field
@@ -189,7 +190,7 @@ function Register() {
     // Date validation (BS date)
     const dateValue = formData.dateOfBirth ? String(formData.dateOfBirth).trim() : '';
     if (!dateValue) {
-      newErrors.dateOfBirth = 'Date of Birth is required';
+      newErrors.dateOfBirth = t('validation.dateOfBirthRequired');
     } else {
       const dateValidation = validateBSDate(dateValue);
       if (!dateValidation.valid) {
@@ -223,7 +224,7 @@ function Register() {
     setSuccess('');
 
     if (!validateForm()) {
-      setError('Please fix the errors in the form');
+      setError(t('validation.fixFormErrors'));
       return;
     }
 
@@ -239,7 +240,7 @@ function Register() {
       // Convert BS date to AD date for backend
       const adDate = convertBSToAD(formData.dateOfBirth);
       if (!adDate) {
-        setError('Invalid date of birth. Please check the date and try again.');
+        setError(t('validation.invalidDateOfBirth'));
         return;
       }
 
@@ -394,7 +395,7 @@ function Register() {
               {formData.province &&
                 (registrationData.find((p) => String(p.id) === String(formData.province))?.districts || []).map((district) => (
                   <option key={district.id} value={district.id}>
-                    {district.name}
+                    {translateDistrict(district.name, t)}
                   </option>
                 ))}
             </select>
@@ -509,7 +510,7 @@ function Register() {
                 <span
                   onClick={() => setIsPasswordVisible(!isPasswordVisible)}
                   role="button"
-                  aria-label={isPasswordVisible ? 'Hide password' : 'Show password'}
+                  aria-label={isPasswordVisible ? t('validation.hidePassword') : t('validation.showPassword')}
                   tabIndex={0}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
@@ -542,7 +543,7 @@ function Register() {
                 <span
                   onClick={() => setIsConfirmVisible(!isConfirmVisible)}
                   role="button"
-                  aria-label={isConfirmVisible ? 'Hide password' : 'Show password'}
+                  aria-label={isConfirmVisible ? t('validation.hidePassword') : t('validation.showPassword')}
                   tabIndex={0}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {

@@ -191,6 +191,20 @@ const translations = {
       sudurpaschim: 'Sudurpashchim Province'
     },
 
+    // Validation Messages
+    validation: {
+      provinceRequired: 'Province selection is required',
+      districtRequired: 'District is required',
+      electoralAreaRequired: 'Electoral area is required',
+      dateOfBirthRequired: 'Date of Birth is required',
+      fixFormErrors: 'Please fix the errors in the form',
+      invalidDateOfBirth: 'Invalid date of birth. Please check the date and try again.',
+      accessRestricted: 'Access Restricted',
+      signInRequired: 'Sign in required',
+      hidePassword: 'Hide password',
+      showPassword: 'Show password'
+    },
+
     // Common
     common: {
       loading: 'Loading...',
@@ -228,6 +242,69 @@ const translations = {
       confirmPRMessage: 'You can vote only once for a party.',
       selectedParty: 'Selected Party',
       yesCastVote: 'Yes, Cast Vote'
+    },
+
+    // Districts
+    districts: {
+      'Bhojpur': 'Bhojpur', 'Dhankuta': 'Dhankuta', 'Ilam': 'Ilam', 'Jhapa': 'Jhapa', 'Khotang': 'Khotang',
+      'Morang': 'Morang', 'Okhaldhunga': 'Okhaldhunga', 'Panchthar': 'Panchthar', 'Sankhuwasabha': 'Sankhuwasabha',
+      'Solukhumbu': 'Solukhumbu', 'Sunsari': 'Sunsari', 'Taplejung': 'Taplejung', 'Terhathum': 'Terhathum',
+      'Udayapur': 'Udayapur', 'Bara': 'Bara', 'Dhanusha': 'Dhanusha', 'Mahottari': 'Mahottari', 'Parsa': 'Parsa',
+      'Rautahat': 'Rautahat', 'Saptari': 'Saptari', 'Sarlahi': 'Sarlahi', 'Siraha': 'Siraha', 'Bhaktapur': 'Bhaktapur',
+      'Chitwan': 'Chitwan', 'Dhading': 'Dhading', 'Dolakha': 'Dolakha', 'Kabhrepalanchok': 'Kabhrepalanchok',
+      'Kathmandu': 'Kathmandu', 'Lalitpur': 'Lalitpur', 'Makwanpur': 'Makwanpur', 'Nuwakot': 'Nuwakot',
+      'Ramechhap': 'Ramechhap', 'Rasuwa': 'Rasuwa', 'Sindhuli': 'Sindhuli', 'Sindhupalchok': 'Sindhupalchok',
+      'Baglung': 'Baglung', 'Gorkha': 'Gorkha', 'Kaski': 'Kaski', 'Lamjung': 'Lamjung', 'Manang': 'Manang',
+      'Mustang': 'Mustang', 'Myagdi': 'Myagdi', 'Nawalpur': 'Nawalpur', 'Parbat': 'Parbat', 'Syangja': 'Syangja',
+      'Tanahun': 'Tanahun', 'Arghakhanchi': 'Arghakhanchi', 'Banke': 'Banke', 'Bardiya': 'Bardiya', 'Dang': 'Dang',
+      'Gulmi': 'Gulmi', 'Kapilvastu': 'Kapilvastu', 'Palpa': 'Palpa', 'Pyuthan': 'Pyuthan', 'Rolpa': 'Rolpa',
+      'Rukum East': 'Rukum East', 'Rupandehi': 'Rupandehi', 'Dailekh': 'Dailekh', 'Dolpa': 'Dolpa', 'Humla': 'Humla',
+      'Jajarkot': 'Jajarkot', 'Jumla': 'Jumla', 'Kalikot': 'Kalikot', 'Mugu': 'Mugu', 'Rukum West': 'Rukum West',
+      'Salyan': 'Salyan', 'Surkhet': 'Surkhet', 'Achham': 'Achham', 'Baitadi': 'Baitadi', 'Bajhang': 'Bajhang',
+      'Bajura': 'Bajura', 'Dadeldhura': 'Dadeldhura', 'Darchula': 'Darchula', 'Doti': 'Doti', 'Kailali': 'Kailali',
+      'Kanchanpur': 'Kanchanpur'
+    },
+
+    // Parties
+    parties: {
+      'Nepal Communist Party': 'Nepal Communist Party', 'Nepali Congress': 'Nepali Congress',
+      'Rastriya Prajatantra Party': 'Rastriya Prajatantra Party', 'Janata Samajbadi Party': 'Janata Samajbadi Party',
+      'CPN-UML': 'CPN-UML', 'CPN-Maoist Centre': 'CPN-Maoist Centre', 'Rastriya Swatantra Party': 'Rastriya Swatantra Party',
+      'Nepal Workers Peasants Party': 'Nepal Workers Peasants Party', 'Loktantrik Samajbadi Party': 'Loktantrik Samajbadi Party',
+      'Independent': 'Independent', 'Janata Dal': 'Janata Dal', 'Communist Party of Nepal': 'Communist Party of Nepal',
+      'Unified Socialist': 'Unified Socialist', 'Nepal Majdoor Kisan Party': 'Nepal Majdoor Kisan Party',
+      'CPN UML': 'CPN UML', 'CPN-Maoist': 'CPN-Maoist', 'Rastra Swatantra Party (RSP)': 'Rastra Swatantra Party (RSP)',
+      'CPN UML (Maoist)': 'CPN UML (Maoist)', 'Socialist Party': 'Socialist Party'
+    },
+
+    // Names
+    names: {
+      'Ram Shrestha': 'Ram Shrestha', 'Sita Tamang': 'Sita Tamang', 'Hari Gurung': 'Hari Gurung',
+      'Gita Thapa': 'Gita Thapa', 'Krishna Sharma': 'Krishna Sharma', 'Maya Poudel': 'Maya Poudel',
+      'Bishnu Adhikari': 'Bishnu Adhikari', 'Kamala Rai': 'Kamala Rai', 'Gopal Khadka': 'Gopal Khadka',
+      'Sunita Magar': 'Sunita Magar', 'Candidate 1': 'Candidate 1', 'Candidate 2': 'Candidate 2',
+      'Candidate 3': 'Candidate 3', 'Candidate 4': 'Candidate 4', 'Candidate 5': 'Candidate 5'
+    },
+
+    // Candidate Text
+    candidateText: {
+      'Experienced leader with 20+ years in public service': 'Experienced leader with 20+ years in public service',
+      'Advocate for education and women empowerment': 'Advocate for education and women empowerment',
+      'Focus on economic development and infrastructure': 'Focus on economic development and infrastructure',
+      'Champion of social justice and equality': 'Champion of social justice and equality',
+      'Vote for': 'Vote for', 'to represent your constituency': 'to represent your constituency',
+      'You voted for this candidate': 'You voted for this candidate', 'Voting completed': 'Voting completed',
+      'Vote for this Candidate': 'Vote for this Candidate', 'Select Candidate': 'Select Candidate',
+      'from': 'from', 'Political Party': 'Political Party', 'to support their vision for Nepal\'s future': 'to support their vision for Nepal\'s future',
+      'You voted for this party': 'You voted for this party', 'Vote for this Party': 'Vote for this Party', 'Vote Submitted': 'Vote Submitted'
+    },
+
+    // Electoral Areas
+    electoralAreas: {
+      'Electoral Area': 'Electoral Area',
+      'yourArea': 'Your Area',
+      'available': 'Available',
+      'restricted': 'Restricted'
     },
   },
   
@@ -416,6 +493,20 @@ const translations = {
       sudurpaschim: 'सुदूरपश्चिम प्रदेश'
     },
 
+    // Validation Messages
+    validation: {
+      provinceRequired: 'प्रदेश चयन आवश्यक छ',
+      districtRequired: 'जिल्ला आवश्यक छ',
+      electoralAreaRequired: 'निर्वाचन क्षेत्र आवश्यक छ',
+      dateOfBirthRequired: 'जन्म मिति आवश्यक छ',
+      fixFormErrors: 'कृपया फारममा त्रुटिहरू सुधार गर्नुहोस्',
+      invalidDateOfBirth: 'अवैध जन्म मिति। कृपया मिति जाँच गरेर फेरि प्रयास गर्नुहोस्।',
+      accessRestricted: 'पहुँच प्रतिबन्धित',
+      signInRequired: 'साइन इन आवश्यक छ',
+      hidePassword: 'पासवर्ड लुकाउनुहोस्',
+      showPassword: 'पासवर्ड देखाउनुहोस्'
+    },
+
     // Common
     common: {
       loading: 'लोड हुँदैछ...',
@@ -453,6 +544,69 @@ const translations = {
       confirmPRMessage: 'तपाईं दलको लागि एक पटक मात्र मतदान गर्न सक्नुहुन्छ।',
       selectedParty: 'चयन गरिएको दल',
       yesCastVote: 'हो, मतदान गर्नुहोस्'
+    },
+
+    // Districts
+    districts: {
+      'Bhojpur': 'भोजपुर', 'Dhankuta': 'धनकुटा', 'Ilam': 'इलाम', 'Jhapa': 'झापा', 'Khotang': 'खोटाङ',
+      'Morang': 'मोरङ', 'Okhaldhunga': 'ओखलढुङ्गा', 'Panchthar': 'पाँचथर', 'Sankhuwasabha': 'संखुवासभा',
+      'Solukhumbu': 'सोलुखुम्बु', 'Sunsari': 'सुनसरी', 'Taplejung': 'ताप्लेजुङ', 'Terhathum': 'तेह्रथुम',
+      'Udayapur': 'उदयपुर', 'Bara': 'बारा', 'Dhanusha': 'धनुषा', 'Mahottari': 'महोत्तरी', 'Parsa': 'पर्सा',
+      'Rautahat': 'रौतहट', 'Saptari': 'सप्तरी', 'Sarlahi': 'सर्लाही', 'Siraha': 'सिराहा', 'Bhaktapur': 'भक्तपुर',
+      'Chitwan': 'चितवन', 'Dhading': 'धादिङ', 'Dolakha': 'दोलखा', 'Kabhrepalanchok': 'काभ्रेपलान्चोक',
+      'Kathmandu': 'काठमाडौं', 'Lalitpur': 'ललितपुर', 'Makwanpur': 'मकवानपुर', 'Nuwakot': 'नुवाकोट',
+      'Ramechhap': 'रामेछाप', 'Rasuwa': 'रसुवा', 'Sindhuli': 'सिन्धुली', 'Sindhupalchok': 'सिन्धुपाल्चोक',
+      'Baglung': 'बागलुङ', 'Gorkha': 'गोरखा', 'Kaski': 'कास्की', 'Lamjung': 'लमजुङ', 'Manang': 'मनाङ',
+      'Mustang': 'मुस्ताङ', 'Myagdi': 'म्याग्दी', 'Nawalpur': 'नवलपुर', 'Parbat': 'पर्वत', 'Syangja': 'स्याङ्जा',
+      'Tanahun': 'तनहुँ', 'Arghakhanchi': 'अर्घाखाँची', 'Banke': 'बाँके', 'Bardiya': 'बर्दिया', 'Dang': 'दाङ',
+      'Gulmi': 'गुल्मी', 'Kapilvastu': 'कपिलवस्तु', 'Palpa': 'पाल्पा', 'Pyuthan': 'प्युठान', 'Rolpa': 'रोल्पा',
+      'Rukum East': 'रुकुम पूर्व', 'Rupandehi': 'रुपन्देही', 'Dailekh': 'दैलेख', 'Dolpa': 'डोल्पा', 'Humla': 'हुम्ला',
+      'Jajarkot': 'जाजरकोट', 'Jumla': 'जुम्ला', 'Kalikot': 'कालिकोट', 'Mugu': 'मुगु', 'Rukum West': 'रुकुम पश्चिम',
+      'Salyan': 'सल्यान', 'Surkhet': 'सुर्खेत', 'Achham': 'अछाम', 'Baitadi': 'बैतडी', 'Bajhang': 'बझाङ',
+      'Bajura': 'बाजुरा', 'Dadeldhura': 'डडेल्धुरा', 'Darchula': 'दार्चुला', 'Doti': 'डोटी', 'Kailali': 'कैलाली',
+      'Kanchanpur': 'कञ्चनपुर'
+    },
+
+    // Parties
+    parties: {
+      'Nepal Communist Party': 'नेपाल कम्युनिष्ट पार्टी', 'Nepali Congress': 'नेपाली कांग्रेस',
+      'Rastriya Prajatantra Party': 'राष्ट्रिय प्रजातन्त्र पार्टी', 'Janata Samajbadi Party': 'जनता समाजवादी पार्टी',
+      'CPN-UML': 'नेकपा एमाले', 'CPN-Maoist Centre': 'नेकपा माओवादी केन्द्र', 'Rastriya Swatantra Party': 'राष्ट्रिय स्वतन्त्र पार्टी',
+      'Nepal Workers Peasants Party': 'नेपाल मजदुर किसान पार्टी', 'Loktantrik Samajbadi Party': 'लोकतान्त्रिक समाजवादी पार्टी',
+      'Independent': 'स्वतन्त्र', 'Janata Dal': 'जनता दल', 'Communist Party of Nepal': 'नेपाल कम्युनिष्ट पार्टी',
+      'Unified Socialist': 'एकीकृत समाजवादी', 'Nepal Majdoor Kisan Party': 'नेपाल मजदुर किसान पार्टी',
+      'CPN UML': 'नेकपा एमाले', 'CPN-Maoist': 'नेकपा माओवादी', 'Rastra Swatantra Party (RSP)': 'राष्ट्र स्वतन्त्र पार्टी (आरएसपी)',
+      'CPN UML (Maoist)': 'नेकपा एमाले (माओवादी)', 'Socialist Party': 'समाजवादी पार्टी'
+    },
+
+    // Names
+    names: {
+      'Ram Shrestha': 'राम श्रेष्ठ', 'Sita Tamang': 'सीता तामाङ', 'Hari Gurung': 'हरि गुरुङ',
+      'Gita Thapa': 'गीता थापा', 'Krishna Sharma': 'कृष्ण शर्मा', 'Maya Poudel': 'माया पौडेल',
+      'Bishnu Adhikari': 'बिष्णु अधिकारी', 'Kamala Rai': 'कमला राई', 'Gopal Khadka': 'गोपाल खड्का',
+      'Sunita Magar': 'सुनिता मगर', 'Candidate 1': 'उम्मेदवार १', 'Candidate 2': 'उम्मेदवार २',
+      'Candidate 3': 'उम्मेदवार ३', 'Candidate 4': 'उम्मेदवार ४', 'Candidate 5': 'उम्मेदवार ५'
+    },
+
+    // Candidate Text
+    candidateText: {
+      'Experienced leader with 20+ years in public service': '२०+ वर्षको सार्वजनिक सेवामा अनुभवी नेता',
+      'Advocate for education and women empowerment': 'शिक्षा र महिला सशक्तिकरणका वकिल',
+      'Focus on economic development and infrastructure': 'आर्थिक विकास र पूर्वाधारमा केन्द्रित',
+      'Champion of social justice and equality': 'सामाजिक न्याय र समानताका च्याम्पियन',
+      'Vote for': 'मतदान गर्नुहोस्', 'to represent your constituency': 'तपाईंको निर्वाचन क्षेत्रको प्रतिनिधित्व गर्न',
+      'You voted for this candidate': 'तपाईंले यस उम्मेदवारलाई मत दिनुभयो', 'Voting completed': 'मतदान सम्पन्न',
+      'Vote for this Candidate': 'यस उम्मेदवारलाई मत दिनुहोस्', 'Select Candidate': 'उम्मेदवार चयन गर्नुहोस्',
+      'from': 'बाट', 'Political Party': 'राजनीतिक दल', 'to support their vision for Nepal\'s future': 'नेपालको भविष्यका लागि उनीहरूको दृष्टिकोणलाई समर्थन गर्न',
+      'You voted for this party': 'तपाईंले यस दललाई मत दिनुभयो', 'Vote for this Party': 'यस दललाई मत दिनुहोस्', 'Vote Submitted': 'मत पेश गरियो'
+    },
+
+    // Electoral Areas
+    electoralAreas: {
+      'Electoral Area': 'निर्वाचन क्षेत्र',
+      'yourArea': 'तपाईंको क्षेत्र',
+      'available': 'उपलब्ध',
+      'restricted': 'प्रतिबन्धित'
     },
   },
 };
