@@ -91,6 +91,19 @@ const VoteWizard = () => {
         setCandidates(processedCandidates);
         setParties(partiesData || []);
 
+        // Add "None of the Above" option to candidates
+        const candidatesWithNone = [
+          ...processedCandidates,
+          {
+            id: 'none',
+            name: 'None of the Above',
+            party: 'No Party',
+            symbol: '❌',
+            bio: 'Select this option if you do not wish to vote for any of the listed candidates.'
+          }
+        ];
+        setCandidates(candidatesWithNone);
+
         // Check voting status
         const history = await votingService.getVotingHistory();
         setHistory(history); // Store history in state
@@ -172,7 +185,7 @@ const VoteWizard = () => {
         setSuccess('');
 
         // Submit votes to backend
-        if (localCandidateSelection) {
+        if (localCandidateSelection && localCandidateSelection !== 'none') {
           await votingService.submitFPTPVote(localCandidateSelection);
         }
         if (localPartySelection) {

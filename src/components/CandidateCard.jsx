@@ -49,7 +49,7 @@ const CandidateCard = ({
         </div>
 
         <div className="candidate-card__body">
-          <p className="candidate-card__bio">{translateCandidateBio(candidate.bio, candidate.name, t)}</p>
+          {/* Bio removed to prevent translation key display issues */}
         </div>
 
         <div className="candidate-card__footer">
