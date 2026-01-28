@@ -59,7 +59,7 @@ function Dashboard() {
       return;
     }
 
-    navigate(province.path);
+    navigate(`/vote/${province.routeName}`);
   };
 
   return (

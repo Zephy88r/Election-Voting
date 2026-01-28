@@ -241,7 +241,11 @@ const translations = {
       confirmPRTitle: 'Confirm PR Vote',
       confirmPRMessage: 'You can vote only once for a party.',
       selectedParty: 'Selected Party',
-      yesCastVote: 'Yes, Cast Vote'
+      yesCastVote: 'Yes, Cast Vote',
+      confirmFinalTitle: 'Confirm Your Final Votes',
+      confirmFinalMessage: 'Please confirm your final vote selections. This action cannot be undone.',
+      confirmFinalVotes: 'Confirm Final Votes',
+      voteConfirmed: 'You have voted for:'
     },
 
     // Districts
@@ -553,7 +557,11 @@ const translations = {
       confirmPRTitle: 'समानुपातिक मत पुष्टि गर्नुहोस्',
       confirmPRMessage: 'तपाईं दलको लागि एक पटक मात्र मतदान गर्न सक्नुहुन्छ।',
       selectedParty: 'चयन गरिएको दल',
-      yesCastVote: 'हो, मतदान गर्नुहोस्'
+      yesCastVote: 'हो, मतदान गर्नुहोस्',
+      confirmFinalTitle: 'आफ्ना अन्तिम मतहरू पुष्टि गर्नुहोस्',
+      confirmFinalMessage: 'कृपया आफ्ना अन्तिम मत छनौटहरू पुष्टि गर्नुहोस्। यो कार्य फिर्ता गर्न सकिँदैन।',
+      confirmFinalVotes: 'अन्तिम मतहरू पुष्टि गर्नुहोस्',
+      voteConfirmed: 'तपाईंले मतदान गर्नुभएको छ:'
     },
 
     // Districts

@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import ProvinceProtectedRoute from './components/common/ProvinceProtectedRoute';
 import SessionWarning from './components/common/SessionWarning';
 import Footer from './components/common/Footer';
 
@@ -81,7 +82,9 @@ function App() {
             path="/:provinceId/districts" 
             element={
               <ProtectedRoute>
-                <DistrictSelection />
+                <ProvinceProtectedRoute>
+                  <DistrictSelection />
+                </ProvinceProtectedRoute>
               </ProtectedRoute>
             } 
           />
@@ -91,7 +94,9 @@ function App() {
             path="/vote/:provinceId" 
             element={
               <ProtectedRoute>
-                <VoteWizard />
+                <ProvinceProtectedRoute>
+                  <VoteWizard />
+                </ProvinceProtectedRoute>
               </ProtectedRoute>
             } 
           />
@@ -101,7 +106,9 @@ function App() {
             path="/koshi/vote" 
             element={
               <ProtectedRoute>
-                <Koshi />
+                <ProvinceProtectedRoute>
+                  <Koshi />
+                </ProvinceProtectedRoute>
               </ProtectedRoute>
             } 
           />
@@ -109,7 +116,9 @@ function App() {
             path="/madhesh/vote" 
             element={
               <ProtectedRoute>
-                <Koshi />
+                <ProvinceProtectedRoute>
+                  <Koshi />
+                </ProvinceProtectedRoute>
               </ProtectedRoute>
             } 
           />
@@ -117,7 +126,9 @@ function App() {
             path="/bagmati/vote" 
             element={
               <ProtectedRoute>
-                <Bagmati />
+                <ProvinceProtectedRoute>
+                  <Bagmati />
+                </ProvinceProtectedRoute>
               </ProtectedRoute>
             } 
           />
@@ -125,7 +136,9 @@ function App() {
             path="/gandaki/vote" 
             element={
               <ProtectedRoute>
-                <Gandaki />
+                <ProvinceProtectedRoute>
+                  <Gandaki />
+                </ProvinceProtectedRoute>
               </ProtectedRoute>
             } 
           />
@@ -133,7 +146,9 @@ function App() {
             path="/lumbini/vote" 
             element={
               <ProtectedRoute>
-                <Lumbini />
+                <ProvinceProtectedRoute>
+                  <Lumbini />
+                </ProvinceProtectedRoute>
               </ProtectedRoute>
             } 
           />
@@ -141,7 +156,9 @@ function App() {
             path="/karnali/vote" 
             element={
               <ProtectedRoute>
-                <Karnali />
+                <ProvinceProtectedRoute>
+                  <Karnali />
+                </ProvinceProtectedRoute>
               </ProtectedRoute>
             } 
           />
@@ -149,7 +166,9 @@ function App() {
             path="/sudurpaschim/vote" 
             element={
               <ProtectedRoute>
-                <Sudurpashchim />
+                <ProvinceProtectedRoute>
+                  <Sudurpashchim />
+                </ProvinceProtectedRoute>
               </ProtectedRoute>
             } 
           />

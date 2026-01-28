@@ -25,7 +25,11 @@ const CandidateCard = ({
   };
 
   const handleVote = () => {
-    if (!hasVoted && !isSubmitting && isSelected) {
+    if (!hasVoted && !isSubmitting) {
+      // If not selected, select first then vote
+      if (!isSelected) {
+        onSelect(candidate.id);
+      }
       onVote(candidate.id);
     }
   };
@@ -66,11 +70,11 @@ const CandidateCard = ({
                 e.stopPropagation();
                 handleVote();
               }}
-              disabled={!isSelected || isSubmitting}
+              disabled={isSubmitting}
               loading={isSubmitting && isSelected}
               className="candidate-card__button"
             >
-              {isSelected ? translateCandidateText('Vote for this Candidate', t) : translateCandidateText('Select Candidate', t)}
+              {isSelected ? translateCandidateText('Vote for this Candidate', t) : translateCandidateText('Vote for this Candidate', t)}
             </Button>
           )}
         </div>

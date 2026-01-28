@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { FaUser } from 'react-icons/fa';
-import NotificationBell from './common/NotificationBell';
 import './Navbar.css';
 
 function Navbar() {
@@ -45,8 +44,6 @@ function Navbar() {
       </div>
 
       <div className="navbar-right">
-        {isAuthenticated && <NotificationBell />}
-
         {/* Admin Link for admin users */}
         {isAuthenticated && (user?.is_admin || user?.is_superuser) && (
           <div

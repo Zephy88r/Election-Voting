@@ -23,6 +23,10 @@ const API_BASE_URL = API_CONFIG.API_BASE_URL || import.meta.env.VITE_API_BASE_UR
 const apiRequest = async (endpoint, options = {}) => {
   const url = `${API_BASE_URL}${endpoint}`;
   
+  console.log('=== API REQUEST DEBUG ===');
+  console.log('URL:', url);
+  console.log('Options:', options);
+  
   // Check if body is FormData
   const isFormData = options.body instanceof FormData;
   
@@ -62,16 +66,24 @@ const apiRequest = async (endpoint, options = {}) => {
         };
       }
     }
+    
+    console.log('Final config:', finalConfig);
 
     const response = await fetch(url, finalConfig);
+    
+    console.log('Response status:', response.status);
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
     
     // Handle non-JSON responses
     const contentType = response.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
+      const text = await response.text();
+      console.log('Non-JSON response:', text);
       throw new Error("Server response is not JSON");
     }
 
     const data = await response.json();
+    console.log('Response data:', data);
 
     // Handle error responses
     if (!response.ok) {
@@ -320,75 +332,6 @@ export const votingAPI = {
     
     return apiRequest(`/elections/api/voting-history/consolidated${queryParam}`, {
       method: "GET",
-    });
-  },
-};
-
-/**
- * Notification API endpoints
- */
-export const notificationAPI = {
-  /**
-   * Get notifications for current user
-   * @returns {Promise<Array>} - List of notifications
-   */
-  getNotifications: async () => {
-    return apiRequest("/elections/api/notifications/", {
-      method: "GET",
-    });
-  },
-
-  /**
-   * Mark notification as read
-   * @param {string} notificationId - Notification ID
-   * @returns {Promise<object>} - Response
-   */
-  markAsRead: async (notificationId) => {
-    return apiRequest(`/elections/api/notifications/${notificationId}/read/`, {
-      method: "POST",
-    });
-  },
-
-  /**
-   * Mark all notifications as read
-   * @returns {Promise<object>} - Response
-   */
-  markAllAsRead: async () => {
-    return apiRequest("/elections/api/notifications/mark-all-read/", {
-      method: "POST",
-    });
-  },
-
-  /**
-   * Create a new notification
-   * @param {object} notificationData - Notification data
-   * @returns {Promise<object>} - Created notification
-   */
-  createNotification: async (notificationData) => {
-    return apiRequest("/elections/api/notifications/", {
-      method: "POST",
-      body: JSON.stringify(notificationData),
-    });
-  },
-
-  /**
-   * Delete a notification
-   * @param {string} notificationId - Notification ID
-   * @returns {Promise<object>} - Response
-   */
-  deleteNotification: async (notificationId) => {
-    return apiRequest(`/elections/api/notifications/${notificationId}/`, {
-      method: "DELETE",
-    });
-  },
-
-  /**
-   * Clear all notifications
-   * @returns {Promise<object>} - Response
-   */
-  clearAllNotifications: async () => {
-    return apiRequest("/elections/api/notifications/clear-all/", {
-      method: "POST",
     });
   },
 };

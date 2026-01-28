@@ -22,7 +22,18 @@ export const translateDistrict = (districtName, t) => {
  */
 export const translateParty = (partyName, t) => {
   if (!partyName) return '';
-  return t(`parties.${partyName}`) || partyName;
+  
+  // Check if partyName starts with "parties." - this means it's a translation key being displayed
+  if (partyName.startsWith('parties.')) {
+    // Extract the key and try to translate it
+    const key = partyName.replace('parties.', '');
+    const translatedParty = t(`parties.${key}`);
+    return (translatedParty && translatedParty !== `parties.${key}`) ? translatedParty : key;
+  }
+  
+  // Try to get translation, but if it returns the key itself, use original name
+  const translatedParty = t(`parties.${partyName}`);
+  return (translatedParty && translatedParty !== `parties.${partyName}`) ? translatedParty : partyName;
 };
 
 /**
@@ -38,12 +49,15 @@ export const translateName = (candidateName, t) => {
   const match = candidateName.match(/^(.+)\s+from\s+(.+)$/);
   if (match) {
     const [, name, location] = match;
-    const translatedName = t(`names.${name}`) || name;
+    const translatedName = t(`names.${name}`);
+    const finalName = (translatedName && translatedName !== `names.${name}`) ? translatedName : name;
     const translatedLocation = translateElectoralArea(location, t);
-    return `${translatedName} ${t('candidateText.from') || 'from'} ${translatedLocation}`;
+    return `${finalName} ${t('candidateText.from') || 'from'} ${translatedLocation}`;
   }
   
-  return t(`names.${candidateName}`) || candidateName;
+  // Try to get translation, but if it returns the key itself, use original name
+  const translatedName = t(`names.${candidateName}`);
+  return (translatedName && translatedName !== `names.${candidateName}`) ? translatedName : candidateName;
 };
 
 /**
@@ -101,7 +115,13 @@ export const translateElectoralArea = (electoralAreaName, t) => {
  * @returns {string} - Translated bio
  */
 export const translateCandidateBio = (bio, candidateName, t) => {
-  if (!bio) return `${translateCandidateText('Vote for', t)} ${translateName(candidateName, t)} ${translateCandidateText('to represent your constituency', t)}`;
+  if (!bio) return `${translateCandidateText('Vote for', t)} ${translateName(candidateName, t)} ${translateCandidateText('to represent your constituency', t)}.`;
+  
+  // Check if bio contains candidateText pattern - this means it's a malformed translation key
+  if (bio.includes('candidateText.')) {
+    // Always return a clean, properly translated bio instead of the malformed key
+    return `${translateCandidateText('Vote for', t)} ${translateName(candidateName, t)} ${translateCandidateText('to represent your constituency', t)}.`;
+  }
   
   // Try to translate the bio directly first
   const translatedBio = translateCandidateText(bio, t);

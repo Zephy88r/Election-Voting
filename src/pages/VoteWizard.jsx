@@ -4,7 +4,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translateName, translateParty } from '../utils/translationUtils';
 import { votingService } from '../services/votingService';
-import { notificationService } from '../services/notificationService';
 import Navbar from '../components/Navbar';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
@@ -12,6 +11,7 @@ import SuccessMessage from '../components/common/SuccessMessage';
 import Button from '../components/common/Button';
 import CandidateCard from '../components/CandidateCard';
 import VotingCard from '../components/VotingCard';
+import { PROVINCE_REVERSE_MAPPING } from '../constants/provinces';
 import ConfirmModal from '../components/common/ConfirmModal';
 import './VoteWizard.css';
 
@@ -41,23 +41,27 @@ const VoteWizard = () => {
   const [prVoted, setPrVoted] = useState(false);
   const [votedPartyId, setVotedPartyId] = useState(null);
 
+  // Local selections (not submitted to backend yet)
+  const [localCandidateSelection, setLocalCandidateSelection] = useState(null);
+  const [localPartySelection, setLocalPartySelection] = useState(null);
+
   // Modal state
   const [confirmModal, setConfirmModal] = useState({ open: false, type: null, id: null });
   const [history, setHistory] = useState([]);
+  const [showVoteConfirmation, setShowVoteConfirmation] = useState(false);
+  const [finalVoteData, setFinalVoteData] = useState({ candidate: null, party: null });
 
-  const provinceNames = {
-    koshi: 'Province 1',
-    madhesh: 'Province 2',
-    bagmati: 'Province 3',
-    gandaki: 'Province 4',
-    lumbini: 'Province 5',
-    karnali: 'Province 6',
-    sudurpaschim: 'Province 7'
-  };
-
-  const userProvinceName = user?.province?.name || user?.province;
-  const requiredProvinceName = provinceNames[provinceId];
+  const userProvinceName = user?.province?.name;
+  const requiredProvinceName = PROVINCE_REVERSE_MAPPING[provinceId];
   const hasAccess = userProvinceName === requiredProvinceName;
+
+  // Debug logging for province access
+  console.log('Province access check:', {
+    provinceId,
+    userProvinceName,
+    requiredProvinceName,
+    hasAccess
+  });
 
   useEffect(() => {
     const init = async () => {
@@ -81,7 +85,7 @@ const VoteWizard = () => {
           name: candidate.name || candidate.full_name || 'Unknown Candidate',
           party: candidate.party || candidate.party_name || 'Independent',
           symbol: candidate.symbol || '👤',
-          bio: candidate.bio || candidate.description || `Vote for ${candidate.name || 'this candidate'} to represent your constituency.`
+          bio: `Vote for ${candidate.name || candidate.full_name || 'this candidate'} to represent your constituency.`
         }));
 
         setCandidates(processedCandidates);
@@ -127,97 +131,71 @@ const VoteWizard = () => {
   }, [hasAccess, provinceId, electoralAreaId]);
 
   const handleCandidateVote = (candidateId) => {
-    setConfirmModal({ open: true, type: 'candidate', id: candidateId });
+    // Just store local selection, don't submit to backend yet
+    setLocalCandidateSelection(candidateId);
+    // Auto-navigate to next step after 1 second
+    setTimeout(() => {
+      setCurrentStep(2);
+    }, 1000);
   };
 
   const handlePartyVote = (partyId) => {
-    setConfirmModal({ open: true, type: 'party', id: partyId });
+    // Just store local selection, don't submit to backend yet
+    setLocalPartySelection(partyId);
+    // Auto-navigate to complete step after 1 second
+    setTimeout(() => {
+      setCurrentStep(3);
+    }, 1000);
+  };
+
+  const handleFinalConfirmation = () => {
+    // Use local selections for final confirmation
+    const selectedCandidate = localCandidateSelection ? candidates.find(c => c.id === localCandidateSelection) : null;
+    const selectedParty = localPartySelection ? parties.find(p => p.id === localPartySelection) : null;
+    
+    setFinalVoteData({
+      candidate: selectedCandidate,
+      party: selectedParty
+    });
+    
+    setConfirmModal({ open: true, type: 'final', id: null });
   };
 
   const confirmVote = async () => {
-    const { type, id } = confirmModal;
-    if (!id) return;
+    const { type } = confirmModal;
+    
+    if (type === 'final') {
+      // Handle final confirmation - save all votes to backend
+      try {
+        setSubmitting(true);
+        setError('');
+        setSuccess('');
 
-    try {
-      setSubmitting(true);
-      setError('');
-      setSuccess('');
-
-      if (type === 'candidate') {
-        const candidate = candidates.find(c => c.id === id);
-        await votingService.submitFPTPVote(id);
-        
-        setFptpVoted(true);
-        setVotedCandidateId(id);
-        setSuccess(`Vote submitted for ${candidate?.name}`);
-        
-        // Refresh voting history to get updated status
-        const updatedHistory = await votingService.getVotingHistory();
-        setHistory(updatedHistory);
-        const updatedFptpVote = updatedHistory.find(vote => vote.vote_type === 'FPTP');
-        if (updatedFptpVote) {
-          setVotedCandidateId(updatedFptpVote.candidate?.id || null);
+        // Submit votes to backend
+        if (localCandidateSelection) {
+          await votingService.submitFPTPVote(localCandidateSelection);
         }
-        
-        // Skip notification creation to avoid API errors
-        // notificationService.createNotification({
-        //   type: 'success',
-        //   title: 'FPTP Vote Submitted',
-        //   message: `Your vote for ${candidate?.name} has been recorded.`,
-        //   userId: user?.id || 'api-user',
-        // });
-
-        setTimeout(() => {
-          setCurrentStep(2);
-          setSuccess('');
-        }, 2000);
-
-      } else if (type === 'party') {
-        const party = parties.find(p => p.id === id);
-        await votingService.submitPartyVote(id);
-        
-        setPrVoted(true);
-        setVotedPartyId(id);
-        setSuccess(`Vote submitted for ${party?.name}`);
-        
-        // Refresh voting history to get updated status
-        const updatedHistory = await votingService.getVotingHistory();
-        setHistory(updatedHistory);
-        const updatedPrVote = updatedHistory.find(vote => vote.vote_type === 'PR');
-        if (updatedPrVote) {
-          setVotedPartyId(updatedPrVote.party?.id || null);
+        if (localPartySelection) {
+          await votingService.submitPartyVote(localPartySelection);
         }
+
+        // Show confirmation message
+        setShowVoteConfirmation(true);
+        setConfirmModal({ open: false, type: null, id: null });
+        setSuccess('Your votes have been successfully recorded!');
         
-        // Skip notification creation to avoid API errors
-        // notificationService.createNotification({
-        //   type: 'success',
-        //   title: 'PR Vote Submitted',
-        //   message: `Your vote for ${party?.name} has been recorded.`,
-        //   userId: user?.id || 'api-user',
-        // });
-
         setTimeout(() => {
-          setCurrentStep(3);
           setSuccess('');
-        }, 2000);
-      }
+        }, 3000);
 
-      setConfirmModal({ open: false, type: null, id: null });
-    } catch (err) {
-      console.error('Vote submission error:', err);
-      const errorMessage = err?.message || 'Failed to submit vote';
-      
-      // Handle OneToOneField constraint error from backend
-      if (errorMessage.includes('already') || errorMessage.includes('IntegrityError') || errorMessage.includes('UNIQUE constraint failed')) {
-        setError('You have already voted. Each voter can only submit one vote (either FPTP or PR, not both). This is due to a backend system limitation.');
-        setCurrentStep(3); // Go to completion step
-      } else {
-        setError(errorMessage);
+      } catch (err) {
+        console.error('Final vote confirmation error:', err);
+        setError('Failed to confirm votes. Please try again.');
+        setShowVoteConfirmation(false);
+      } finally {
+        setSubmitting(false);
       }
-      
-      setConfirmModal({ open: false, type: null, id: null });
-    } finally {
-      setSubmitting(false);
+      return;
     }
   };
 
@@ -262,6 +240,30 @@ const VoteWizard = () => {
 
   const getConfirmModalContent = () => {
     const { type, id } = confirmModal;
+    
+    if (type === 'final') {
+      return {
+        title: t('voting.confirmFinalTitle', 'Confirm Your Final Votes'),
+        message: t('voting.confirmFinalMessage', 'Please confirm your final vote selections. This action cannot be undone.'),
+        children: (
+          <div>
+            <div style={{ marginBottom: '12px' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>{t('voting.selectedCandidate', 'Selected Candidate')}</div>
+              <div style={{ marginTop: 4, fontWeight: 900, color: 'var(--color-text-primary)' }}>
+                {finalVoteData.candidate?.name || 'None selected'}
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>{t('voting.selectedParty', 'Selected Party')}</div>
+              <div style={{ marginTop: 4, fontWeight: 900, color: 'var(--color-text-primary)' }}>
+                {finalVoteData.party?.name || 'None selected'}
+              </div>
+            </div>
+          </div>
+        )
+      };
+    }
+    
     if (type === 'candidate') {
       const candidate = candidates.find(c => c.id === id);
       return {
@@ -343,12 +345,12 @@ const VoteWizard = () => {
                   <CandidateCard
                     key={candidate.id}
                     candidate={candidate}
-                    hasVoted={fptpVoted}
+                    hasVoted={false}
                     onVote={handleCandidateVote}
                     isSubmitting={submitting}
-                    votedCandidateId={votedCandidateId}
-                    isSelected={selectedCandidateId === candidate.id}
-                    onSelect={setSelectedCandidateId}
+                    votedCandidateId={localCandidateSelection}
+                    isSelected={localCandidateSelection === candidate.id}
+                    onSelect={setLocalCandidateSelection}
                   />
                 ))}
               </div>
@@ -357,7 +359,7 @@ const VoteWizard = () => {
                 <Button variant="secondary" onClick={() => navigate('/dashboard')}>
                   {t('common.backToDashboard', 'Back to Dashboard')}
                 </Button>
-                <Button variant="primary" onClick={() => setCurrentStep(2)} disabled={!fptpVoted}>
+                <Button variant="primary" onClick={() => setCurrentStep(2)} disabled={!localCandidateSelection}>
                   {t('voting.continueToPartyVote', 'Continue to Party Vote →')}
                 </Button>
               </div>
@@ -369,7 +371,7 @@ const VoteWizard = () => {
               <div className="step-header">
                 <h2>{t('voting.step2Title', 'Step 2: Select Your Party (PR)')}</h2>
                 <p>{t('voting.step2Description', 'Choose one party for proportional representation')}</p>
-                {prVoted && <p style={{color: 'var(--color-success)'}}>✓ {t('voting.alreadyVotedParty', 'You have already voted for:')} {parties.find(p => p.id === votedPartyId)?.name}</p>}
+                {localPartySelection && <p style={{color: 'var(--color-success)'}}>✓ {t('voting.alreadyVotedParty', 'You have selected:')} {parties.find(p => p.id === localPartySelection)?.name}</p>}
               </div>
               
               <div className="parties-grid">
@@ -377,10 +379,10 @@ const VoteWizard = () => {
                   <VotingCard
                     key={party.id}
                     candidate={party}
-                    hasVoted={prVoted}
+                    hasVoted={false}
                     onVote={handlePartyVote}
                     isSubmitting={submitting}
-                    votedPartyId={votedPartyId}
+                    votedPartyId={localPartySelection}
                   />
                 ))}
               </div>
@@ -389,7 +391,7 @@ const VoteWizard = () => {
                 <Button variant="secondary" onClick={() => setCurrentStep(1)}>
                   {t('voting.backToCandidateVote', '← Back to Candidate Vote')}
                 </Button>
-                <Button variant="primary" onClick={() => setCurrentStep(3)} disabled={!prVoted && !fptpVoted}>
+                <Button variant="primary" onClick={() => setCurrentStep(3)} disabled={!localPartySelection && !localCandidateSelection}>
                   {t('voting.reviewVotes', 'Review Votes →')}
                 </Button>
               </div>
@@ -398,31 +400,55 @@ const VoteWizard = () => {
 
           {currentStep === 3 && (
             <div className="vote-step">
-              <div className="completion-message">
-                <div className="completion-icon">🎉</div>
-                <h2>{t('voting.reviewTitle', 'Review Your Votes')}</h2>
-                <p>{t('voting.reviewDescription', 'Please review your selections before finalizing.')}</p>
-                <div className="vote-summary">
-                  <div style={{marginBottom: '8px', fontSize: '16px'}}>
-                    <strong>{history.find(vote => vote.vote_type === 'FPTP')?.candidate ? 
-                      `${t('candidate')}: ${translateName(history.find(vote => vote.vote_type === 'FPTP').candidate.name || history.find(vote => vote.vote_type === 'FPTP').candidate, t)}` : 
-                      t('voting.notVoted', 'Not voted')}</strong>
+              {showVoteConfirmation ? (
+                <div className="completion-message">
+                  <div className="completion-icon">✅</div>
+                  <h2>{t('voting.voteConfirmed', 'You have voted for:')}</h2>
+                  <div className="vote-summary">
+                    <div style={{marginBottom: '12px', fontSize: '18px', padding: '8px', backgroundColor: 'var(--color-success-light)', borderRadius: '4px'}}>
+                      <strong>{t('candidate', 'Candidate')}: {finalVoteData.candidate?.name || t('voting.notVoted', 'Not voted')}</strong>
+                    </div>
+                    <div style={{marginBottom: '12px', fontSize: '18px', padding: '8px', backgroundColor: 'var(--color-success-light)', borderRadius: '4px'}}>
+                      <strong>{t('party', 'Party')}: {finalVoteData.party?.name || t('voting.notVoted', 'Not voted')}</strong>
+                    </div>
                   </div>
-                  <div style={{marginBottom: '8px', fontSize: '16px'}}>
-                    <strong>{history.find(vote => vote.vote_type === 'PR')?.party ? 
-                      `${t('party')}: ${translateParty(history.find(vote => vote.vote_type === 'PR').party.name || history.find(vote => vote.vote_type === 'PR').party, t)}` : 
-                      t('voting.notVoted', 'Not voted')}</strong>
+                  <div className="step-actions">
+                    <Button variant="primary" onClick={() => navigate('/dashboard')}>
+                      {t('voting.completeAndDashboard', 'Complete & Go to Dashboard')}
+                    </Button>
                   </div>
                 </div>
-                <div className="step-actions">
-                  <Button variant="secondary" onClick={() => setCurrentStep(2)}>
-                    {t('voting.backToPartyVote', '← Back to Party Vote')}
-                  </Button>
-                  <Button variant="primary" onClick={() => navigate('/dashboard')}>
-                    {t('voting.completeAndDashboard', 'Complete & Go to Dashboard')}
-                  </Button>
+              ) : (
+                <div className="completion-message">
+                  <div className="completion-icon">🎉</div>
+                  <h2>{t('voting.reviewTitle', 'Review Your Votes')}</h2>
+                  <p>{t('voting.reviewDescription', 'Please review your selections before finalizing.')}</p>
+                  <div className="vote-summary">
+                    <div style={{marginBottom: '8px', fontSize: '16px'}}>
+                      <strong>{localCandidateSelection ? 
+                        `${t('candidate', 'Candidate')}: ${translateName(candidates.find(c => c.id === localCandidateSelection)?.name, t)}` : 
+                        `${t('candidate', 'Candidate')}: ${t('voting.notVoted', 'Not voted')}`}</strong>
+                    </div>
+                    <div style={{marginBottom: '8px', fontSize: '16px'}}>
+                      <strong>{localPartySelection ? 
+                        `${t('party', 'Party')}: ${translateParty(parties.find(p => p.id === localPartySelection)?.name, t)}` : 
+                        `${t('party', 'Party')}: ${t('voting.notVoted', 'Not voted')}`}</strong>
+                    </div>
+                  </div>
+                  <div className="step-actions">
+                    <Button variant="secondary" onClick={() => setCurrentStep(2)}>
+                      {t('voting.backToPartyVote', '← Back to Party Vote')}
+                    </Button>
+                    <Button 
+                      variant="primary" 
+                      onClick={handleFinalConfirmation}
+                      disabled={!localCandidateSelection && !localPartySelection}
+                    >
+                      {t('voting.confirmFinalVotes', 'Confirm Final Votes')}
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
         </div>

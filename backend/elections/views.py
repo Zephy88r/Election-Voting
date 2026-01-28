@@ -158,9 +158,24 @@ def register_voter(request):
             return JsonResponse({"error": "User already exists"}, status=400)
 
         # Validate region mapping
-        province = Province.objects.get(name=province_id)
-        district = District.objects.get(name=district_id, province=province)
-        electoral_area = ElectoralArea.objects.get(name=electoral_area_id, province=province)
+        try:
+            province = Province.objects.get(name=province_id)
+        except Province.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Invalid province"}, status=400)
+            
+        try:
+            district = District.objects.get(name=district_id, province=province)
+        except District.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Invalid district for selected province"}, status=400)
+            
+        try:
+            electoral_area = ElectoralArea.objects.get(name=electoral_area_id, province=province)
+        except ElectoralArea.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Invalid electoral area for selected province"}, status=400)
+            
+        # Additional validation: ensure district belongs to province
+        if district.province != province:
+            return JsonResponse({"success": False, "error": "District does not belong to selected province"}, status=400)
 
         # Atomic creation
         with transaction.atomic():
@@ -174,21 +189,15 @@ def register_voter(request):
                 electoral_area=electoral_area
             )
 
-        return JsonResponse({"success": "Voter registered successfully"}, status=201)
+        return JsonResponse({"success": True, "message": "Voter registered successfully", "data": {"user_id": user.id}}, status=201)
 
-    except Province.DoesNotExist:
-        return JsonResponse({"error": "Invalid province"}, status=400)
-    except District.DoesNotExist:
-        return JsonResponse({"error": "Invalid district for selected province"}, status=400)
-    except ElectoralArea.DoesNotExist:
-        return JsonResponse({"error": "Invalid electoral area"}, status=400)
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 # ------------------------------
 # Login
 # ------------------------------
-@csrf_exempt  # Only if you are handling CSRF manually in React
+@csrf_exempt
 def voter_login(request):
     """
     Log in a voter. POST: { "email": "...", "password": "..." }
@@ -211,7 +220,19 @@ def voter_login(request):
                 return JsonResponse({"error": "Account is inactive."}, status=403)
 
             login(request, user)  # Creates session cookie
-            return JsonResponse({"success": "Logged in successfully."}, status=200)
+            
+            # Return user data in login response
+            user_data = {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "first_name": user.first_name,
+                "province": {"id": user.province.id if user.province else None, "name": user.province.name if user.province else None},
+                "district": {"id": user.district.id if user.district else None, "name": user.district.name if user.district else None},
+                "electoral_area": {"id": user.electoral_area.id if user.electoral_area else None, "name": user.electoral_area.name if user.electoral_area else None},
+            }
+            
+            return JsonResponse({"success": "Logged in successfully.", "user": user_data}, status=200)
         else:
             return JsonResponse({"error": "Invalid credentials."}, status=401)
 
@@ -289,7 +310,7 @@ def voting_history(request):
 # ------------------------------
 @csrf_exempt
 def submit_vote(request):
-    """Unified vote endpoint (SAFE)"""
+    """Unified vote endpoint with transaction handling"""
     if request.method != 'POST':
         return JsonResponse({"error": "POST request required"}, status=405)
     
@@ -313,42 +334,93 @@ def submit_vote(request):
         return JsonResponse({"error": "Authentication required"}, status=401)
 
     try:
-        if vote_type == "FPTP":
-            if not candidate_id:
-                return JsonResponse({"error": "candidate_id is required for FPTP vote"}, status=400)
-            submit_candidate_vote(user, candidate_id)
-        elif vote_type == "PR":
-            if not party_id:
-                return JsonResponse({"error": "party_id is required for PR vote"}, status=400)
-            submit_party_vote(user, party_id)
-        else:
-            return JsonResponse({"error": "Invalid vote type"}, status=400)
+        with transaction.atomic():
+            if vote_type == "FPTP":
+                if not candidate_id:
+                    return JsonResponse({"error": "candidate_id is required for FPTP vote"}, status=400)
+                submit_candidate_vote(user, candidate_id)
+            elif vote_type == "PR":
+                if not party_id:
+                    return JsonResponse({"error": "party_id is required for PR vote"}, status=400)
+                submit_party_vote(user, party_id)
+            else:
+                return JsonResponse({"error": "Invalid vote type"}, status=400)
 
-        return JsonResponse({"success": "Vote recorded successfully"}, status=201)
+        return JsonResponse({"success": True, "message": "Vote recorded successfully"}, status=201)
 
     except ValidationError as e:
-        return JsonResponse({"error": str(e)}, status=403)
+        return JsonResponse({"success": False, "error": str(e)}, status=403)
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 # ------------------------------
 # Candidate / Party Listings
 # ------------------------------
 def get_candidates(request):
-    if not request.user.is_authenticated:
+    """Get candidates for the authenticated user's electoral area"""
+    # Get user email from query parameter as fallback
+    user_email = request.GET.get('user_email')
+    
+    # Try to get authenticated user first
+    if request.user.is_authenticated:
+        user = request.user
+    elif user_email:
+        try:
+            user = User.objects.get(email=user_email)
+        except User.DoesNotExist:
+            return JsonResponse({"error": "User not found"}, status=404)
+    else:
         return JsonResponse({"error": "Authentication required"}, status=401)
     
-    user = request.user
     if not user.electoral_area:
         return JsonResponse({"error": "User has no electoral area assigned."}, status=400)
 
-    candidates = user.electoral_area.candidates.all().values("id", "name")
-    return JsonResponse(list(candidates), safe=False)
+    # Get candidates for user's electoral area
+    candidates = user.electoral_area.candidates.all().select_related('party')
+    
+    candidates_data = []
+    for candidate in candidates:
+        candidates_data.append({
+            "id": candidate.id,
+            "name": candidate.name,
+            "party": candidate.party.name if candidate.party else "Independent",
+            "party_id": candidate.party.id if candidate.party else None,
+            "symbol": candidate.party.symbol if candidate.party else "👤",
+            "electoral_area": candidate.electoral_area.name,
+            "bio": f"Vote for {candidate.name} to represent your constituency."
+        })
+    
+    return JsonResponse(candidates_data, safe=False)
 
 
 def get_parties(request):
-    parties = Party.objects.filter(is_active=True).values("id", "name", "symbol")
-    return JsonResponse(list(parties), safe=False)
+    """Get parties for voting (filtered by user's province if needed)"""
+    # Get user email from query parameter as fallback
+    user_email = request.GET.get('user_email')
+    
+    # Try to get authenticated user first
+    if request.user.is_authenticated:
+        user = request.user
+    elif user_email:
+        try:
+            user = User.objects.get(email=user_email)
+        except User.DoesNotExist:
+            return JsonResponse({"error": "User not found"}, status=404)
+    else:
+        return JsonResponse({"error": "Authentication required"}, status=401)
+    
+    # Get all active parties (can be filtered by province if needed)
+    parties = Party.objects.filter(is_active=True)
+    
+    parties_data = []
+    for party in parties:
+        parties_data.append({
+            "id": party.id,
+            "name": party.name,
+            "symbol": party.symbol or "🏦",
+        })
+    
+    return JsonResponse(parties_data, safe=False)
 
 
 # ------------------------------

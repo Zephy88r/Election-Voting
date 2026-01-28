@@ -7,7 +7,6 @@
 import { authAPI } from './api';
 import { setToken, setLoggedInUser, removeToken, removeLoggedInUser, getToken } from '../utils/authUtils';
 import { storage } from './storageService';
-import { notificationService } from './notificationService';
 import { API_CONFIG } from '../config/apiConfig';
 
 /**
@@ -89,18 +88,16 @@ class AuthService {
           setToken(user.id?.toString() || user.username || 'session');
           return { user };
         } catch (profileError) {
-          // If profile fetch fails, create user from login credentials with default district
-          console.warn('Profile fetch failed after login, using credentials data');
-          const user = { 
-            username: credentials.email, 
-            email: credentials.email,
-            first_name: credentials.email.split('@')[0],
-            province: { name: 'Province 1' },
-            district: { name: 'Bhojpur' },
-            electoral_area: { name: 'Bhojpur Area' }
+          // Profile fetch failed - session might not be established yet
+          // Return the login response user data directly
+          console.warn('Profile fetch failed after login, using login response data');
+          const user = response.user || {
+            username: credentials.email || credentials.voterId,
+            email: credentials.email || credentials.voterId,
+            first_name: credentials.voterId?.split('@')[0] || 'User'
           };
           setLoggedInUser(user);
-          setToken(credentials.email);
+          setToken(user.id?.toString() || user.username || 'session');
           return { user };
         }
       } catch (error) {

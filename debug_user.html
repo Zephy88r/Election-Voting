@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug User Registration & Login</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .button { background: #DC143C; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .button:hover { background: #b91c3c; }
+        #output { background: #1a1a1a; color: #00ff00; padding: 15px; border-radius: 4px; font-family: monospace; height: 300px; overflow-y: auto; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug User Registration & Login</h1>
+    
+    <div class="section">
+        <h3>Step 1: Register Test User</h3>
+        <button class="button" onclick="registerTestUser()">Register Test User</button>
+        <p>This will register a test user in Province 3 (Bagmati)</p>
+    </div>
+
+    <div class="section">
+        <h3>Step 2: Login Test User</h3>
+        <button class="button" onclick="loginTestUser()">Login Test User</button>
+        <p>This will login and show the user data structure</p>
+    </div>
+
+    <div class="section">
+        <h3>Step 3: Check Registration Data</h3>
+        <button class="button" onclick="checkRegistrationData()">Check Registration Data</button>
+        <p>This will fetch all registration data from backend</p>
+    </div>
+
+    <div class="section">
+        <h3>Step 4: Check Profile API</h3>
+        <button class="button" onclick="checkProfile()">Check Profile API</button>
+        <p>This will test the profile endpoint</p>
+    </div>
+
+    <button class="button" onclick="clearOutput()">Clear Output</button>
+
+    <div id="output">Ready to debug... Click buttons above to test each step.</div>
+
+    <script>
+        const API_BASE_URL = "http://127.0.0.1:8000";
+        
+        const testUser = {
+            email: "debug.test@example.com",
+            password: "Test123!",
+            first_name: "Debug",
+            last_name: "User",
+            phone: "9841234567",
+            date_of_birth: "1990-01-01",
+            province: "Province 3",
+            district: "Kathmandu",
+            electoral_area: "Kathmandu-1",
+            voter_id: "DEBUG001"
+        };
+
+        function log(message) {
+            const output = document.getElementById('output');
+            output.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearOutput() {
+            document.getElementById('output').textContent = '';
+        }
+
+        async function apiRequest(endpoint, options = {}) {
+            const url = `${API_BASE_URL}${endpoint}`;
+            
+            const config = {
+                credentials: "include",
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers,
+                },
+                ...options,
+            };
+
+            try {
+                const response = await fetch(url, config);
+                const data = await response.json();
+                
+                log(`API ${options.method || 'GET'} ${endpoint}`);
+                log(`Status: ${response.status} ${response.statusText}`);
+                log(`Response: ${JSON.stringify(data, null, 2)}`);
+                
+                if (!response.ok) {
+                    throw new Error(data.message || data.error || `HTTP error! status: ${response.status}`);
+                }
+                
+                return data;
+            } catch (error) {
+                log(`ERROR: ${error.message}`);
+                throw error;
+            }
+        }
+
+        async function registerTestUser() {
+            log("=== REGISTERING TEST USER ===");
+            log(`User data: ${JSON.stringify(testUser, null, 2)}`);
+            
+            try {
+                const response = await apiRequest("/elections/api/voter/register/", {
+                    method: "POST",
+                    body: JSON.stringify(testUser),
+                });
+                log("✅ Registration successful!");
+            } catch (error) {
+                log(`❌ Registration failed: ${error.message}`);
+            }
+        }
+
+        async function loginTestUser() {
+            log("=== LOGGING IN TEST USER ===");
+            
+            try {
+                // Step 1: Login
+                const loginResponse = await apiRequest("/elections/api/voter/login/", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        email: testUser.email,
+                        password: testUser.password
+                    }),
+                });
+                
+                // Step 2: Try to get profile
+                log("--- Trying to get profile ---");
+                try {
+                    const profile = await apiRequest("/elections/api/voter/profile/", {
+                        method: "GET",
+                    });
+                    log("✅ Profile fetch successful!");
+                } catch (profileError) {
+                    log(`❌ Profile fetch failed: ${profileError.message}`);
+                    
+                    // Step 3: Try registration data as fallback
+                    log("--- Trying registration data fallback ---");
+                    try {
+                        const regData = await apiRequest("/elections/api/registration-data/", {
+                            method: "GET",
+                        });
+                        
+                        const userReg = regData.find ? regData.find(reg => reg.email === testUser.email) :
+                                      regData.data ? regData.data.find(reg => reg.email === testUser.email) :
+                                      regData.results ? regData.results.find(reg => reg.email === testUser.email) : null;
+                        
+                        if (userReg) {
+                            log("✅ Found user in registration data!");
+                            log(`User registration: ${JSON.stringify(userReg, null, 2)}`);
+                        } else {
+                            log("❌ User not found in registration data");
+                        }
+                    } catch (regError) {
+                        log(`❌ Registration data fetch failed: ${regError.message}`);
+                    }
+                }
+                
+            } catch (error) {
+                log(`❌ Login failed: ${error.message}`);
+            }
+        }
+
+        async function checkRegistrationData() {
+            log("=== CHECKING REGISTRATION DATA ===");
+            
+            try {
+                const regData = await apiRequest("/elections/api/registration-data/", {
+                    method: "GET",
+                });
+                
+                log("✅ Registration data fetched successfully!");
+                log(`Data structure: ${JSON.stringify(regData, null, 2)}`);
+                
+                // Look for our test user
+                const dataArray = Array.isArray(regData) ? regData : 
+                                 regData.data ? regData.data :
+                                 regData.results ? regData.results : [];
+                
+                const testUserReg = dataArray.find(reg => reg.email === testUser.email);
+                if (testUserReg) {
+                    log("✅ Test user found in registration data!");
+                    log(`Test user: ${JSON.stringify(testUserReg, null, 2)}`);
+                } else {
+                    log("❌ Test user not found in registration data");
+                    log(`Available emails: ${dataArray.map(reg => reg.email).join(', ')}`);
+                }
+                
+            } catch (error) {
+                log(`❌ Registration data check failed: ${error.message}`);
+            }
+        }
+
+        async function checkProfile() {
+            log("=== CHECKING PROFILE API ===");
+            
+            try {
+                const profile = await apiRequest("/elections/api/voter/profile/", {
+                    method: "GET",
+                });
+                log("✅ Profile API successful!");
+            } catch (error) {
+                log(`❌ Profile API failed: ${error.message}`);
+                log("This is expected if user is not logged in via session");
+            }
+        }
+    </script>
+</body>
+</html>

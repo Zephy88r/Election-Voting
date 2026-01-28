@@ -9,7 +9,6 @@ import SuccessMessage from '../../components/common/SuccessMessage';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { votingService } from '../../services/votingService';
-import { notificationService } from '../../services/notificationService';
 import './ProvincePage.css';
 
 function normalizeProvinceName(user) {
@@ -110,12 +109,13 @@ export default function ProvinceTemplate({
       setVotedPartyId(partyId);
       setSuccess(res?.message || `Vote submitted for ${party.name}.`);
 
-      notificationService.createNotification({
-        type: 'success',
-        title: 'Vote Submitted',
-        message: `Your vote for ${party.name} has been recorded.`,
-        userId: user?.id || 'api-user',
-      });
+      // Skip notification creation since notification service was removed
+      // notificationService.createNotification({
+      //   type: 'success',
+      //   title: 'Vote Submitted',
+      //   message: `Your vote for ${party.name} has been recorded.`,
+      //   userId: user?.id || 'api-user',
+      // });
 
       setConfirmOpen(false);
       setPendingPartyId(null);

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nepal Election - Voting Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #DC143C;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-info {
+            background: #e8f4fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #003893;
+        }
+        .button {
+            background: #DC143C;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .button:hover {
+            background: #b91c3c;
+        }
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        #output {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 20px;
+        }
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .user-table th, .user-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .user-table th {
+            background-color: #DC143C;
+            color: white;
+        }
+        .user-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🇳🇵 Nepal Election - Voting Test</h1>
+        
+        <div class="test-info">
+            <h3>Test Overview</h3>
+            <p>This test will create 6 users from different provinces and simulate voting:</p>
+            <ul>
+                <li>Register 6 test users from different provinces, districts, and electoral areas</li>
+                <li>Each user will vote for different candidates (FPTP) and parties (PR)</li>
+                <li>Verify votes are stored in backend database</li>
+                <li>Check voting history for all users</li>
+            </ul>
+        </div>
+
+        <h3>Test Users</h3>
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Name</th>
+                    <th>Province</th>
+                    <th>District</th>
+                    <th>Electoral Area</th>
+                    <th>Candidate Vote</th>
+                    <th>Party Vote</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>ram.koshi@test.com</td>
+                    <td>Ram Shrestha</td>
+                    <td>Province 1</td>
+                    <td>Jhapa</td>
+                    <td>Jhapa-1</td>
+                    <td>Candidate 1</td>
+                    <td>Party 1</td>
+                </tr>
+                <tr>
+                    <td>sita.madhesh@test.com</td>
+                    <td>Sita Yadav</td>
+                    <td>Province 2</td>
+                    <td>Saptari</td>
+                    <td>Saptari-1</td>
+                    <td>Candidate 2</td>
+                    <td>Party 2</td>
+                </tr>
+                <tr>
+                    <td>hari.bagmati@test.com</td>
+                    <td>Hari Tamang</td>
+                    <td>Province 3</td>
+                    <td>Kathmandu</td>
+                    <td>Kathmandu-1</td>
+                    <td>Candidate 3</td>
+                    <td>Party 1</td>
+                </tr>
+                <tr>
+                    <td>gita.gandaki@test.com</td>
+                    <td>Gita Gurung</td>
+                    <td>Province 4</td>
+                    <td>Kaski</td>
+                    <td>Kaski-1</td>
+                    <td>Candidate 1</td>
+                    <td>Party 3</td>
+                </tr>
+                <tr>
+                    <td>krishna.lumbini@test.com</td>
+                    <td>Krishna Thapa</td>
+                    <td>Province 5</td>
+                    <td>Rupandehi</td>
+                    <td>Rupandehi-1</td>
+                    <td>Candidate 4</td>
+                    <td>Party 2</td>
+                </tr>
+                <tr>
+                    <td>maya.karnali@test.com</td>
+                    <td>Maya Budha</td>
+                    <td>Province 6</td>
+                    <td>Surkhet</td>
+                    <td>Surkhet-1</td>
+                    <td>Candidate 2</td>
+                    <td>Party 3</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div>
+            <button class="button" onclick="runTest()" id="runBtn">🚀 Run Voting Test</button>
+            <button class="button" onclick="clearOutput()">🗑️ Clear Output</button>
+            <button class="button" onclick="checkDatabase()">🔍 Check Database</button>
+        </div>
+
+        <div id="output">Ready to run test... Click "Run Voting Test" to begin.</div>
+    </div>
+
+    <script>
+        const API_BASE_URL = "http://127.0.0.1:8000";
+        
+        // Test users from different provinces
+        const testUsers = [
+            {
+                email: "ram.koshi@test.com",
+                password: "Test123!",
+                first_name: "Ram",
+                last_name: "Shrestha",
+                phone: "9841234567",
+                date_of_birth: "1990-05-15",
+                province: "Province 1",
+                district: "Jhapa",
+                electoral_area: "Jhapa-1",
+                voter_id: "KOS001"
+            },
+            {
+                email: "sita.madhesh@test.com", 
+                password: "Test123!",
+                first_name: "Sita",
+                last_name: "Yadav",
+                phone: "9841234568",
+                date_of_birth: "1985-08-20",
+                province: "Province 2",
+                district: "Saptari",
+                electoral_area: "Saptari-1",
+                voter_id: "MAD001"
+            },
+            {
+                email: "hari.bagmati@test.com",
+                password: "Test123!",
+                first_name: "Hari",
+                last_name: "Tamang",
+                phone: "9841234569",
+                date_of_birth: "1988-12-10",
+                province: "Province 3",
+                district: "Kathmandu",
+                electoral_area: "Kathmandu-1",
+                voter_id: "BAG001"
+            },
+            {
+                email: "gita.gandaki@test.com",
+                password: "Test123!",
+                first_name: "Gita",
+                last_name: "Gurung",
+                phone: "9841234570",
+                date_of_birth: "1992-03-25",
+                province: "Province 4",
+                district: "Kaski",
+                electoral_area: "Kaski-1",
+                voter_id: "GAN001"
+            },
+            {
+                email: "krishna.lumbini@test.com",
+                password: "Test123!",
+                first_name: "Krishna",
+                last_name: "Thapa",
+                phone: "9841234571",
+                date_of_birth: "1987-07-18",
+                province: "Province 5",
+                district: "Rupandehi",
+                electoral_area: "Rupandehi-1",
+                voter_id: "LUM001"
+            },
+            {
+                email: "maya.karnali@test.com",
+                password: "Test123!",
+                first_name: "Maya",
+                last_name: "Budha",
+                phone: "9841234572",
+                date_of_birth: "1991-11-05",
+                province: "Province 6",
+                district: "Surkhet",
+                electoral_area: "Surkhet-1",
+                voter_id: "KAR001"
+            }
+        ];
+
+        // Vote choices for each user
+        const voteChoices = [
+            { candidateId: 1, partyId: 1 },
+            { candidateId: 2, partyId: 2 },
+            { candidateId: 3, partyId: 1 },
+            { candidateId: 1, partyId: 3 },
+            { candidateId: 4, partyId: 2 },
+            { candidateId: 2, partyId: 3 }
+        ];
+
+        function log(message) {
+            const output = document.getElementById('output');
+            output.textContent += message + '\n';
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearOutput() {
+            document.getElementById('output').textContent = '';
+        }
+
+        async function apiRequest(endpoint, options = {}) {
+            const url = `${API_BASE_URL}${endpoint}`;
+            
+            const config = {
+                credentials: "include",
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers,
+                },
+                ...options,
+            };
+
+            try {
+                const response = await fetch(url, config);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || data.error || `HTTP error! status: ${response.status}`);
+                }
+                
+                return data;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        async function registerUser(userData) {
+            try {
+                log(`Registering user: ${userData.email}`);
+                const response = await apiRequest("/elections/api/voter/register/", {
+                    method: "POST",
+                    body: JSON.stringify(userData),
+                });
+                log(`✅ User ${userData.email} registered successfully`);
+                return response;
+            } catch (error) {
+                log(`❌ Failed to register ${userData.email}: ${error.message}`);
+                return null;
+            }
+        }
+
+        async function loginUser(email, password) {
+            try {
+                log(`Logging in user: ${email}`);
+                const response = await apiRequest("/elections/api/voter/login/", {
+                    method: "POST",
+                    body: JSON.stringify({ email, password }),
+                });
+                log(`✅ User ${email} logged in successfully`);
+                return response;
+            } catch (error) {
+                log(`❌ Failed to login ${email}: ${error.message}`);
+                return null;
+            }
+        }
+
+        async function submitVote(userEmail, voteType, candidateId = null, partyId = null) {
+            try {
+                const payload = {
+                    vote_type: voteType,
+                    user_email: userEmail,
+                };
+                
+                if (candidateId) payload.candidate_id = candidateId;
+                if (partyId) payload.party_id = partyId;
+                
+                log(`Submitting ${voteType} vote for ${userEmail}: ${JSON.stringify(payload)}`);
+                
+                const response = await apiRequest("/elections/vote/submit/", {
+                    method: "POST",
+                    body: JSON.stringify(payload),
+                });
+                
+                log(`✅ ${voteType} vote submitted for ${userEmail}`);
+                return response;
+            } catch (error) {
+                log(`❌ Failed to submit ${voteType} vote for ${userEmail}: ${error.message}`);
+                return null;
+            }
+        }
+
+        async function checkVotingHistory(userEmail) {
+            try {
+                const response = await apiRequest(`/elections/api/voting-history?user_email=${encodeURIComponent(userEmail)}`, {
+                    method: "GET",
+                });
+                log(`📊 Voting history for ${userEmail}: ${JSON.stringify(response, null, 2)}`);
+                return response;
+            } catch (error) {
+                log(`❌ Failed to get voting history for ${userEmail}: ${error.message}`);
+                return null;
+            }
+        }
+
+        async function runTest() {
+            const runBtn = document.getElementById('runBtn');
+            runBtn.disabled = true;
+            runBtn.textContent = '⏳ Running Test...';
+            
+            clearOutput();
+            log("🚀 Starting voting test with 6 users from different provinces...\n");
+            
+            try {
+                // Step 1: Register all users
+                log("📝 STEP 1: Registering users...");
+                for (const user of testUsers) {
+                    await registerUser(user);
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+                
+                log("\n⏳ Waiting 2 seconds before login...\n");
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Step 2: Login and vote for each user
+                log("🗳️ STEP 2: Login and voting...");
+                for (let i = 0; i < testUsers.length; i++) {
+                    const user = testUsers[i];
+                    const votes = voteChoices[i];
+                    
+                    log(`\n--- Processing user ${i + 1}: ${user.email} ---`);
+                    
+                    // Login
+                    const loginResult = await loginUser(user.email, user.password);
+                    if (!loginResult) continue;
+                    
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    // Submit FPTP vote (candidate)
+                    await submitVote(user.email, 'FPTP', votes.candidateId);
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    // Submit PR vote (party)
+                    await submitVote(user.email, 'PR', null, votes.partyId);
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+                
+                log("\n⏳ Waiting 2 seconds before checking results...\n");
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Step 3: Check voting history for all users
+                log("📊 STEP 3: Checking voting history...");
+                for (const user of testUsers) {
+                    log(`\n--- Voting history for ${user.email} ---`);
+                    await checkVotingHistory(user.email);
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+                
+                log("\n✅ Voting test completed!");
+                log("\n🔍 Please check your backend database tables:");
+                log("- fptp_votes table for candidate votes");
+                log("- pr_votes table for party votes");
+                log("- vote_legacy table for consolidated votes");
+                
+            } catch (error) {
+                log(`❌ Test failed: ${error.message}`);
+            } finally {
+                runBtn.disabled = false;
+                runBtn.textContent = '🚀 Run Voting Test';
+            }
+        }
+
+        function checkDatabase() {
+            log("\n🔍 To check if votes were stored in backend database:");
+            log("1. Open your database management tool (phpMyAdmin, MySQL Workbench, etc.)");
+            log("2. Check these tables:");
+            log("   - fptp_votes: Should contain candidate votes");
+            log("   - pr_votes: Should contain party votes");
+            log("   - vote_legacy: Should contain consolidated vote records");
+            log("3. Look for entries with the test user emails");
+            log("4. Verify vote_type, candidate_id, party_id, and user_email fields");
+        }
+    </script>
+</body>
+</html>

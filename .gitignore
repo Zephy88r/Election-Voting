@@ -23,3 +23,16 @@ dist-ssr
 *.sln
 *.sw?
 
+# Django
+*.sqlite3
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.venv/
+db.sqlite3
+
