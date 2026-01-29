@@ -123,10 +123,22 @@ const VoteWizard = () => {
           setVotedPartyId(prVote.party?.id || null);
         }
         
-        // If any vote exists, go to step 3
+        // If any vote exists, go to step 3 and show completion
         if (fptpVote || prVote) {
           console.log('Vote found, setting step to 3');
           setCurrentStep(3);
+          setShowVoteConfirmation(true);
+          
+          // Set final vote data from history - use setTimeout to ensure candidates/parties are loaded
+          setTimeout(() => {
+            const votedCandidate = fptpVote ? processedCandidates.find(c => c.id === fptpVote.candidate?.id) : null;
+            const votedParty = prVote ? (partiesData || []).find(p => p.id === prVote.party?.id) : null;
+            
+            setFinalVoteData({
+              candidate: votedCandidate || { name: fptpVote?.candidate || 'Unknown Candidate' },
+              party: votedParty || { name: prVote?.party || 'Unknown Party' }
+            });
+          }, 100);
         } else {
           console.log('No votes found, setting step to 1');
           setCurrentStep(1);
