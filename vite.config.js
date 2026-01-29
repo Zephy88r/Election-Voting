@@ -1,26 +1,24 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5173,
-    strictPort: false,
-    proxy: {
-      // Proxy all elections endpoints to Django backend
-      '/elections': {
-        target: 'http://127.0.0.1:8000',
-        changeOrigin: true,
-        secure: false,
-      },
-      // Keep a general /api proxy for legacy endpoints
-      '/api': {
-        target: 'http://127.0.0.1:8000',
-        changeOrigin: true,
-        secure: false,
-      }
+  host: 'localhost',
+  port: 5173,
+  strictPort: true,
+  proxy: {
+    '/elections': {
+      target: 'http://127.0.0.1:8000',
+      changeOrigin: true,
+      secure: false,
+    },
+    '/api': {
+      target: 'http://127.0.0.1:8000',
+      changeOrigin: true,
+      secure: false,
     }
   }
-})
+}
 
+})
