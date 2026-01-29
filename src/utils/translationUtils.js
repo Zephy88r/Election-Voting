@@ -45,10 +45,20 @@ export const translateParty = (partyName, t) => {
 export const translateName = (candidateName, t) => {
   if (!candidateName) return '';
   
+  // Handle patterns like "Priya Sharma (Bajura Area)"
+  const parenMatch = candidateName.match(/^(.+?)\s*\((.+)\)$/);
+  if (parenMatch) {
+    const [, name, location] = parenMatch;
+    const translatedName = t(`names.${name.trim()}`);
+    const finalName = (translatedName && translatedName !== `names.${name.trim()}`) ? translatedName : name.trim();
+    const translatedLocation = translateElectoralArea(location, t);
+    return `${finalName} (${translatedLocation})`;
+  }
+  
   // Handle patterns like "Candidate 2 from Madhesh Electoral Area 1"
-  const match = candidateName.match(/^(.+)\s+from\s+(.+)$/);
-  if (match) {
-    const [, name, location] = match;
+  const fromMatch = candidateName.match(/^(.+)\s+from\s+(.+)$/);
+  if (fromMatch) {
+    const [, name, location] = fromMatch;
     const translatedName = t(`names.${name}`);
     const finalName = (translatedName && translatedName !== `names.${name}`) ? translatedName : name;
     const translatedLocation = translateElectoralArea(location, t);

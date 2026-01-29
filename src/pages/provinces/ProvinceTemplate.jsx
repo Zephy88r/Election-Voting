@@ -9,6 +9,7 @@ import SuccessMessage from '../../components/common/SuccessMessage';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { votingService } from '../../services/votingService';
+import { translateParty } from '../../utils/translationUtils';
 import './ProvincePage.css';
 
 function normalizeProvinceName(user) {
@@ -173,7 +174,7 @@ export default function ProvinceTemplate({
             <div style={{ marginTop: 14, padding: 12, borderRadius: 14, background: 'rgba(0,0,0,0.04)' }}>
               <div style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>{t('selectedParty')}</div>
               <div style={{ marginTop: 4, fontWeight: 900, color: 'var(--color-text-primary)' }}>
-                {parties.find((p) => p.id === pendingPartyId)?.name || '—'}
+                {translateParty(parties.find((p) => p.id === pendingPartyId)?.name, t) || '—'}
               </div>
             </div>
 
@@ -238,7 +239,7 @@ export default function ProvinceTemplate({
                   <h3>{t('status')}</h3>
                   <p>
                     {hasVoted
-                      ? `${t('votedFor')} ${parties.find(p => p.id === votedPartyId)?.name || votedPartyId}`
+                      ? `${t('votedFor')} ${translateParty(parties.find(p => p.id === votedPartyId)?.name, t) || votedPartyId}`
                       : t('notVoted')}
                   </p>
                 </div>
@@ -324,7 +325,7 @@ export default function ProvinceTemplate({
                           <div className="partyIdentity">
                             <div className="partyMark">{getPartySymbol(p.symbol, p.name)}</div>
                             <div>
-                              <h3 className="partyName">{p.name}</h3>
+                              <h3 className="partyName">{translateParty(p.name, t)}</h3>
                               <p className="partyTagline">{getPartyTagline(p.name)}</p>
                             </div>
                           </div>

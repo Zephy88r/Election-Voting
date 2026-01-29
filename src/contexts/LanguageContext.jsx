@@ -277,7 +277,7 @@ const translations = {
       'Jhapa Area': 'Jhapa Area', 'Khotang Area': 'Khotang Area', 'Morang Area': 'Morang Area', 
       'Okhaldhunga Area': 'Okhaldhunga Area', 'Panchthar Area': 'Panchthar Area', 
       'Sankhuwasabha Area': 'Sankhuwasabha Area', 'Sunsari Area': 'Sunsari Area', 
-      'Taplejung Area': 'Taplejung Area', 'Terhathum Area': 'Terhathum Area'
+      'Taplejung Area': 'Taplejung Area', 'Terhathum Area': 'Terhathum Area', 'Bajura Area': 'Bajura Area'
     },
 
     // Parties
@@ -289,7 +289,7 @@ const translations = {
       'Independent': 'Independent', 'Janata Dal': 'Janata Dal', 'Communist Party of Nepal': 'Communist Party of Nepal',
       'Unified Socialist': 'Unified Socialist', 'Nepal Majdoor Kisan Party': 'Nepal Majdoor Kisan Party',
       'CPN UML': 'CPN UML', 'CPN-Maoist': 'CPN-Maoist', 'Rastra Swatantra Party (RSP)': 'Rastra Swatantra Party (RSP)',
-      'CPN UML (Maoist)': 'CPN UML (Maoist)', 'Socialist Party': 'Socialist Party'
+      'CPN UML (Maoist)': 'CPN UML (Maoist)', 'Socialist Party': 'Socialist Party', 'Unified Socialist': 'Unified Socialist'
     },
 
     // Names
@@ -299,7 +299,7 @@ const translations = {
       'Bishnu Adhikari': 'Bishnu Adhikari', 'Kamala Rai': 'Kamala Rai', 'Gopal Khadka': 'Gopal Khadka',
       'Sunita Magar': 'Sunita Magar', 'Candidate 1': 'Candidate 1', 'Candidate 2': 'Candidate 2',
       'Candidate 3': 'Candidate 3', 'Candidate 4': 'Candidate 4', 'Candidate 5': 'Candidate 5',
-      'Nepal Communist Party Candidate': 'Nepal Communist Party Candidate'
+      'Nepal Communist Party Candidate': 'Nepal Communist Party Candidate', 'Priya Sharma': 'Priya Sharma'
     },
 
     // Candidate Text
@@ -595,7 +595,7 @@ const translations = {
       'Jhapa Area': 'झापा क्षेत्र', 'Khotang Area': 'खोटाङ क्षेत्र', 'Morang Area': 'मोरङ क्षेत्र', 
       'Okhaldhunga Area': 'ओखलढुङ्गा क्षेत्र', 'Panchthar Area': 'पाँचथर क्षेत्र', 
       'Sankhuwasabha Area': 'संखुवासभा क्षेत्र', 'Sunsari Area': 'सुनसरी क्षेत्र', 
-      'Taplejung Area': 'ताप्लेजुङ क्षेत्र', 'Terhathum Area': 'तेह्रथुम क्षेत्र'
+      'Taplejung Area': 'ताप्लेजुङ क्षेत्र', 'Terhathum Area': 'तेह्रथुम क्षेत्र', 'Bajura Area': 'बाजुरा क्षेत्र'
     },
 
     // Parties
@@ -607,7 +607,7 @@ const translations = {
       'Independent': 'स्वतन्त्र', 'Janata Dal': 'जनता दल', 'Communist Party of Nepal': 'नेपाल कम्युनिष्ट पार्टी',
       'Unified Socialist': 'एकीकृत समाजवादी', 'Nepal Majdoor Kisan Party': 'नेपाल मजदुर किसान पार्टी',
       'CPN UML': 'नेकपा एमाले', 'CPN-Maoist': 'नेकपा माओवादी', 'Rastra Swatantra Party (RSP)': 'राष्ट्र स्वतन्त्र पार्टी (आरएसपी)',
-      'CPN UML (Maoist)': 'नेकपा एमाले (माओवादी)', 'Socialist Party': 'समाजवादी पार्टी'
+      'CPN UML (Maoist)': 'नेकपा एमाले (माओवादी)', 'Socialist Party': 'समाजवादी पार्टी', 'Unified Socialist': 'एकीकृत समाजवादी'
     },
 
     // Names
@@ -617,7 +617,7 @@ const translations = {
       'Bishnu Adhikari': 'बिष्णु अधिकारी', 'Kamala Rai': 'कमला राई', 'Gopal Khadka': 'गोपाल खड्का',
       'Sunita Magar': 'सुनिता मगर', 'Candidate 1': 'उम्मेदवार १', 'Candidate 2': 'उम्मेदवार २',
       'Candidate 3': 'उम्मेदवार ३', 'Candidate 4': 'उम्मेदवार ४', 'Candidate 5': 'उम्मेदवार ५',
-      'Nepal Communist Party Candidate': 'नेपाल कम्युनिष्ट पार्टी उम्मेदवार'
+      'Nepal Communist Party Candidate': 'नेपाल कम्युनिष्ट पार्टी उम्मेदवार', 'Priya Sharma': 'प्रिया शर्मा'
     },
 
     // Candidate Text

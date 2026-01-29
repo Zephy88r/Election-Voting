@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { translateName, translateParty } from '../utils/translationUtils';
+import { translateName, translateParty, translateElectoralArea } from '../utils/translationUtils';
 import { votingService } from '../services/votingService';
 import Navbar from '../components/Navbar';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -431,10 +431,10 @@ const VoteWizard = () => {
                   <h2>{t('voting.voteConfirmed', 'You have voted for:')}</h2>
                   <div className="vote-summary">
                     <div style={{marginBottom: '12px', fontSize: '18px', padding: '8px', backgroundColor: 'var(--color-success-light)', borderRadius: '4px'}}>
-                      <strong>{t('candidate', 'Candidate')}: {finalVoteData.candidate?.name || t('voting.notVoted', 'Not voted')}</strong>
+                      <strong>{t('candidate', 'उम्मेदवार')}: {finalVoteData.candidate ? translateName(finalVoteData.candidate.name, t) : t('voting.notVoted', 'Not voted')} {finalVoteData.candidate?.party ? `(${translateElectoralArea(finalVoteData.candidate.party, t)})` : ''}</strong>
                     </div>
                     <div style={{marginBottom: '12px', fontSize: '18px', padding: '8px', backgroundColor: 'var(--color-success-light)', borderRadius: '4px'}}>
-                      <strong>{t('party', 'Party')}: {finalVoteData.party?.name || t('voting.notVoted', 'Not voted')}</strong>
+                      <strong>{t('party', 'दल')}: {finalVoteData.party ? translateParty(finalVoteData.party.name, t) : t('voting.notVoted', 'Not voted')}</strong>
                     </div>
                   </div>
                   <div className="step-actions">
