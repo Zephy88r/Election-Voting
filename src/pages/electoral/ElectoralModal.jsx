@@ -17,15 +17,19 @@ function ElectoralModal({ district, onClose }) {
   useEffect(() => {
     const fetchElectoralAreas = async () => {
       try {
-        const response = await fetch(`/api/electoral-areas/?district_id=${district.id}`);
+        const response = await fetch(`/elections/api/electoral-areas-by-district/?district_id=${district.id}`);
         const data = await response.json();
-        setElectoralAreas(data);
+        if (data && Array.isArray(data)) {
+          setElectoralAreas(data);
+        }
       } catch (error) {
         console.error('Error fetching electoral areas:', error);
       }
     };
 
-    fetchElectoralAreas();
+    if (district?.id) {
+      fetchElectoralAreas();
+    }
   }, [district]);
 
   useEffect(() => {

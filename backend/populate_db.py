@@ -24,9 +24,10 @@ for province_name, districts in provinces_data.items():
         )
         print(f"  {'Created' if created else 'Found'} District: {district_name}")
         
-        # Create electoral areas
+        # Create electoral areas linked to districts
         electoral_area, created = ElectoralArea.objects.get_or_create(
             name=f"{district_name} Area",
+            district=district,
             province=province
         )
         print(f"    {'Created' if created else 'Found'} Electoral Area: {district_name} Area")

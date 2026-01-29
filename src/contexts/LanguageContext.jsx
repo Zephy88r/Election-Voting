@@ -266,7 +266,9 @@ const translations = {
       'Jajarkot': 'Jajarkot', 'Jumla': 'Jumla', 'Kalikot': 'Kalikot', 'Mugu': 'Mugu', 'Rukum West': 'Rukum West',
       'Salyan': 'Salyan', 'Surkhet': 'Surkhet', 'Achham': 'Achham', 'Baitadi': 'Baitadi', 'Bajhang': 'Bajhang',
       'Bajura': 'Bajura', 'Dadeldhura': 'Dadeldhura', 'Darchula': 'Darchula', 'Doti': 'Doti', 'Kailali': 'Kailali',
-      'Kanchanpur': 'Kanchanpur'
+      'Kanchanpur': 'Kanchanpur', 'Araria': 'Araria', 'Dhanusa': 'Dhanusha', 'Kavrepalanchok': 'Kabhrepalanchok',
+      'Tanahu': 'Tanahun', 'Argakhanchi': 'Arghakhanchi', 'Janakpur': 'Janakpur', 'Pithoragarh': 'Pithoragarh',
+      'Udaypur': 'Udayapur'
     },
 
     // Areas (for electoral areas display)
@@ -582,7 +584,9 @@ const translations = {
       'Jajarkot': 'जाजरकोट', 'Jumla': 'जुम्ला', 'Kalikot': 'कालिकोट', 'Mugu': 'मुगु', 'Rukum West': 'रुकुम पश्चिम',
       'Salyan': 'सल्यान', 'Surkhet': 'सुर्खेत', 'Achham': 'अछाम', 'Baitadi': 'बैतडी', 'Bajhang': 'बझाङ',
       'Bajura': 'बाजुरा', 'Dadeldhura': 'डडेल्धुरा', 'Darchula': 'दार्चुला', 'Doti': 'डोटी', 'Kailali': 'कैलाली',
-      'Kanchanpur': 'कञ्चनपुर'
+      'Kanchanpur': 'कञ्चनपुर', 'Araria': 'अरारिया', 'Dhanusa': 'धनुषा', 'Kavrepalanchok': 'काभ्रेपलान्चोक',
+      'Tanahu': 'तनहुँ', 'Argakhanchi': 'अर्घाखाँची', 'Janakpur': 'जनकपुर', 'Pithoragarh': 'पिथौरागढ',
+      'Udaypur': 'उदयपुर'
     },
 
     // Areas (for electoral areas display)

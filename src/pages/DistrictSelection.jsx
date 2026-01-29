@@ -66,7 +66,7 @@ export default function DistrictSelection() {
         
         if (provinceData) {
           setDistricts(provinceData.districts || []);
-          setElectoralAreas(provinceData.electoral_areas || []);
+          // Don't set all electoral areas here - they will be filtered by district
         }
       } catch (err) {
         console.error('Error loading districts:', err);
@@ -74,11 +74,7 @@ export default function DistrictSelection() {
         const mockDistricts = [
           { id: 1, name: user?.district?.name || user?.district || 'Your District' }
         ];
-        const mockElectoralAreas = [
-          { id: 1, name: user?.electoral_area?.name || user?.electoral_area || 'Your Electoral Area' }
-        ];
         setDistricts(mockDistricts);
-        setElectoralAreas(mockElectoralAreas);
       } finally {
         setLoading(false);
       }
@@ -87,7 +83,7 @@ export default function DistrictSelection() {
     loadData();
   }, [hasAccess, requiredProvinceName, user]);
 
-  const handleDistrictClick = (district) => {
+  const handleDistrictClick = async (district) => {
     const userDistrictName = user?.district?.name || user?.district;
     
     if (district.name !== userDistrictName) {
@@ -95,6 +91,28 @@ export default function DistrictSelection() {
     }
 
     setSelectedDistrict(district);
+    
+    // Load electoral areas for this district
+    try {
+      const response = await fetch(`/elections/api/electoral-areas-by-district/?district_id=${district.id}`);
+      const data = await response.json();
+      
+      if (data && data.length > 0) {
+        setElectoralAreas(data);
+      } else {
+        // Fallback to user's electoral area
+        setElectoralAreas([
+          { id: user?.electoral_area?.id || 'user-area', name: user?.electoral_area?.name || user?.electoral_area }
+        ]);
+      }
+    } catch (err) {
+      console.error('Error loading electoral areas:', err);
+      // Fallback to user's electoral area
+      setElectoralAreas([
+        { id: user?.electoral_area?.id || 'user-area', name: user?.electoral_area?.name || user?.electoral_area }
+      ]);
+    }
+    
     setShowElectoralModal(true);
   };
 

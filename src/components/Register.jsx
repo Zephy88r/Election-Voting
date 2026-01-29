@@ -482,12 +482,17 @@ function Register() {
               </option>
 
               {formData.district && formData.province && (() => {
-                // Find the selected province
+                // Find the selected province and district
                 const selectedProvince = registrationData.find((p) => String(p.id) === String(formData.province));
-                if (!selectedProvince) return null;
+                const selectedDistrict = selectedProvince?.districts?.find((d) => String(d.id) === String(formData.district));
+                if (!selectedProvince || !selectedDistrict) return null;
                 
-                // Show electoral areas for this province (not district-specific)
-                return (selectedProvince.electoral_areas || []).map((ea) => (
+                // Filter electoral areas that belong to the selected district
+                const districtElectoralAreas = selectedProvince.electoral_areas?.filter(ea => 
+                  ea.name.includes(selectedDistrict.name)
+                ) || [];
+                
+                return districtElectoralAreas.map((ea) => (
                   <option key={ea.id} value={ea.id}>
                     {ea.name}
                   </option>
