@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { translateName, translateParty, translateElectoralArea } from '../utils/translationUtils';
+import { translateName, translateParty, translateElectoralArea, cleanMalformedKeys } from '../utils/translationUtils';
 import { votingService } from '../services/votingService';
 import Navbar from '../components/Navbar';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -73,7 +73,30 @@ const VoteWizard = () => {
       try {
         setLoading(true);
         
-        // Load candidates and parties
+        // First, check voting status immediately to show completion screen if user has voted
+        const history = await votingService.getVotingHistory();
+        setHistory(history);
+        console.log('Voting history:', history);
+        
+        const fptpVote = history.find(vote => vote.vote_type === 'FPTP');
+        const prVote = history.find(vote => vote.vote_type === 'PR');
+        
+        // If user has already voted, set completion state immediately
+        if (fptpVote || prVote) {
+          console.log('User has already voted, showing completion screen');
+          setCurrentStep(3);
+          setShowVoteConfirmation(true);
+          setFptpVoted(!!fptpVote);
+          setPrVoted(!!prVote);
+          if (fptpVote) {
+            setVotedCandidateId(fptpVote.candidate?.id || null);
+          }
+          if (prVote) {
+            setVotedPartyId(prVote.party?.id || null);
+          }
+        }
+        
+        // Load candidates and parties (needed for completion screen display)
         const [candidatesData, partiesData] = await Promise.all([
           votingService.getCandidates(electoralAreaId || provinceId).catch(() => []),
           votingService.getParties().catch(() => [])
@@ -82,63 +105,79 @@ const VoteWizard = () => {
         // Ensure candidates have proper structure
         const processedCandidates = (candidatesData || []).map(candidate => ({
           id: candidate.id,
-          name: candidate.name || candidate.full_name || 'Unknown Candidate',
-          party: candidate.party || candidate.party_name || 'Independent',
+          name: cleanMalformedKeys(candidate.name || candidate.full_name || 'Unknown Candidate'),
+          party: cleanMalformedKeys(candidate.party || candidate.party_name || 'Independent'),
           symbol: candidate.symbol || '👤',
-          bio: `Vote for ${candidate.name || candidate.full_name || 'this candidate'} to represent your constituency.`
+          bio: `Vote for ${cleanMalformedKeys(candidate.name || candidate.full_name || 'this candidate')} to represent your constituency.`
         }));
 
         setCandidates(processedCandidates);
         setParties(partiesData || []);
 
-        // Add "None of the Above" option to candidates
-        const candidatesWithNone = [
-          ...processedCandidates,
-          {
-            id: 'none',
-            name: 'None of the Above',
-            party: 'No Party',
-            symbol: '❌',
-            bio: 'Select this option if you do not wish to vote for any of the listed candidates.'
-          }
-        ];
-        setCandidates(candidatesWithNone);
-
-        // Check voting status
-        const history = await votingService.getVotingHistory();
-        setHistory(history); // Store history in state
-        console.log('Voting history:', history); // Debug log
-        
-        // Check if user has voted for FPTP or PR
-        const fptpVote = history.find(vote => vote.vote_type === 'FPTP');
-        const prVote = history.find(vote => vote.vote_type === 'PR');
-        
-        if (fptpVote) {
-          setFptpVoted(true);
-          setVotedCandidateId(fptpVote.candidate?.id || null);
+        // Add "None of the Above" option to candidates (only if user hasn't voted)
+        if (!fptpVote && !prVote) {
+          const candidatesWithNone = [
+            ...processedCandidates,
+            {
+              id: 'none',
+              name: 'None of the Above',
+              party: 'No Party',
+              symbol: '❌',
+              bio: 'Select this option if you do not wish to vote for any of the listed candidates.'
+            }
+          ];
+          setCandidates(candidatesWithNone);
         }
         
-        if (prVote) {
-          setPrVoted(true);
-          setVotedPartyId(prVote.party?.id || null);
-        }
-        
-        // If any vote exists, go to step 3 and show completion
+        // Update final vote data with loaded candidates/parties if user has voted
         if (fptpVote || prVote) {
-          console.log('Vote found, setting step to 3');
-          setCurrentStep(3);
-          setShowVoteConfirmation(true);
-          
-          // Set final vote data from history - use setTimeout to ensure candidates/parties are loaded
-          setTimeout(() => {
-            const votedCandidate = fptpVote ? processedCandidates.find(c => c.id === fptpVote.candidate?.id) : null;
-            const votedParty = prVote ? (partiesData || []).find(p => p.id === prVote.party?.id) : null;
+          // Try to find candidate by ID first, then by name
+          let votedCandidate = null;
+          if (fptpVote?.candidate) {
+            const candidateId = typeof fptpVote.candidate === 'object' ? fptpVote.candidate.id : null;
+            const candidateName = typeof fptpVote.candidate === 'object' ? fptpVote.candidate.name : fptpVote.candidate;
             
-            setFinalVoteData({
-              candidate: votedCandidate || { name: fptpVote?.candidate || 'Unknown Candidate' },
-              party: votedParty || { name: prVote?.party || 'Unknown Party' }
-            });
-          }, 100);
+            if (candidateId) {
+              votedCandidate = processedCandidates.find(c => c.id === candidateId);
+            }
+            if (!votedCandidate && candidateName) {
+              votedCandidate = processedCandidates.find(c => 
+                c.name === candidateName || c.name?.toLowerCase() === candidateName?.toLowerCase()
+              );
+            }
+            if (!votedCandidate) {
+              votedCandidate = {
+                name: cleanMalformedKeys(candidateName || 'Unknown Candidate'),
+                party: cleanMalformedKeys((typeof fptpVote.candidate === 'object' && fptpVote.candidate.party) || 'Unknown Party')
+              };
+            }
+          }
+          
+          // Try to find party by ID first, then by name
+          let votedParty = null;
+          if (prVote?.party) {
+            const partyId = typeof prVote.party === 'object' ? prVote.party.id : null;
+            const partyName = typeof prVote.party === 'object' ? prVote.party.name : prVote.party;
+            
+            if (partyId) {
+              votedParty = (partiesData || []).find(p => p.id === partyId);
+            }
+            if (!votedParty && partyName) {
+              votedParty = (partiesData || []).find(p => 
+                p.name === partyName || p.name?.toLowerCase() === partyName?.toLowerCase()
+              );
+            }
+            if (!votedParty) {
+              votedParty = {
+                name: cleanMalformedKeys(partyName || 'Unknown Party')
+              };
+            }
+          }
+          
+          setFinalVoteData({
+            candidate: votedCandidate,
+            party: votedParty
+          });
         } else {
           console.log('No votes found, setting step to 1');
           setCurrentStep(1);
@@ -147,6 +186,7 @@ const VoteWizard = () => {
       } catch (err) {
         console.error('Error loading voting data:', err);
         setError('Failed to load voting data');
+        setLoading(false);
       } finally {
         setLoading(false);
       }

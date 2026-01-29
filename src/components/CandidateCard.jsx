@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { translateName, translateParty, translateCandidateText, translateCandidateBio } from '../utils/translationUtils';
+import { translateName, translateParty, translateCandidateText, translateCandidateBio, cleanMalformedKeys } from '../utils/translationUtils';
 import Card from './common/Card';
 import Button from './common/Button';
 import './CandidateCard.css';
@@ -34,6 +34,13 @@ const CandidateCard = ({
     }
   };
 
+  // Clean candidate data to remove any malformed keys
+  const cleanCandidate = {
+    ...candidate,
+    name: cleanMalformedKeys(candidate.name),
+    party: cleanMalformedKeys(candidate.party)
+  };
+
   return (
     <div
       className={`candidate-card ${hasVoted ? 'candidate-card--voted' : ''} ${isSelected ? 'candidate-card--selected' : ''} ${isVotedCandidate ? 'candidate-card--voted-candidate' : ''}`}
@@ -43,8 +50,8 @@ const CandidateCard = ({
         <div className="candidate-card__header">
           <div className="candidate-card__symbol">{candidate.symbol || '👤'}</div>
           <div className="candidate-card__info">
-            <h3 className="candidate-card__name">{translateName(candidate.name, t)}</h3>
-            <p className="candidate-card__party">{translateParty(candidate.party, t)}</p>
+            <h3 className="candidate-card__name">{translateName(cleanCandidate.name, t)}</h3>
+            <p className="candidate-card__party">{translateParty(cleanCandidate.party, t)}</p>
           </div>
         </div>
 

@@ -127,7 +127,7 @@ const translations = {
     nepalPhoneFormat: 'Nepal format: +977 XXX-XXXXXXX',
     selectProvince: 'Select your province',
     selectDistrict: 'Select your district',
-    selectProvinceFirst: 'Select province first',
+    selectDistrictFirst: 'Select district first',
     enterVoterId: 'Enter your voter ID',
     enterCitizenshipNumber: 'Enter your citizenship number',
     passwordRequirements: 'Must contain uppercase, lowercase, and special characters',
@@ -253,22 +253,20 @@ const translations = {
       'Bhojpur': 'Bhojpur', 'Dhankuta': 'Dhankuta', 'Ilam': 'Ilam', 'Jhapa': 'Jhapa', 'Khotang': 'Khotang',
       'Morang': 'Morang', 'Okhaldhunga': 'Okhaldhunga', 'Panchthar': 'Panchthar', 'Sankhuwasabha': 'Sankhuwasabha',
       'Solukhumbu': 'Solukhumbu', 'Sunsari': 'Sunsari', 'Taplejung': 'Taplejung', 'Terhathum': 'Terhathum',
-      'Udayapur': 'Udayapur', 'Bara': 'Bara', 'Dhanusha': 'Dhanusha', 'Mahottari': 'Mahottari', 'Parsa': 'Parsa',
+      'Udayapur': 'Udayapur', 'Bara': 'Bara', 'Dhanusa': 'Dhanusa', 'Mahottari': 'Mahottari', 'Parsa': 'Parsa',
       'Rautahat': 'Rautahat', 'Saptari': 'Saptari', 'Sarlahi': 'Sarlahi', 'Siraha': 'Siraha', 'Bhaktapur': 'Bhaktapur',
-      'Chitwan': 'Chitwan', 'Dhading': 'Dhading', 'Dolakha': 'Dolakha', 'Kabhrepalanchok': 'Kabhrepalanchok',
+      'Chitwan': 'Chitwan', 'Dhading': 'Dhading', 'Dolakha': 'Dolakha', 'Kavrepalanchok': 'Kavrepalanchok',
       'Kathmandu': 'Kathmandu', 'Lalitpur': 'Lalitpur', 'Makwanpur': 'Makwanpur', 'Nuwakot': 'Nuwakot',
       'Ramechhap': 'Ramechhap', 'Rasuwa': 'Rasuwa', 'Sindhuli': 'Sindhuli', 'Sindhupalchok': 'Sindhupalchok',
       'Baglung': 'Baglung', 'Gorkha': 'Gorkha', 'Kaski': 'Kaski', 'Lamjung': 'Lamjung', 'Manang': 'Manang',
       'Mustang': 'Mustang', 'Myagdi': 'Myagdi', 'Nawalpur': 'Nawalpur', 'Parbat': 'Parbat', 'Syangja': 'Syangja',
       'Tanahun': 'Tanahun', 'Arghakhanchi': 'Arghakhanchi', 'Banke': 'Banke', 'Bardiya': 'Bardiya', 'Dang': 'Dang',
-      'Gulmi': 'Gulmi', 'Kapilvastu': 'Kapilvastu', 'Palpa': 'Palpa', 'Pyuthan': 'Pyuthan', 'Rolpa': 'Rolpa',
-      'Rukum East': 'Rukum East', 'Rupandehi': 'Rupandehi', 'Dailekh': 'Dailekh', 'Dolpa': 'Dolpa', 'Humla': 'Humla',
-      'Jajarkot': 'Jajarkot', 'Jumla': 'Jumla', 'Kalikot': 'Kalikot', 'Mugu': 'Mugu', 'Rukum West': 'Rukum West',
+      'Gulmi': 'Gulmi', 'Kapilvastu': 'Kapilvastu', 'Nawalparasi West': 'Nawalparasi West', 'Palpa': 'Palpa', 'Pyuthan': 'Pyuthan', 'Rolpa': 'Rolpa',
+      'Rupandehi': 'Rupandehi', 'Dailekh': 'Dailekh', 'Dolpa': 'Dolpa', 'Humla': 'Humla',
+      'Jumla': 'Jumla', 'Kalikot': 'Kalikot', 'Mugu': 'Mugu', 'Rukum West': 'Rukum West',
       'Salyan': 'Salyan', 'Surkhet': 'Surkhet', 'Achham': 'Achham', 'Baitadi': 'Baitadi', 'Bajhang': 'Bajhang',
-      'Bajura': 'Bajura', 'Dadeldhura': 'Dadeldhura', 'Darchula': 'Darchula', 'Doti': 'Doti', 'Kailali': 'Kailali',
-      'Kanchanpur': 'Kanchanpur', 'Araria': 'Araria', 'Dhanusa': 'Dhanusha', 'Kavrepalanchok': 'Kabhrepalanchok',
-      'Tanahu': 'Tanahun', 'Argakhanchi': 'Arghakhanchi', 'Janakpur': 'Janakpur', 'Pithoragarh': 'Pithoragarh',
-      'Udaypur': 'Udayapur'
+      'Bajura': 'Bajura', 'Baitadi': 'Baitadi', 'Dadeldhura': 'Dadeldhura', 'Darchula': 'Darchula', 'Doti': 'Doti', 'Kailali': 'Kailali',
+      'Kanchanpur': 'Kanchanpur'
     },
 
     // Areas (for electoral areas display)
@@ -299,7 +297,12 @@ const translations = {
       'Bishnu Adhikari': 'Bishnu Adhikari', 'Kamala Rai': 'Kamala Rai', 'Gopal Khadka': 'Gopal Khadka',
       'Sunita Magar': 'Sunita Magar', 'Candidate 1': 'Candidate 1', 'Candidate 2': 'Candidate 2',
       'Candidate 3': 'Candidate 3', 'Candidate 4': 'Candidate 4', 'Candidate 5': 'Candidate 5',
-      'Nepal Communist Party Candidate': 'Nepal Communist Party Candidate', 'Priya Sharma': 'Priya Sharma'
+      'Nepal Communist Party Candidate': 'Nepal Communist Party Candidate', 'Priya Sharma': 'Priya Sharma',
+      'Sagar Koirala': 'Sagar Koirala', 'Rina Chaudhary': 'Rina Chaudhary', 'Bikash Rai': 'Bikash Rai',
+      'Prakash Gurung': 'Prakash Gurung', 'Sita Adhikari': 'Sita Adhikari', 'Nabin Thapa': 'Nabin Thapa',
+      'Dhan Bahadur Rai': 'Dhan Bahadur Rai', 'Sushila Shrestha': 'Sushila Shrestha', 'Kiran Karki': 'Kiran Karki',
+      'Prakash Limbu': 'Prakash Limbu', 'Rojina Rai': 'Rojina Rai', 'Hari Prasad Acharya': 'Hari Prasad Acharya',
+      'Umesh Rai': 'Umesh Rai', 'Sabina Limbu': 'Sabina Limbu', 'Ramesh Sharma': 'Ramesh Sharma'
     },
 
     // Candidate Text
@@ -365,6 +368,7 @@ const translations = {
     // District Page
     districtBallot: 'जिल्ला मतपत्र',
     selectDistrict: 'आफ्नो जिल्ला छान्नुहोस्',
+    selectDistrictFirst: 'पहिले जिल्ला चयन गर्नुहोस्',
     selectElectoralArea: 'निर्वाचन क्षेत्र छान्नुहोस्',
     fptpVote: 'प्रत्यक्ष मत',
     district: 'जिल्ला',
@@ -579,7 +583,7 @@ const translations = {
       'Baglung': 'बागलुङ', 'Gorkha': 'गोरखा', 'Kaski': 'कास्की', 'Lamjung': 'लमजुङ', 'Manang': 'मनाङ',
       'Mustang': 'मुस्ताङ', 'Myagdi': 'म्याग्दी', 'Nawalpur': 'नवलपुर', 'Parbat': 'पर्वत', 'Syangja': 'स्याङ्जा',
       'Tanahun': 'तनहुँ', 'Arghakhanchi': 'अर्घाखाँची', 'Banke': 'बाँके', 'Bardiya': 'बर्दिया', 'Dang': 'दाङ',
-      'Gulmi': 'गुल्मी', 'Kapilvastu': 'कपिलवस्तु', 'Palpa': 'पाल्पा', 'Pyuthan': 'प्युठान', 'Rolpa': 'रोल्पा',
+      'Gulmi': 'गुल्मी', 'Kapilvastu': 'कपिलवस्तु', 'Nawalparasi West': 'नवलपरासी पश्चिम', 'Palpa': 'पाल्पा', 'Pyuthan': 'प्युठान', 'Rolpa': 'रोल्पा',
       'Rukum East': 'रुकुम पूर्व', 'Rupandehi': 'रुपन्देही', 'Dailekh': 'दैलेख', 'Dolpa': 'डोल्पा', 'Humla': 'हुम्ला',
       'Jajarkot': 'जाजरकोट', 'Jumla': 'जुम्ला', 'Kalikot': 'कालिकोट', 'Mugu': 'मुगु', 'Rukum West': 'रुकुम पश्चिम',
       'Salyan': 'सल्यान', 'Surkhet': 'सुर्खेत', 'Achham': 'अछाम', 'Baitadi': 'बैतडी', 'Bajhang': 'बझाङ',
@@ -617,7 +621,12 @@ const translations = {
       'Bishnu Adhikari': 'बिष्णु अधिकारी', 'Kamala Rai': 'कमला राई', 'Gopal Khadka': 'गोपाल खड्का',
       'Sunita Magar': 'सुनिता मगर', 'Candidate 1': 'उम्मेदवार १', 'Candidate 2': 'उम्मेदवार २',
       'Candidate 3': 'उम्मेदवार ३', 'Candidate 4': 'उम्मेदवार ४', 'Candidate 5': 'उम्मेदवार ५',
-      'Nepal Communist Party Candidate': 'नेपाल कम्युनिष्ट पार्टी उम्मेदवार', 'Priya Sharma': 'प्रिया शर्मा'
+      'Nepal Communist Party Candidate': 'नेपाल कम्युनिष्ट पार्टी उम्मेदवार', 'Priya Sharma': 'प्रिया शर्मा',
+      'Sagar Koirala': 'सागर कोइराला', 'Rina Chaudhary': 'रिना चौधरी', 'Bikash Rai': 'बिकास राई',
+      'Prakash Gurung': 'प्रकाश गुरुङ', 'Sita Adhikari': 'सीता अधिकारी', 'Nabin Thapa': 'नबिन थापा',
+      'Dhan Bahadur Rai': 'धन बहादुर राई', 'Sushila Shrestha': 'सुशिला श्रेष्ठ', 'Kiran Karki': 'किरण कार्की',
+      'Prakash Limbu': 'प्रकाश लिम्बु', 'Rojina Rai': 'रोजिना राई', 'Hari Prasad Acharya': 'हरि प्रसाद आचार्य',
+      'Umesh Rai': 'उमेश राई', 'Sabina Limbu': 'सबिना लिम्बु', 'Ramesh Sharma': 'रमेश शर्मा'
     },
 
     // Candidate Text

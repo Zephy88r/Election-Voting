@@ -102,7 +102,7 @@ function Register() {
         'Bara', 'Dhanusha', 'Mahottari', 'Parsa', 'Rautahat', 'Saptari', 'Sarlahi', 'Siraha',
       ],
       'Province 3': [
-        'Bhaktapur', 'Chitwan', 'Dhading', 'Dolakha', 'Kabhrepalanchok', 'Kathmandu', 'Lalitpur',
+        'Bhaktapur', 'Chitwan', 'Dhading', 'Dolakha', 'Kavrepalanchok', 'Kathmandu', 'Lalitpur',
         'Makwanpur', 'Nuwakot', 'Ramechhap', 'Rasuwa', 'Sindhuli', 'Sindhupalchok',
       ],
       'Province 4': [
@@ -110,11 +110,11 @@ function Register() {
         'Parbat', 'Syangja', 'Tanahun',
       ],
       'Province 5': [
-        'Arghakhanchi', 'Banke', 'Bardiya', 'Dang', 'Gulmi', 'Kapilvastu', 'Palpa', 'Pyuthan',
-        'Rolpa', 'Rukum East', 'Rupandehi',
+        'Arghakhanchi', 'Banke', 'Bardiya', 'Dang', 'Gulmi', 'Kapilvastu', 'Nawalparasi West',
+        'Palpa', 'Pyuthan', 'Rolpa', 'Rupandehi',
       ],
       'Province 6': [
-        'Dailekh', 'Dolpa', 'Humla', 'Jajarkot', 'Jumla', 'Kalikot', 'Mugu', 'Rukum West',
+        'Dailekh', 'Dolpa', 'Humla', 'Jumla', 'Kalikot', 'Mugu', 'Rukum West',
         'Salyan', 'Surkhet',
       ],
       'Province 7': [

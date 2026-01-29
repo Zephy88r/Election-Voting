@@ -12,15 +12,13 @@ class Province(models.Model):
 
 
 class District(models.Model):
-    name = models.CharField(max_length=100)
+    # District names are globally unique across Nepal
+    name = models.CharField(max_length=100, unique=True)
     province = models.ForeignKey(
         Province,
         related_name="districts",
         on_delete=models.CASCADE
     )
-
-    class Meta:
-        unique_together = ("name", "province")
 
     def __str__(self):
         return f"{self.name}, {self.province.name}"
@@ -30,7 +28,12 @@ class District(models.Model):
 # Electoral Area
 # ==============================
 class ElectoralArea(models.Model):
+    # Human readable label, e.g. "Kathmandu Electoral Area 1"
     name = models.CharField(max_length=100)
+    # Stable unique code, e.g. "KATHMANDU-1"
+    code = models.CharField(max_length=100, unique=True)
+    # Sequential number within the district (1..N)
+    area_number = models.PositiveIntegerField()
     district = models.ForeignKey(
         District,
         related_name="electoral_areas",
@@ -46,6 +49,9 @@ class ElectoralArea(models.Model):
 
     class Meta:
         unique_together = ("name", "district")
+        indexes = [
+            models.Index(fields=["district"]),
+        ]
 
     def __str__(self):
         return f"{self.name} - {self.district.name if self.district else self.province.name}"

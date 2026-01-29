@@ -283,22 +283,29 @@ def voting_history(request):
     votes = []
     
     # Check FPTP vote
-    fptp_vote = FPTPVote.objects.filter(voter=user).first()
+    fptp_vote = FPTPVote.objects.filter(voter=user).select_related('candidate', 'candidate__party').first()
     if fptp_vote:
         votes.append({
             "id": fptp_vote.id,
             "vote_type": "FPTP",
-            "candidate": fptp_vote.candidate.name if fptp_vote.candidate else None,
+            "candidate": {
+                "id": fptp_vote.candidate.id if fptp_vote.candidate else None,
+                "name": fptp_vote.candidate.name if fptp_vote.candidate else None,
+                "party": fptp_vote.candidate.party.name if fptp_vote.candidate and fptp_vote.candidate.party else None
+            } if fptp_vote.candidate else None,
             "created_at": fptp_vote.created_at.isoformat()
         })
     
     # Check PR vote
-    pr_vote = PRVote.objects.filter(voter=user).first()
+    pr_vote = PRVote.objects.filter(voter=user).select_related('party').first()
     if pr_vote:
         votes.append({
             "id": pr_vote.id,
             "vote_type": "PR",
-            "party": pr_vote.party.name if pr_vote.party else None,
+            "party": {
+                "id": pr_vote.party.id if pr_vote.party else None,
+                "name": pr_vote.party.name if pr_vote.party else None
+            } if pr_vote.party else None,
             "created_at": pr_vote.created_at.isoformat()
         })
     

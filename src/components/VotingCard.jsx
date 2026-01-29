@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { translateParty, translateCandidateText } from '../utils/translationUtils';
+import { translateParty, translateCandidateText, cleanMalformedKeys } from '../utils/translationUtils';
 import Card from './common/Card';
 import Button from './common/Button';
 import LoadingSpinner from './common/LoadingSpinner';
@@ -31,6 +31,12 @@ const VotingCard = ({ candidate, hasVoted, onVote, isSubmitting, votedPartyId })
     }
   };
 
+  // Clean candidate data to remove any malformed keys
+  const cleanCandidate = {
+    ...candidate,
+    name: cleanMalformedKeys(candidate.name)
+  };
+
   // Party symbols mapping
   const getPartySymbol = (partyName) => {
     const symbols = {
@@ -48,15 +54,15 @@ const VotingCard = ({ candidate, hasVoted, onVote, isSubmitting, votedPartyId })
       variant="elevated"
     >
       <div className="voting-card__header">
-        <div className="voting-card__symbol">{getPartySymbol(candidate.name)}</div>
+        <div className="voting-card__symbol">{getPartySymbol(cleanCandidate.name)}</div>
         <div className="voting-card__info">
-          <h3 className="voting-card__name">{translateParty(candidate.name, t)}</h3>
+          <h3 className="voting-card__name">{translateParty(cleanCandidate.name, t)}</h3>
           <p className="voting-card__party">{translateCandidateText('Political Party', t)}</p>
         </div>
       </div>
 
       <div className="voting-card__body">
-        <p className="voting-card__bio">{translateCandidateText('Vote for', t)} {translateParty(candidate.name, t)} {translateCandidateText('to support their vision for Nepal\'s future', t)}.</p>
+        <p className="voting-card__bio">{translateCandidateText('Vote for', t)} {translateParty(cleanCandidate.name, t)} {translateCandidateText('to support their vision for Nepal\'s future', t)}.</p>
       </div>
 
       <div className="voting-card__footer">

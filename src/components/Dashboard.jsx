@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { PROVINCES_DATA, getTranslatedProvinceName } from '../constants/provinces';
+import { votingService } from '../services/votingService';
 import Navbar from './Navbar';
 import Card from './common/Card';
 import Button from './common/Button';
@@ -45,8 +46,9 @@ function Dashboard() {
    * Handle province card click
    * Redirects to login if user is not authenticated
    * Only allows access to user's registered province
+   * If user has already voted, they'll be shown the completion screen
    */
-  const handleProvinceClick = (province) => {
+  const handleProvinceClick = async (province) => {
     if (!isAuthenticated) {
       alert(t('pleaseSignIn'));
       navigate('/login');
@@ -59,6 +61,7 @@ function Dashboard() {
       return;
     }
 
+    // Navigate to vote wizard - it will automatically show completion screen if user has voted
     navigate(`/vote/${province.routeName}`);
   };
 

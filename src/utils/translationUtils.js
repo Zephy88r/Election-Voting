@@ -31,6 +31,14 @@ export const translateParty = (partyName, t) => {
     return (translatedParty && translatedParty !== `parties.${key}`) ? translatedParty : key;
   }
   
+  // Check if partyName starts with "areas." - this is a malformed key that should be cleaned
+  if (partyName.startsWith('areas.')) {
+    // Extract the actual party name after "areas."
+    const cleanPartyName = partyName.replace('areas.', '');
+    const translatedParty = t(`parties.${cleanPartyName}`);
+    return (translatedParty && translatedParty !== `parties.${cleanPartyName}`) ? translatedParty : cleanPartyName;
+  }
+  
   // Try to get translation, but if it returns the key itself, use original name
   const translatedParty = t(`parties.${partyName}`);
   return (translatedParty && translatedParty !== `parties.${partyName}`) ? translatedParty : partyName;
@@ -63,6 +71,20 @@ export const translateName = (candidateName, t) => {
     const finalName = (translatedName && translatedName !== `names.${name}`) ? translatedName : name;
     const translatedLocation = translateElectoralArea(location, t);
     return `${finalName} ${t('candidateText.from') || 'from'} ${translatedLocation}`;
+  }
+  
+  // Check if candidateName contains malformed translation keys
+  if (candidateName.includes('areas.') || candidateName.includes('parties.') || candidateName.includes('names.')) {
+    // Clean up malformed keys and return just the candidate name
+    let cleanName = candidateName
+      .replace(/areas\./g, '')
+      .replace(/parties\./g, '')
+      .replace(/names\./g, '')
+      .trim();
+    
+    // Try to translate the cleaned name
+    const translatedName = t(`names.${cleanName}`);
+    return (translatedName && translatedName !== `names.${cleanName}`) ? translatedName : cleanName;
   }
   
   // Try to get translation, but if it returns the key itself, use original name
@@ -143,11 +165,29 @@ export const translateCandidateBio = (bio, candidateName, t) => {
   return bio;
 };
 
+/**
+ * Clean malformed translation keys from text
+ * @param {string} text - Text that might contain malformed keys
+ * @returns {string} - Cleaned text
+ */
+export const cleanMalformedKeys = (text) => {
+  if (!text || typeof text !== 'string') return text;
+  
+  return text
+    .replace(/areas\./g, '')
+    .replace(/parties\./g, '')
+    .replace(/names\./g, '')
+    .replace(/districts\./g, '')
+    .replace(/candidateText\./g, '')
+    .trim();
+};
+
 export default {
   translateDistrict,
   translateParty,
   translateName,
   translateCandidateText,
   translateElectoralArea,
-  translateCandidateBio
+  translateCandidateBio,
+  cleanMalformedKeys
 };
