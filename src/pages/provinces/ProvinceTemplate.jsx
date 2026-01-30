@@ -124,7 +124,8 @@ export default function ProvinceTemplate({
       setConfirmOpen(false);
       setPendingPartyId(null);
     } catch (e) {
-      setError(e?.message || 'Failed to submit vote');
+      console.error('Vote submission error:', e);
+      setError(e?.message || e?.toString() || 'Failed to submit vote');
       setConfirmOpen(false);
     } finally {
       setSubmitting(false);

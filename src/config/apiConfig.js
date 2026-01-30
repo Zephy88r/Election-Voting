@@ -10,7 +10,7 @@
 
 export const API_CONFIG = {
   // Set to true to use API, false to use localStorage
-  USE_API: true, // Re-enable API mode
+  USE_API: true, // Enable API mode for backend storage
 
   // Backend API base URL
   API_BASE_URL: 'http://127.0.0.1:8000',

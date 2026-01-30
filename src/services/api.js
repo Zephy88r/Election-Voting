@@ -273,6 +273,21 @@ export const votingAPI = {
     });
     
     formData.append('user_email', email);
+    // Add electoral area based on user's province
+    if (user.province) {
+      const provinceToElectoralArea = {
+        'Province 1': 1,
+        'Province 2': 2, 
+        'Bagmati Province': 3,
+        'Gandaki Province': 4,
+        'Lumbini Province': 5,
+        'Karnali Province': 6,
+        'Sudurpashchim Province': 7
+      };
+      const electoralAreaId = provinceToElectoralArea[user.province] || 1;
+      formData.append('electoral_area_id', electoralAreaId);
+      console.log('Added electoral_area_id:', electoralAreaId);
+    }
     console.log('Added user_email to FormData:', email);
     
     // Log all FormData entries
