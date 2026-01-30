@@ -10,12 +10,12 @@
  */
 export const validateEmail = (email) => {
   if (!email || !email.trim()) {
-    return { valid: false, error: 'Email is required' };
+    return { valid: false, error: 'इमेल आवश्यक छ' };
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email.trim())) {
-    return { valid: false, error: 'Please enter a valid email address' };
+    return { valid: false, error: 'कृपया मान्य इमेल ठेगाना प्रविष्ट गर्नुहोस्' };
   }
 
   return { valid: true, error: null };
@@ -29,7 +29,7 @@ export const validateEmail = (email) => {
  */
 export const validatePhone = (phone) => {
   if (!phone || !phone.trim()) {
-    return { valid: false, error: 'Phone number is required' };
+    return { valid: false, error: 'फोन नम्बर आवश्यक छ' };
   }
 
   const cleaned = phone.trim().replace(/\s+/g, '');
@@ -64,7 +64,7 @@ export const validatePhone = (phone) => {
  */
 export const validatePassword = (password) => {
   if (!password || !password.trim()) {
-    return { valid: false, error: 'Password is required', strength: 'weak' };
+    return { valid: false, error: 'पासवर्ड आवश्यक छ', strength: 'weak' };
   }
 
   if (password.length < 6) {
@@ -106,7 +106,7 @@ export const validatePassword = (password) => {
  */
 export const validateCitizenshipNumber = (citizenshipNumber) => {
   if (!citizenshipNumber || !citizenshipNumber.trim()) {
-    return { valid: false, error: 'Citizenship number is required' };
+    return { valid: false, error: 'नागरिकता नम्बर आवश्यक छ' };
   }
 
   const cleaned = citizenshipNumber.trim().replace(/[^0-9-]/g, '');
@@ -130,7 +130,7 @@ export const validateCitizenshipNumber = (citizenshipNumber) => {
  */
 export const validateVoterId = (voterId) => {
   if (!voterId || !voterId.trim()) {
-    return { valid: false, error: 'Voter ID is required' };
+    return { valid: false, error: 'मतदाता परिचयपत्र आवश्यक छ' };
   }
 
   if (voterId.trim().length < 3) {
@@ -147,7 +147,7 @@ export const validateVoterId = (voterId) => {
  */
 export const validateName = (name) => {
   if (!name || !name.trim()) {
-    return { valid: false, error: 'Name is required' };
+    return { valid: false, error: 'नाम आवश्यक छ' };
   }
 
   if (name.trim().length < 2) {
@@ -187,7 +187,7 @@ export const validateAddress = (address) => {
  */
 export const validatePasswordMatch = (password, confirmPassword) => {
   if (!confirmPassword || !confirmPassword.trim()) {
-    return { valid: false, error: 'Please confirm your password' };
+    return { valid: false, error: 'कृपया आफ्नो पासवर्ड पुष्टि गर्नुहोस्' };
   }
 
   if (password !== confirmPassword) {

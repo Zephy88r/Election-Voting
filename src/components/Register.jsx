@@ -326,7 +326,8 @@ function Register() {
         navigate('/login');
       }, 500);
     } catch (err) {
-      setError(getErrorMessage(err, 'register'));
+      const errorMsg = getErrorMessage(err, 'register');
+      setError(errorMsg);
     } finally {
       setIsLoading(false);
     }

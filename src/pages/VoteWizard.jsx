@@ -474,10 +474,10 @@ const VoteWizard = () => {
                   <h2>{t('voting.voteConfirmed', 'You have voted for:')}</h2>
                   <div className="vote-summary">
                     <div style={{marginBottom: '12px', fontSize: '18px', padding: '8px', backgroundColor: 'var(--color-success-light)', borderRadius: '4px'}}>
-                      <strong>{t('candidate', 'उम्मेदवार')}: {finalVoteData.candidate ? translateName(finalVoteData.candidate.name, t) : t('voting.notVoted', 'Not voted')} {finalVoteData.candidate?.party ? `(${translateElectoralArea(finalVoteData.candidate.party, t)})` : ''}</strong>
+                      <strong>{t('candidate', 'उम्मेदवार')}: {finalVoteData.candidate ? translateName(finalVoteData.candidate.name, t) : t('voting.notVoted', 'मतदान गरिएको छैन')} {finalVoteData.candidate?.party ? `(${translateParty(finalVoteData.candidate.party, t)})` : ''}</strong>
                     </div>
                     <div style={{marginBottom: '12px', fontSize: '18px', padding: '8px', backgroundColor: 'var(--color-success-light)', borderRadius: '4px'}}>
-                      <strong>{t('party', 'दल')}: {finalVoteData.party ? translateParty(finalVoteData.party.name, t) : t('voting.notVoted', 'Not voted')}</strong>
+                      <strong>{t('party', 'दल')}: {finalVoteData.party ? translateParty(finalVoteData.party.name, t) : t('voting.notVoted', 'मतदान गरिएको छैन')}</strong>
                     </div>
                   </div>
                   <div className="step-actions">
