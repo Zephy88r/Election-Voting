@@ -10,6 +10,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { votingService } from '../../services/votingService';
 import { translateParty } from '../../utils/translationUtils';
+import VoteConfirmAnimation from '../../components/VoteConfirmAnimation';
 import './ProvincePage.css';
 
 function normalizeProvinceName(user) {
@@ -39,6 +40,7 @@ export default function ProvinceTemplate({
   // Confirm vote modal
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingPartyId, setPendingPartyId] = useState(null);
+  const [showVoteAnimation, setShowVoteAnimation] = useState(false);
 
   const userProvinceName = normalizeProvinceName(user);
   const hasAccess = userProvinceName === requiredProvinceName;
@@ -103,6 +105,8 @@ export default function ProvinceTemplate({
       setSubmitting(true);
       setError('');
       setSuccess('');
+      setConfirmOpen(false);
+      setShowVoteAnimation(true);
 
       const party = parties.find((p) => p.id === partyId);
       if (!party) throw new Error('Party not found');
@@ -122,10 +126,15 @@ export default function ProvinceTemplate({
       // });
 
       setConfirmOpen(false);
+      setTimeout(() => {
+        setShowVoteAnimation(false);
+      }, 3000);
+
       setPendingPartyId(null);
     } catch (e) {
       console.error('Vote submission error:', e);
       setError(e?.message || e?.toString() || 'Failed to submit vote');
+      setShowVoteAnimation(false);
       setConfirmOpen(false);
     } finally {
       setSubmitting(false);
@@ -193,6 +202,8 @@ export default function ProvinceTemplate({
           </div>
         </div>
       )}
+
+      <VoteConfirmAnimation open={showVoteAnimation} />
 
       <div className="provinceShell">
         <div className="provinceWrap">

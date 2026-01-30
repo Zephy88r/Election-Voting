@@ -23,10 +23,6 @@ const API_BASE_URL = API_CONFIG.API_BASE_URL || import.meta.env.VITE_API_BASE_UR
 const apiRequest = async (endpoint, options = {}) => {
   const url = `${API_BASE_URL}${endpoint}`;
   
-  console.log('=== API REQUEST DEBUG ===');
-  console.log('URL:', url);
-  console.log('Options:', options);
-  
   // Check if body is FormData
   const isFormData = options.body instanceof FormData;
   
@@ -67,12 +63,7 @@ const apiRequest = async (endpoint, options = {}) => {
       }
     }
     
-    console.log('Final config:', finalConfig);
-
     const response = await fetch(url, finalConfig);
-    
-    console.log('Response status:', response.status);
-    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
     
     // Handle non-JSON responses
     const contentType = response.headers.get("content-type");
@@ -83,7 +74,6 @@ const apiRequest = async (endpoint, options = {}) => {
     }
 
     const data = await response.json();
-    console.log('Response data:', data);
 
     // Handle error responses
     if (!response.ok) {
@@ -243,24 +233,16 @@ export const votingAPI = {
    * @returns {Promise<object>} - Vote confirmation
    */
   submitVote: async (voteData) => {
-    console.log('=== VOTE SUBMISSION DEBUG ===');
-    console.log('Vote data received:', voteData);
-    
-    // Get user email for authentication
+    // Get user email from query parameter as fallback
     const authState = JSON.parse(localStorage.getItem('authState') || '{}');
-    console.log('Auth state from localStorage:', authState);
-    
     const user = authState.user;
-    console.log('User object:', user);
+    const userEmail = user && (user.email || user.username);
     
     if (!user || (!user.email && !user.username)) {
-      console.error('No user email found in auth state');
-      console.error('Auth state structure:', JSON.stringify(authState, null, 2));
       throw new Error('User not authenticated - please login again');
     }
     
     const email = user.email || user.username;
-    console.log('Using user email:', email);
     
     // Backend expects FormData or form-encoded POST at /elections/vote/submit/
     // Convert to FormData to match backend expectations
@@ -326,7 +308,6 @@ export const votingAPI = {
     const userEmail = user && (user.email || user.username);
     
     const queryParam = userEmail ? `?user_email=${encodeURIComponent(userEmail)}` : '';
-    console.log('Getting voting history for user:', userEmail);
     
     return apiRequest(`/elections/api/voting-history${queryParam}`, {
       method: "GET",

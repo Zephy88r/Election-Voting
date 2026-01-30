@@ -372,6 +372,7 @@ const translations = {
     districtBallot: 'जिल्ला मतपत्र',
     selectDistrict: 'आफ्नो जिल्ला छान्नुहोस्',
     selectDistrictFirst: 'पहिले जिल्ला चयन गर्नुहोस्',
+    selectProvinceFirst: 'पहिले प्रदेश चयन गर्नुहोस्',
     selectElectoralArea: 'निर्वाचन क्षेत्र छान्नुहोस्',
     fptpVote: 'प्रत्यक्ष मत',
     district: 'जिल्ला',

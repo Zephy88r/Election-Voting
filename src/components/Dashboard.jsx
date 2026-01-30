@@ -28,10 +28,6 @@ function Dashboard() {
    * Get user's province name from registration (e.g. 'Province 1')
    */
   const userProvinceName = user?.province?.name;
-  
-  // Debug: Log user data
-  console.log('Dashboard user data:', user);
-  console.log('User province name:', userProvinceName);
 
   /**
    * Check if a province is accessible to the user

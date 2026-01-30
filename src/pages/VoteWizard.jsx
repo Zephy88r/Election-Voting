@@ -12,6 +12,7 @@ import Button from '../components/common/Button';
 import CandidateCard from '../components/CandidateCard';
 import VotingCard from '../components/VotingCard';
 import { PROVINCE_REVERSE_MAPPING } from '../constants/provinces';
+import VoteConfirmAnimation from '../components/VoteConfirmAnimation';
 import ConfirmModal from '../components/common/ConfirmModal';
 import './VoteWizard.css';
 
@@ -50,18 +51,13 @@ const VoteWizard = () => {
   const [history, setHistory] = useState([]);
   const [showVoteConfirmation, setShowVoteConfirmation] = useState(false);
   const [finalVoteData, setFinalVoteData] = useState({ candidate: null, party: null });
+  const [showVoteAnimation, setShowVoteAnimation] = useState(false);
 
   const userProvinceName = user?.province?.name;
   const requiredProvinceName = PROVINCE_REVERSE_MAPPING[provinceId];
   const hasAccess = userProvinceName === requiredProvinceName;
 
   // Debug logging for province access
-  console.log('Province access check:', {
-    provinceId,
-    userProvinceName,
-    requiredProvinceName,
-    hasAccess
-  });
 
   useEffect(() => {
     const init = async () => {
@@ -76,14 +72,12 @@ const VoteWizard = () => {
         // First, check voting status immediately to show completion screen if user has voted
         const history = await votingService.getVotingHistory();
         setHistory(history);
-        console.log('Voting history:', history);
         
         const fptpVote = history.find(vote => vote.vote_type === 'FPTP');
         const prVote = history.find(vote => vote.vote_type === 'PR');
         
         // If user has already voted, set completion state immediately
         if (fptpVote || prVote) {
-          console.log('User has already voted, showing completion screen');
           setCurrentStep(3);
           setShowVoteConfirmation(true);
           setFptpVoted(!!fptpVote);
@@ -182,7 +176,6 @@ const VoteWizard = () => {
             party: votedParty
           });
         } else {
-          console.log('No votes found, setting step to 1');
           setCurrentStep(1);
         }
 
@@ -238,6 +231,8 @@ const VoteWizard = () => {
         setSubmitting(true);
         setError('');
         setSuccess('');
+        setConfirmModal({ open: false, type: null, id: null });
+        setShowVoteAnimation(true);
 
         // Submit votes to backend
         if (localCandidateSelection && localCandidateSelection !== 'none') {
@@ -249,10 +244,10 @@ const VoteWizard = () => {
 
         // Show confirmation message
         setShowVoteConfirmation(true);
-        setConfirmModal({ open: false, type: null, id: null });
         setSuccess('Your votes have been successfully recorded!');
         
         setTimeout(() => {
+          setShowVoteAnimation(false);
           setSuccess('');
         }, 3000);
 
@@ -260,6 +255,7 @@ const VoteWizard = () => {
         console.error('Final vote confirmation error:', err);
         setError('Failed to confirm votes. Please try again.');
         setShowVoteConfirmation(false);
+        setShowVoteAnimation(false);
       } finally {
         setSubmitting(false);
       }
@@ -368,6 +364,8 @@ const VoteWizard = () => {
     <>
       <Navbar />
       
+      <VoteConfirmAnimation open={showVoteAnimation} />
+      
       <ConfirmModal
         isOpen={confirmModal.open}
         onClose={cancelVote}
@@ -383,15 +381,15 @@ const VoteWizard = () => {
           <div className="vote-wizard__header">
             <h1>{requiredProvinceName} {t('voting.votingTitle', 'Voting')}</h1>
             <div className="vote-wizard__steps">
-              <div className={`step ${currentStep >= 1 ? 'active' : ''} ${fptpVoted ? 'completed' : ''}`}>
+              <div className={`step ${currentStep >= 1 ? 'active' : ''} ${fptpVoted || localCandidateSelection ? 'completed' : ''}`}>
                 <span className="step-number">1</span>
                 <span className="step-label">{t('voting.candidateVote', 'Candidate Vote (FPTP)')}</span>
               </div>
-              <div className={`step ${currentStep >= 2 ? 'active' : ''} ${prVoted ? 'completed' : ''}`}>
+              <div className={`step ${currentStep >= 2 ? 'active' : ''} ${prVoted || localPartySelection ? 'completed' : ''}`}>
                 <span className="step-number">2</span>
                 <span className="step-label">{t('voting.partyVote', 'Party Vote (PR)')}</span>
               </div>
-              <div className={`step ${currentStep >= 3 ? 'active' : ''}`}>
+              <div className={`step ${currentStep >= 3 ? 'active' : ''} ${showVoteConfirmation ? 'completed' : ''}`}>
                 <span className="step-number">✓</span>
                 <span className="step-label">{t('voting.complete', 'Complete')}</span>
               </div>
