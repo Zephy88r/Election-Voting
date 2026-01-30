@@ -284,10 +284,12 @@ const translations = {
       'Rastriya Prajatantra Party': 'Rastriya Prajatantra Party', 'Janata Samajbadi Party': 'Janata Samajbadi Party',
       'CPN-UML': 'CPN-UML', 'CPN-Maoist Centre': 'CPN-Maoist Centre', 'Rastriya Swatantra Party': 'Rastriya Swatantra Party',
       'Nepal Workers Peasants Party': 'Nepal Workers Peasants Party', 'Loktantrik Samajbadi Party': 'Loktantrik Samajbadi Party',
+      'Loktantrik Samajbadi Dal': 'Loktantrik Samajbadi Dal', "CK Raut's Loktantrik Samajbadi Dal": "CK Raut's Loktantrik Samajbadi Dal",
+      "Madhav Nepal's Party": "Madhav Nepal's Party",
       'Independent': 'Independent', 'Janata Dal': 'Janata Dal', 'Communist Party of Nepal': 'Communist Party of Nepal',
       'Unified Socialist': 'Unified Socialist', 'Nepal Majdoor Kisan Party': 'Nepal Majdoor Kisan Party',
       'CPN UML': 'CPN UML', 'CPN-Maoist': 'CPN-Maoist', 'Rastra Swatantra Party (RSP)': 'Rastra Swatantra Party (RSP)',
-      'CPN UML (Maoist)': 'CPN UML (Maoist)', 'Socialist Party': 'Socialist Party', 'Unified Socialist': 'Unified Socialist'
+      'CPN UML (Maoist)': 'CPN UML (Maoist)', 'Socialist Party': 'Socialist Party', 'Unified Socialist': 'Unified Socialist', 'No Party': 'No Party'
     },
 
     // Names
@@ -302,7 +304,7 @@ const translations = {
       'Prakash Gurung': 'Prakash Gurung', 'Sita Adhikari': 'Sita Adhikari', 'Nabin Thapa': 'Nabin Thapa',
       'Dhan Bahadur Rai': 'Dhan Bahadur Rai', 'Sushila Shrestha': 'Sushila Shrestha', 'Kiran Karki': 'Kiran Karki',
       'Prakash Limbu': 'Prakash Limbu', 'Rojina Rai': 'Rojina Rai', 'Hari Prasad Acharya': 'Hari Prasad Acharya',
-      'Umesh Rai': 'Umesh Rai', 'Sabina Limbu': 'Sabina Limbu', 'Ramesh Sharma': 'Ramesh Sharma'
+      'Umesh Rai': 'Umesh Rai', 'Sabina Limbu': 'Sabina Limbu', 'Ramesh Sharma': 'Ramesh Sharma', 'None of the Above': 'None of the Above'
     },
 
     // Candidate Text
@@ -314,6 +316,7 @@ const translations = {
       'Vote for': 'Vote for', 'to represent your constituency': 'to represent your constituency',
       'You voted for this candidate': 'You voted for this candidate', 'Voting completed': 'Voting completed',
       'Vote for this Candidate': 'Vote for this Candidate', 'Select Candidate': 'Select Candidate',
+      'You chose none': 'None of the above', 'Vote for none': 'Vote for none of the above',
       'from': 'from', 'Political Party': 'Political Party', 'to support their vision for Nepal\'s future': 'to support their vision for Nepal\'s future',
       'You voted for this party': 'You voted for this party', 'Vote for this Party': 'Vote for this Party', 'Vote Submitted': 'Vote Submitted'
     },
@@ -608,10 +611,12 @@ const translations = {
       'Rastriya Prajatantra Party': 'राष्ट्रिय प्रजातन्त्र पार्टी', 'Janata Samajbadi Party': 'जनता समाजवादी पार्टी',
       'CPN-UML': 'नेकपा एमाले', 'CPN-Maoist Centre': 'नेकपा माओवादी केन्द्र', 'Rastriya Swatantra Party': 'राष्ट्रिय स्वतन्त्र पार्टी',
       'Nepal Workers Peasants Party': 'नेपाल मजदुर किसान पार्टी', 'Loktantrik Samajbadi Party': 'लोकतान्त्रिक समाजवादी पार्टी',
+      'Loktantrik Samajbadi Dal': 'लोकतान्त्रिक समाजवादी दल', "CK Raut's Loktantrik Samajbadi Dal": 'सीके राउतको लोकतान्त्रिक समाजवादी दल',
+      "Madhav Nepal's Party": 'माधव नेपालको पार्टी',
       'Independent': 'स्वतन्त्र', 'Janata Dal': 'जनता दल', 'Communist Party of Nepal': 'नेपाल कम्युनिष्ट पार्टी',
       'Unified Socialist': 'एकीकृत समाजवादी', 'Nepal Majdoor Kisan Party': 'नेपाल मजदुर किसान पार्टी',
       'CPN UML': 'नेकपा एमाले', 'CPN-Maoist': 'नेकपा माओवादी', 'Rastra Swatantra Party (RSP)': 'राष्ट्र स्वतन्त्र पार्टी (आरएसपी)',
-      'CPN UML (Maoist)': 'नेकपा एमाले (माओवादी)', 'Socialist Party': 'समाजवादी पार्टी', 'Unified Socialist': 'एकीकृत समाजवादी'
+      'CPN UML (Maoist)': 'नेकपा एमाले (माओवादी)', 'Socialist Party': 'समाजवादी पार्टी', 'Unified Socialist': 'एकीकृत समाजवादी', 'No Party': 'कुनै पनि दल छैन'
     },
 
     // Names
@@ -626,7 +631,7 @@ const translations = {
       'Prakash Gurung': 'प्रकाश गुरुङ', 'Sita Adhikari': 'सीता अधिकारी', 'Nabin Thapa': 'नबिन थापा',
       'Dhan Bahadur Rai': 'धन बहादुर राई', 'Sushila Shrestha': 'सुशिला श्रेष्ठ', 'Kiran Karki': 'किरण कार्की',
       'Prakash Limbu': 'प्रकाश लिम्बु', 'Rojina Rai': 'रोजिना राई', 'Hari Prasad Acharya': 'हरि प्रसाद आचार्य',
-      'Umesh Rai': 'उमेश राई', 'Sabina Limbu': 'सबिना लिम्बु', 'Ramesh Sharma': 'रमेश शर्मा'
+      'Umesh Rai': 'उमेश राई', 'Sabina Limbu': 'सबिना लिम्बु', 'Ramesh Sharma': 'रमेश शर्मा', 'None of the Above': 'उपर्युक्तमध्ये कुनै पनि होइन'
     },
 
     // Candidate Text
@@ -638,6 +643,7 @@ const translations = {
       'Vote for': 'मतदान गर्नुहोस्', 'to represent your constituency': 'तपाईंको निर्वाचन क्षेत्रको प्रतिनिधित्व गर्न',
       'You voted for this candidate': 'तपाईंले यस उम्मेदवारलाई मत दिनुभयो', 'Voting completed': 'मतदान सम्पन्न',
       'Vote for this Candidate': 'यस उम्मेदवारलाई मत दिनुहोस्', 'Select Candidate': 'उम्मेदवार चयन गर्नुहोस्',
+      'You chose none': 'कुनै पनि होइन', 'Vote for none': 'कुनै पनि होइन रोज्नुहोस्',
       'from': 'बाट', 'Political Party': 'राजनीतिक दल', 'to support their vision for Nepal\'s future': 'नेपालको भविष्यका लागि उनीहरूको दृष्टिकोणलाई समर्थन गर्न',
       'You voted for this party': 'तपाईंले यस दललाई मत दिनुभयो', 'Vote for this Party': 'यस दललाई मत दिनुहोस्', 'Vote Submitted': 'मत पेश गरियो'
     },

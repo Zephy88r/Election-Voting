@@ -45,8 +45,13 @@ const VotingCard = ({ candidate, hasVoted, onVote, isSubmitting, votedPartyId })
       'Rastra Swatantra Party (RSP)': '🔔',
       'CPN UML (Moist)': '☭'
     };
-    return symbols[partyName] || '🏛️';
+    return symbols[partyName] || '';
   };
+  const normalizeSymbol = (symbol) => {
+    if (typeof symbol !== 'string') return symbol;
+    return /[A-Za-z]/.test(symbol) ? '' : symbol;
+  };
+  const partySymbol = normalizeSymbol(candidate.symbol) || getPartySymbol(cleanCandidate.name);
 
   return (
     <Card
@@ -54,7 +59,9 @@ const VotingCard = ({ candidate, hasVoted, onVote, isSubmitting, votedPartyId })
       variant="elevated"
     >
       <div className="voting-card__header">
-        <div className="voting-card__symbol">{getPartySymbol(cleanCandidate.name)}</div>
+        {partySymbol ? (
+          <div className="voting-card__symbol">{partySymbol}</div>
+        ) : null}
         <div className="voting-card__info">
           <h3 className="voting-card__name">{translateParty(cleanCandidate.name, t)}</h3>
           <p className="voting-card__party">{translateCandidateText('Political Party', t)}</p>

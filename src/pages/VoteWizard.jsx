@@ -112,7 +112,10 @@ const VoteWizard = () => {
         }));
 
         setCandidates(processedCandidates);
-        setParties(partiesData || []);
+        const filteredParties = (partiesData || []).filter(
+          (party) => party?.name !== 'Test Party'
+        );
+        setParties(filteredParties);
 
         // Add "None of the Above" option to candidates (only if user hasn't voted)
         if (!fptpVote && !prVote) {
@@ -160,10 +163,10 @@ const VoteWizard = () => {
             const partyName = typeof prVote.party === 'object' ? prVote.party.name : prVote.party;
             
             if (partyId) {
-              votedParty = (partiesData || []).find(p => p.id === partyId);
+              votedParty = filteredParties.find(p => p.id === partyId);
             }
             if (!votedParty && partyName) {
-              votedParty = (partiesData || []).find(p => 
+              votedParty = filteredParties.find(p => 
                 p.name === partyName || p.name?.toLowerCase() === partyName?.toLowerCase()
               );
             }

@@ -58,7 +58,10 @@ export default function ProvinceTemplate({
         
         // Fetch parties from backend
         const partiesData = await votingService.getParties();
-        setParties(partiesData || []);
+        const filteredParties = (partiesData || []).filter(
+          (party) => party?.name !== 'Test Party'
+        );
+        setParties(filteredParties);
         
         // Check voting status
         const status = await votingService.hasVotedInProvince(provinceId, userKey);
@@ -266,7 +269,8 @@ export default function ProvinceTemplate({
                       'SP': '🌾',
                       'RSP': '🔔'
                     };
-                    return symbolMap[symbol] || symbol || '🏛️';
+                    const rawSymbol = symbolMap[symbol] || symbol || '';
+                    return /[A-Za-z]/.test(rawSymbol) ? '' : rawSymbol;
                   };
 
                   // Generate party tagline based on name

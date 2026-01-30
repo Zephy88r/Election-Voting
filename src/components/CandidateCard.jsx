@@ -63,7 +63,11 @@ const CandidateCard = ({
           {isVotedCandidate ? (
             <div className="candidate-card__status candidate-card__status--voted">
               <span className="candidate-card__status-icon">✓</span>
-              <span>{translateCandidateText('You voted for this candidate', t)}</span>
+              <span>
+                {candidate.id === 'none'
+                  ? translateCandidateText('You chose none', t)
+                  : translateCandidateText('You voted for this candidate', t)}
+              </span>
             </div>
           ) : hasVoted ? (
             <div className="candidate-card__status candidate-card__status--disabled">
@@ -81,7 +85,9 @@ const CandidateCard = ({
               loading={isSubmitting && isSelected}
               className="candidate-card__button"
             >
-              {isSelected ? translateCandidateText('Vote for this Candidate', t) : translateCandidateText('Vote for this Candidate', t)}
+              {candidate.id === 'none'
+                ? translateCandidateText('Vote for none', t)
+                : translateCandidateText('Vote for this Candidate', t)}
             </Button>
           )}
         </div>
