@@ -289,7 +289,7 @@ function Profile() {
                     className="profile-input"
                   />
                 ) : (
-                  <span className="detail-value">{user.name || 'N/A'}</span>
+                  <span className="detail-value">{user.first_name || user.name || 'N/A'}</span>
                 )}
               </div>
 
