@@ -176,7 +176,6 @@ class VoteAdmin(admin.ModelAdmin):
         "voter",
         "vote_type",
         "candidate_or_party",
-        "party",
         "province",
         "district",
         "electoral_area",
@@ -203,103 +202,20 @@ class VoteAdmin(admin.ModelAdmin):
             return obj.party.name if obj.party else "-"
     candidate_or_party.short_description = "Vote For"
 
-    # Optional: Add vote summary dashboard in changelist
-    change_list_template = "admin/vote_change_list.html"
-
-    def changelist_view(self, request, extra_context=None):
-        # Skip vote aggregation to avoid field errors
-        extra_context = extra_context or {}
-        
-        # Admin summary vote count
-        response = super().changelist_view(request, extra_context)
-
-        try:
-            qs = response.context_data["cl"].queryset
-            summary = qs.values("vote_type").annotate(
-                total=Count("id")
-            )
-            response.context_data["summary"] = summary
-        except Exception:
-            pass
-
-        return response
-    
-    #Hides Voter Identity
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.select_related(
             "province",
             "district",
             "electoral_area",
-    )
+        )
+    
     ordering = ("-created_at",)
 
- #Admin Dashboard monitoring read only
-class VoteAdmin(admin.ModelAdmin):
-    """
-    Admin dashboard for monitoring votes
-    """
 
-    list_display = (
-        "id",
-        "vote_type",
-        "province",
-        "district",
-        "electoral_area",
-        "created_at",
-    )
-
-    list_filter = (
-        "vote_type",
-        "province",
-        "district",
-        "electoral_area",
-    )
-
-
-    readonly_fields = (
-        "voter",
-        "vote_type",
-        "candidate",
-        "party",
-        "province",
-        "district",
-        "electoral_area",
-        "created_at",
-    )
-
-    fieldsets = (
-        ("Vote Info", {
-            "fields": (
-                "vote_type",
-                "candidate",
-                "party",
-            )
-        }),
-        ("Location", {
-            "fields": (
-                "province",
-                "district",
-                "electoral_area",
-            )
-        }),
-        ("Meta", {
-            "fields": (
-                "voter",
-                "created_at",
-            )
-        }),
-    )
-
-    def has_add_permission(self, request):
-        # Votes must NEVER be added from admin
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        # Votes must NEVER be edited
-        return False
-    
-#Admin Dashboard Monitoring
+# -----------------------------
+# FPTP Result Admin
+# -----------------------------
 @admin.register(FPTPResult)
 class FPTPResultAdmin(admin.ModelAdmin):
     list_display = ("electoral_area", "winner", "total_votes")

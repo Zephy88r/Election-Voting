@@ -1,7 +1,7 @@
 from django.db import transaction
 from django.core.exceptions import ValidationError
 
-from elections.models import FPTPVote, PRVote, Candidate, Party, ElectionControl
+from elections.models import FPTPVote, PRVote, Vote, Candidate, Party, ElectionControl
 
 
 def is_voting_open():
@@ -14,13 +14,10 @@ def ensure_user_has_not_voted_fptp(user):
     if FPTPVote.objects.filter(voter=user).exists():
         raise ValidationError("You have already voted for a candidate (FPTP).")
 
-
 def ensure_user_has_not_voted_pr(user):
     """Check if user already voted for PR"""
     if PRVote.objects.filter(voter=user).exists():
         raise ValidationError("You have already voted for a party (PR).")
-
-
 def validate_candidate_strict(user, candidate_id):
     """
     HARD rule:
@@ -54,13 +51,26 @@ def submit_candidate_vote(user, candidate_id):
 
     candidate = validate_candidate_strict(user, candidate_id)
 
-    return FPTPVote.objects.create(
+    # Create FPTP vote record
+    fptp_vote = FPTPVote.objects.create(
         voter=user,
         candidate=candidate,
         province=user.province,
         district=user.district,
         electoral_area=user.electoral_area,
     )
+    
+    # Also create legacy Vote record for admin display
+    Vote.objects.create(
+        voter=user,
+        vote_type="FPTP",
+        candidate=candidate,
+        province=user.province,
+        district=user.district,
+        electoral_area=user.electoral_area,
+    )
+    
+    return fptp_vote
 
 
 @transaction.atomic
@@ -78,10 +88,23 @@ def submit_party_vote(user, party_id):
     except Party.DoesNotExist:
         raise ValidationError("Invalid party.")
 
-    return PRVote.objects.create(
+    # Create PR vote record
+    pr_vote = PRVote.objects.create(
         voter=user,
         party=party,
         province=user.province,
         district=user.district,
         electoral_area=user.electoral_area,
     )
+    
+    # Also create legacy Vote record for admin display
+    Vote.objects.create(
+        voter=user,
+        vote_type="PR",
+        party=party,
+        province=user.province,
+        district=user.district,
+        electoral_area=user.electoral_area,
+    )
+    
+    return pr_vote
